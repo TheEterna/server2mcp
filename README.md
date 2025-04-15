@@ -1,69 +1,27 @@
 # Server2MCP Spring Boot Starter
 
-This is a Spring Boot Starter used for integrating MCP (Model Control Protocol) services.
+[English](README.md)
 
-## ✨  function characteristics
+## 这绝对是一个革命性的想法!!!
 
-* Automatic configuration of MCP service, similar to the relationship between mybatis plus and mybatis, non-invasive, purely enhanced
-* Supports all native functions of MCP in JavaSdk, providing tool registration and callback mechanisms, etc
-* Support custom tool parsing
-* Users can customize the Parser without relying on chain of responsibility implementation to complete attribute parsing for unique interface annotations
+这是一个用于自动化集成 MCP (Model Control Protocol) 服务的 Spring Boot Starter。
 
-## Unfinished points
+# ✨功能特性
 
-There are still many parsing extension points of Springai that have not been integrated. For example, currently only Javadoc version annotations have been completed, but the parsing architecture uses responsibility chains and templates, which are extremely easy to extend. In the future, various mainstream methods will be integrated to describe annotation parsing
+* 自动配置 MCP 服务，类似mybatis-plus于mybatis的关系，无侵入，纯增强
+* 支持一切mcp的javaSdk原生功能，提供工具注册和回调机制等等
+* 支持自定义工具解析
+* 用户可自定义Parser，而无关责任链实现，完成独特接口注解的属性解析
 
-##  🎯  Quick start
+# 👀未完善点
 
-Since it has not been pushed to the central repository yet, you can download the source code, perform an mvn clean install, and then make dependency references
+    仍有许多springai的解析扩展点未接入，比如目前只完成了javadoc版的注释，但解析架构使用责任链加模板，极易扩展，后续将集成各种主流方法描述注解的解析
 
-### Add Dependency
+# 🎯快速开始
 
-<dependency>
-<groupId>com.ai.plug</groupId>
-<artifactId>server2mcp-spring-boot-starter</artifactId>
-<version>0.0.1-SNAPSHOT</version>
-</dependency>
+   因为还没有推到中心仓库，可以把源码下载下来之后，进行 mvn clean install 后进行依赖引用
 
-Then add the configuration in the configuration file:
-
-plugin.mcp.enabled=true
-    
-# If it is yml, then it is
-plugin:
-mcp:
-enabled: true
-
-The above is the basic configuration for starting the project, which includes all native configurations such as spring.ai.mcp.server-side, etc. By default, it will register all controllers under your startup class path as MCP interfaces. If there is a @ Depreciated annotation on the interface method or class, it will not be registered.
-
-### Principle
-
-It can be understood as opening up interfaces to AI, so these interfaces are the same as regular interfaces, except that they can be called through AI. Relevant knowledge documents: [Model Context Protocol (MCP) :: Spring AI Reference ]( https://docs.spring.io/spring-ai/reference/api/mcp/mcp-overview.html ）And [Introduction - Model Context Protocol]（ https://modelcontextprotocol.io/introduction )
-
-### Best practices
-=======
-[简体中文](README_zh.md)
-
-## This is definitely a revolutionary idea!!!
-
-This is a Spring Boot Starter used for automated integration of MCP (Model Control Protocol) services.
-
-# ✨function characteristics
-
--Automatic configuration of MCP service, similar to the relationship between mybatis plus and mybatis, non-invasive, purely enhanced
--Supports all native functions of MCP in JavaSdk, providing tool registration and callback mechanisms, etc
--Support custom tool parsing
--Users can customize the Parser without relying on chain of responsibility implementation to complete attribute parsing for unique interface annotations
-
-# 👀Unfinished points
-
-There are still many parsing extension points of Springai that have not been integrated. For example, currently only Javadoc version annotations have been completed, but the parsing architecture uses responsibility chains and templates, which are extremely easy to extend. In the future, various mainstream methods will be integrated to describe annotation parsing
-
-# 🎯Quick start
-
-Since it has not been pushed to the central repository yet, you can download the source code, perform an mvn clean install, and then make dependency references
-
-## Add Dependency
+## 添加依赖
 
     <dependency>
         <groupId>com.ai.plug</groupId>
@@ -71,44 +29,35 @@ Since it has not been pushed to the central repository yet, you can download the
         <version>0.0.1-SNAPSHOT</version>
     </dependency>
 
-Then add the configuration in the configuration file:
+然后在配置文件中添加配置：
 
-```
-plugin.mcp.enabled=true
+    plugin.mcp.enabled=true
+    
+    # 如果是yml，则为
+    plugin:
+      mcp:
+        enabled: true
 
-#If it is yml, then it is
-plugin:
-mcp:
-enabled: true
-```
+    以上就是该项目启动的最基本配置，它包含了所有的原生配置如spring.ai.mcp.server.name等等，它默认会将你的所有启动类路径下的所有controller注册为mcp接口，如果接口方法或类上有@Deprecated注解将不会注册。
 
-The above is the basic configuration for starting the project, which includes all native configurations such as spring.ai.mcp.server-side, etc. By default, it will register all controllers under your startup class path as MCP interfaces. If there is a @ Depreciated annotation on the interface method or class, it will not be registered.
+# 📚原理
 
-# 📚principle
+    可以理解为把接口开放给ai，所以这些接口和普通接口一样，只是可以通过ai调用，相关知识文档：[Model Context Protocol (MCP) :: Spring AI Reference ](https://docs.spring.io/spring-ai/reference/api/mcp/mcp-overview.html) 和 [Introduction - Model Context Protocol](https://modelcontextprotocol.io/introduction)
 
-It can be understood as opening up interfaces to AI, so these interfaces are the same as regular interfaces, except that they can be called through AI. Relevant knowledge documents:[Model Context Protocol (MCP) :: Spring AI Reference ](https://docs.spring.io/spring-ai/reference/api/mcp/mcp-overview.html) ,  [Introduction - Model Context Protocol](https://docs.spring.io/spring-ai/reference/api/mcp/mcp-overview.html）And [Introduction - Model Context Protocol]（https://modelcontextprotocol.io/introduction)
+# 💕最佳实践
 
-# 💕Best practices
->>>>>>> Stashed changes
+    拥有了该框架，你不必再去从0-1重新建造一个mcp服务应用，也不必高耦合的复制代码添加@Tool注解，或者在源代码上添加mcp功能，你只需要根据一个配置类添加自定义的@ToolScan注解，就可以轻松的完成mcp接口的注册，如果遇到mcp的SDK 改版怎么办，这不用担心，核心内容由我维护，且使用方式不变
 
-With this framework, you no longer need to rebuild an MCP service application from scratch, nor do you need to add @ Tool annotations to highly coupled copied code, or add MCP functionality to source code. You only need to add custom @ ToolScan annotations based on a configuration class to easily complete the registration of MCP interfaces. What should you do if you encounter MCP SDK revisions? Don't worry, the core content is maintained by me, and the usage method remains unchanged
+    1. 你可以轻松的去构建一个多智能体应用，只需要多个你自定义的ai对话接口，然后只需要在客户端进行相应的mcp接口调用即可轻松完成。
 
-1. You can easily build a multi-agent application by using multiple AI dialogue interfaces that you have customized, and then simply calling the corresponding MCP interface on the client side.
+    2. 可以为你的管理系统，快速接入ai对话调用，高自定义性，你无需关注任何ai领域细节，只需要关注你最擅长的领域web及前端，就可以完成炫酷的效果，这样一比，DB-GPT这样的应用是不是显得高度笨重且难以扩展
 
-2. It can quickly access AI dialogue calls for your management system, with high customization. You don't need to pay attention to any details in the AI field, just focus on your favorite areas of web and front-end, and you can achieve cool effects. Compared to this, applications like DB-GPT may seem bulky and difficult to expand
+    3. 可以配合cursor这种简易的mcp客户端，轻松的完成接口调试
 
-3. It can be used in conjunction with simple MCP clients like cursor to easily complete interface debugging
+# 🔔总结
 
-<<<<<<< Updated upstream
-## Summary
+    这个框架实际上非常简单，可能代码有很多漏洞与不足，还请见谅。
 
-This framework is actually very simple, and there may be many vulnerabilities and shortcomings in the code. Please forgive me.
-=======
-# 🔔summarize
+# 📄 版权声明/开源协议
 
-This framework is actually very simple, and there may be many vulnerabilities and shortcomings in the code. Please forgive me.
-
-# 📄 Copyright Statement/Open Source Agreement
-
-According to the Apache 2.0 license（https://www.apache.org/licenses/LICENSE-2.0.html）Published code
->>>>>>> Stashed changes
+    根据 [Apache 2.0 许可证](https://www.apache.org/licenses/LICENSE-2.0.html)发布的代码
