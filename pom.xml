@@ -99,7 +99,7 @@
         <!-- MCP 服务端协议 -->
         <dependency>
             <groupId>org.springframework.ai</groupId>
-            <artifactId>spring-ai-starter-mcp-server</artifactId>
+            <artifactId>spring-ai-starter-mcp-server-webmvc</artifactId>
         </dependency>
         
         <!-- javadoc库 -->
