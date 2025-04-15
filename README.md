@@ -2,7 +2,7 @@
 
 [简体中文](README_zh.md)
 
-## This is definitely a revolutionary idea!!!
+## This is definitely a revolutionary idea!!!
 
 This is a Spring Boot Starter used for automated integration of MCP (Model Control Protocol) services.
 
