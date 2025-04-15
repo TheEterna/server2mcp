@@ -9,6 +9,10 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.MethodDeclaration;
+import com.github.javaparser.ast.comments.Comment;
+import com.github.javaparser.ast.comments.JavadocComment;
+import com.github.javaparser.javadoc.Javadoc;
+import com.github.javaparser.javadoc.JavadocBlockTag;
 import com.github.victools.jsonschema.generator.Module;
 import com.github.victools.jsonschema.generator.*;
 import com.github.victools.jsonschema.module.jackson.JacksonModule;
@@ -186,6 +190,8 @@ public class AIUtils {
 
 
         Parameter parameter = method.getParameters()[index];
+        String parameterName = parameter.getName();
+
         // toolParam 有数据当然用ToolParam里的
         ToolParam toolParamAnnotation = (ToolParam)parameter.getAnnotation(ToolParam.class);
         if (toolParamAnnotation != null && StringUtils.hasText(toolParamAnnotation.description())) {
@@ -202,13 +208,6 @@ public class AIUtils {
         }
 
 
-        // 用@RequestParam
-//        RequestParam requestParamAnnotation = (RequestParam)parameter.getAnnotation(RequestParam.class);
-//        if (requestParamAnnotation != null && StringUtils.hasText(requestParamAnnotation.value())) {
-//            return ParsingUtils.reConcatenateCamelCase(requestParamAnnotation.value(), " ");
-//        }
-        // 获取类的全限定名
-
 
         String className = method.getDeclaringClass().getName().replace('.', '/') + ".java";
         File file = new File("src/main/java/"  + className);
@@ -218,9 +217,12 @@ public class AIUtils {
             // 遍历所有方法声明
             for (MethodDeclaration methodDeclaration : compilationUnit.findAll(MethodDeclaration.class)) {
                 if (methodDeclaration.getNameAsString().equals(method.getName())
-                        && methodDeclaration.getParameters().size() == method.getParameterCount()) {
+                        && methodDeclaration.getParameters().size() == method.getParameterCount()
+                        && methodDeclaration.hasJavaDocComment()
+                ) {
                     // 检查参数类型是否匹配
                     boolean match = true;
+                    // 对比每个参数
                     for (int i = 0; i < methodDeclaration.getParameters().size(); i++) {
                         String paramType = methodDeclaration.getParameters().get(i).getType().toString();
                         String actualParamType = method.getParameterTypes()[i].getSimpleName();
@@ -229,9 +231,27 @@ public class AIUtils {
                             break;
                         }
                     }
-                    if (match) {
-                        // 获取方法体
-                        return "暂不了解该参数意义, 我将返回其方法,供你了解" +  methodDeclaration.getBody().map(Object::toString).orElse("");
+                    // 如果不匹配， 就continue
+                    if (!match) continue;
+
+                    // 到这里了，说明找到了匹配方法，并有注释
+                    Javadoc javadoc = methodDeclaration.getJavadoc().get();
+                    // 带 tag的信息 例如@param
+                    List<JavadocBlockTag> blockTags = javadoc.getBlockTags();
+                    for (JavadocBlockTag item : blockTags) {
+                        if (item.getName().equals(parameterName) && JavadocBlockTag.Type.PARAM == item.getType()) {
+                            return item.getContent().getElements().get(0).toText();
+                        }
+                    }
+
+                    return "暂不了解该参数意义, 我将返回其javadoc和方法体,供你了解 javadoc：" + methodDeclaration.getJavadoc() + "方法体：" + methodDeclaration.getBody().map(Object::toString).orElse("");
+                }
+
+                else {
+                    if (methodDeclaration.getComment().isPresent()) {
+                        return "暂不了解该参数意义, 我将返回其方法体和注释,供你了解 方法体：" +  methodDeclaration.getBody().map(Object::toString).orElse("") + "注释：" + methodDeclaration.getComment().get();
+                    } else {
+                        return "暂不了解该参数意义, 我将返回其方法体,供你了解" +  methodDeclaration.getBody().map(Object::toString).orElse("");
                     }
                 }
             }
