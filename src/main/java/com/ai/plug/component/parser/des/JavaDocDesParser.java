@@ -45,12 +45,12 @@ public class JavaDocDesParser extends AbstractDesParser {
             }
 
             // 获取方法的 Javadoc 注释
-            if (itemMethod.getComment().isPresent() && itemMethod.getComment().get() instanceof JavadocComment) {
+            if (itemMethod.getComment().isPresent()) {
                 return itemMethod.getComment().get().getContent();
             }
 
         }
-        // 没找到或者没有javadoc
+        // 没找到或者没有注释
         return "";
     }
 }
