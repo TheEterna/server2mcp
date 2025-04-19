@@ -9,8 +9,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.MethodDeclaration;
-import com.github.javaparser.ast.comments.Comment;
-import com.github.javaparser.ast.comments.JavadocComment;
 import com.github.javaparser.javadoc.Javadoc;
 import com.github.javaparser.javadoc.JavadocBlockTag;
 import com.github.victools.jsonschema.generator.Module;
@@ -18,7 +16,12 @@ import com.github.victools.jsonschema.generator.*;
 import com.github.victools.jsonschema.module.jackson.JacksonModule;
 import com.github.victools.jsonschema.module.jackson.JacksonOption;
 import com.github.victools.jsonschema.module.swagger2.Swagger2Module;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiParam;
+import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.model.ToolContext;
 import org.springframework.ai.tool.annotation.Tool;
@@ -40,6 +43,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;
@@ -73,14 +77,15 @@ public class AIUtils {
 
     public static String getToolName(Method method) {
 
+        String className = method.getDeclaringClass().getSimpleName();
 
         // 把本来的操作作为备选
         Assert.notNull(method, "方法不能为空");
         Tool tool = (Tool)method.getAnnotation(Tool.class);
         if (tool == null) {
-            return method.getName();
+            return className + "." + method.getName();
         } else {
-            return StringUtils.hasText(tool.name()) ? tool.name() : method.getName();
+            return className + "." + (StringUtils.hasText(tool.name()) ? tool.name() : method.getName()) ;
         }
     }
 
@@ -102,7 +107,7 @@ public class AIUtils {
         }
         // 把本来的操作作为备选
         Assert.notNull(toolMethod, "方法不能为空");
-        Tool tool = (Tool)toolMethod.getAnnotation(Tool.class);
+        Tool tool = toolMethod.getAnnotation(Tool.class);
         if (tool == null) {
             return ParsingUtils.reConcatenateCamelCase(toolMethod.getName(), " ");
         } else {
@@ -117,8 +122,6 @@ public class AIUtils {
 
     public static String getInputSchema(Method toolMethod) {
 
-
-
         // 把本来的操作作为备选
         return generateForMethodInput(toolMethod, new JsonSchemaGenerator.SchemaOption[0]);
     }
@@ -126,24 +129,80 @@ public class AIUtils {
 
     private static boolean isMethodParameterRequired(Method method, int index) {
         Parameter parameter = method.getParameters()[index];
-        ToolParam toolParamAnnotation = (ToolParam)parameter.getAnnotation(ToolParam.class);
+        ToolParam toolParamAnnotation = parameter.getAnnotation(ToolParam.class);
         if (toolParamAnnotation != null) {
             return toolParamAnnotation.required();
         }
-
-
-        JsonProperty propertyAnnotation = (JsonProperty)parameter.getAnnotation(JsonProperty.class);
+        // 这个是 映射的逻辑，它是首位，如果这个参数json都决定不映射，那就不映射
+        JsonProperty propertyAnnotation = parameter.getAnnotation(JsonProperty.class);
         if (propertyAnnotation != null) {
             return propertyAnnotation.required();
         }
 
-        Schema schemaAnnotation = (Schema)parameter.getAnnotation(Schema.class);
-        if (schemaAnnotation == null) {
-            Nullable nullableAnnotation = (Nullable)parameter.getAnnotation(Nullable.class);
-            return nullableAnnotation == null;
-        } else {
-            return schemaAnnotation.requiredMode() == Schema.RequiredMode.REQUIRED || schemaAnnotation.requiredMode() == Schema.RequiredMode.AUTO || schemaAnnotation.required();
+
+
+
+        // 先看 swagger3 注解
+        io.swagger.v3.oas.annotations.Parameter parameterAnnotation = parameter.getAnnotation(io.swagger.v3.oas.annotations.Parameter.class);
+        if (parameterAnnotation != null) {
+            return parameterAnnotation.required();
         }
+        // 由于swagger还有方法配置模式，还需要看方法里的Parameters注解和分离的Parameter注解(超过两个会转化成Parameters注解)，代码从上到下，优先级递减
+        io.swagger.v3.oas.annotations.Parameter methodParameterAnnotation = method.getAnnotation(io.swagger.v3.oas.annotations.Parameter.class);
+        if (methodParameterAnnotation != null && methodParameterAnnotation.name().equals(parameter.getName())) {
+            return methodParameterAnnotation.required();
+        }
+        Parameters methodParametersAnnotation = method.getAnnotation(Parameters.class);
+        if (methodParametersAnnotation != null) {
+            for (io.swagger.v3.oas.annotations.Parameter itemParameter : methodParametersAnnotation.value()) {
+                // 如果在parameters里有 这个属性就返回
+                if (itemParameter.name().equals(parameter.getName())) {
+                    return itemParameter.required();
+                }
+            }
+        }
+
+        // swagger2 注解
+        ApiParam apiParamAnnotation = parameter.getAnnotation(ApiParam.class);
+        if (apiParamAnnotation != null) {
+            return apiParamAnnotation.required();
+        }
+        // 由于swagger还有方法配置模式，还需要看方法里的Parameters注解和分离的Parameter注解(超过两个会转化成Parameters注解)，代码从上到下，优先级递减
+        ApiImplicitParam apiImplicitParamAnnotation = method.getAnnotation(ApiImplicitParam.class);
+        if (apiImplicitParamAnnotation != null && apiImplicitParamAnnotation.name().equals(parameter.getName())) {
+            return apiImplicitParamAnnotation.required();
+        }
+        ApiImplicitParams apiImplicitParamsAnnotation = method.getAnnotation(ApiImplicitParams.class);
+        if (apiImplicitParamsAnnotation != null) {
+            for (ApiImplicitParam itemApiImplicitParam : apiImplicitParamsAnnotation.value()) {
+                // 如果在parameters里有 这个属性就返回
+                if (itemApiImplicitParam.name().equals(parameter.getName())) {
+                    return itemApiImplicitParam.required();
+                }
+            }
+        }
+
+        Schema schemaAnnotation = parameter.getAnnotation(Schema.class);
+        if (schemaAnnotation != null) {
+            return schemaAnnotation.requiredMode() == Schema.RequiredMode.REQUIRED
+                    || schemaAnnotation.requiredMode() == Schema.RequiredMode.AUTO
+                    || schemaAnnotation.required();
+
+        }
+
+
+        // 如果有标志可以为空，那就返回不是必需的
+        Nullable nullableAnnotation = parameter.getAnnotation(Nullable.class);
+        if (nullableAnnotation != null) {
+            return false;
+        }
+        // 虽然没啥人在方法参数上写Deprecated 但是多少也有这个意思, 就加上吧
+        Deprecated deprecatedAnnotation = parameter.getAnnotation(Deprecated.class);
+        if (deprecatedAnnotation != null) {
+            return false;
+        }
+
+        return true;
 
 
     }
@@ -189,6 +248,7 @@ public class AIUtils {
     private static String getMethodParameterDescription(Method method, int index) {
 
 
+        // todo 逻辑
         Parameter parameter = method.getParameters()[index];
         String parameterName = parameter.getName();
 

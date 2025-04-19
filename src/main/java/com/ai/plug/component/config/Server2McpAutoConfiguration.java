@@ -3,8 +3,8 @@ package com.ai.plug.component.config;
 import com.ai.plug.common.annotation.ToolScan;
 import com.ai.plug.component.ToolContext;
 import com.ai.plug.component.conditional.Conditions;
-import com.ai.plug.component.executor.strategy.CustomExecutorStrategy;
-import com.ai.plug.component.executor.strategy.ExecutorStrategy;
+import com.ai.plug.component.parser.des.builder.CustomExecutorStrategy;
+import com.ai.plug.component.parser.des.builder.ExecutorStrategy;
 import com.ai.plug.component.parser.des.AbstractDesParser;
 import com.ai.plug.component.register.ToolScanConfigurer;
 import com.ai.plug.component.toolCallbackProvider.CustomToolCallbackProvider;
@@ -16,7 +16,6 @@ import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.boot.autoconfigure.AutoConfigurationPackages;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.*;
@@ -88,7 +87,7 @@ public class Server2McpAutoConfiguration {
                 Server2McpAutoConfiguration.logger.debug("Could not determine auto-configuration package, automatic mapper scanning disabled.");
                 return;
             }
-            Server2McpAutoConfiguration.logger.debug("Searching for tools");
+            Server2McpAutoConfiguration.logger.debug("Searching for tools of interfaces");
 
             BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(ToolScanConfigurer.class);
 

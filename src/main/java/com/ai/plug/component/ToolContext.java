@@ -1,7 +1,7 @@
 package com.ai.plug.component;
 
 import com.ai.plug.common.annotation.ToolScan;
-import com.ai.plug.component.executor.strategy.ExecutorStrategy;
+import com.ai.plug.component.parser.des.builder.ExecutorStrategy;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

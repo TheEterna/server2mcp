@@ -14,9 +14,12 @@ import java.util.Objects;
 /**
  * @author: 韩
  * time: 2025/03/2025/3/27
- * des:
+ * des: sorry, i have a major mistake of the class, because i forget the javaParser can only parse Java file, but the desParser can still be used in IDE enironments
+ *  so, i will take some measures to preserve this desParser for users to choose from
+ * zh-des: 抱歉，在这个类中我有一个重大失误，因为我忘了javaParser只能针对java源文件，但是在jar包启动时没有java文件，会直接导致报错
  */
 @Component("JavaDocParserHandler")
+@Deprecated
 public class JavaDocDesParser extends AbstractDesParser {
 
 
@@ -33,8 +36,7 @@ public class JavaDocDesParser extends AbstractDesParser {
 
 
         String className = handlerType.getName().replace('.', '/') + ".java";
-        File file = new File("src/main/java/"  + className);
-
+        File file = new File("src/main/java/" + className);
         CompilationUnit cu = StaticJavaParser.parse(file);
 
         // 查找类声明

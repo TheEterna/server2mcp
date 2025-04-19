@@ -1,4 +1,4 @@
-package com.ai.plug.component.executor.strategy;
+package com.ai.plug.component.parser.des.builder;
 
 import com.ai.plug.component.config.PluginProperties;
 import com.ai.plug.component.parser.des.AbstractDesParser;

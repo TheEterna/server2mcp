@@ -135,10 +135,11 @@ public class ToolScanConfigurer implements BeanDefinitionRegistryPostProcessor, 
 
     @Override
     public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) {
-        // 在这里实现你需要的逻辑
-        // 例如，你可以修改 Bean 定义、注册新的 Bean 定义等
-        // 以下是一个简单的示例，打印 Bean 工厂中 Bean 的数量
-        System.out.println("Number of beans in the factory: " + beanFactory.getBeanDefinitionCount());
+
+
+
+
+
     }
     private static class DeclaredClassExcludeFilter extends AbstractTypeHierarchyTraversingFilter {
         private final Set<String> classNames = new HashSet<>();

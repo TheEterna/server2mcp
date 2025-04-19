@@ -43,6 +43,7 @@ public class CustomToolCallbackProvider implements ToolCallbackProvider {
 
     protected AbstractDesParser header;
 
+    @Autowired
     public void setHeader(@Qualifier("EmptyParserHandler") AbstractDesParser header) {
         this.header = header;
     }

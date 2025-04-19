@@ -1,9 +1,8 @@
-package com.ai.plug.component.executor.strategy;
+package com.ai.plug.component.parser.des.builder;
 
 import com.ai.plug.component.config.PluginProperties;
 import com.ai.plug.component.parser.des.AbstractDesParser;
 import com.ai.plug.component.parser.des.EmptyDesParser;
-import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -23,9 +22,11 @@ public abstract class ExecutorStrategy {
     @Autowired
     @Qualifier("EmptyParserHandler")
     private AbstractDesParser emptyParserHandler;
+
     @Autowired
     @Qualifier("JavaDocParserHandler")
     private AbstractDesParser javaDocParserHandler;
+
     @Autowired
     @Qualifier("EmptyParserHandler")
     protected AbstractDesParser header;
