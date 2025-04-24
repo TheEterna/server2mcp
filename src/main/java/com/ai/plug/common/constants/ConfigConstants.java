@@ -9,4 +9,8 @@ public class ConfigConstants {
 
     // 变量前缀字段
     public final static String VARIABLE_PREFIX = "plugin.mcp";
+    // 解析器前缀字段
+    public final static String PARSER_PREFIX = "parser";
+
+
 }

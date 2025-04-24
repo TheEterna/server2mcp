@@ -41,12 +41,11 @@ import java.util.stream.Stream;
 public class CustomToolCallbackProvider implements ToolCallbackProvider {
     private final Map<Object, ToolContext.ToolRegisterDefinition> toolAndDefinitions;
 
+    @Autowired
+    @Qualifier("EmptyDesParser")
     protected AbstractDesParser header;
 
-    @Autowired
-    public void setHeader(@Qualifier("EmptyParserHandler") AbstractDesParser header) {
-        this.header = header;
-    }
+
 
     private CustomToolCallbackProvider(Map<Object, ToolContext.ToolRegisterDefinition> toolAndDefinitions) {
         Assert.notNull(toolAndDefinitions, "toolAndDefinitions cannot be null");
@@ -77,7 +76,7 @@ public class CustomToolCallbackProvider implements ToolCallbackProvider {
     public ToolCallback[] getToolCallbacks() {
 
 
-        ToolCallback[] toolCallbacks = (ToolCallback[])this.toolAndDefinitions.entrySet().stream().map((toolAndDefinition) -> {
+        ToolCallback[] toolCallbacks = this.toolAndDefinitions.entrySet().stream().map((toolAndDefinition) -> {
 
             Object toolBean = toolAndDefinition.getKey();
             ToolContext.ToolRegisterDefinition toolDefinition = toolAndDefinition.getValue();

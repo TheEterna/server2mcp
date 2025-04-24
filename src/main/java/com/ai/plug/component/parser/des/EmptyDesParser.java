@@ -1,5 +1,6 @@
 package com.ai.plug.component.parser.des;
 
+import com.ai.plug.component.config.PluginProperties;
 import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Method;
@@ -9,13 +10,13 @@ import java.lang.reflect.Method;
  * time: 2025/03/2025/3/27
  * des:
  */
-@Component("EmptyParserHandler")
+@Component("EmptyDesParser")
 public class EmptyDesParser extends AbstractDesParser {
 
 
 
-    public String getName(){
-        return "empty";
+    public PluginProperties.ParserType getName(){
+        return null;
     }
 
     @Override

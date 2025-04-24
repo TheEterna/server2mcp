@@ -3,8 +3,7 @@ package com.ai.plug.component.config;
 import com.ai.plug.common.annotation.ToolScan;
 import com.ai.plug.component.ToolContext;
 import com.ai.plug.component.conditional.Conditions;
-import com.ai.plug.component.parser.des.builder.CustomExecutorStrategy;
-import com.ai.plug.component.parser.des.builder.ExecutorStrategy;
+import com.ai.plug.component.parser.aggregater.DesParserAggregater;
 import com.ai.plug.component.parser.des.AbstractDesParser;
 import com.ai.plug.component.register.ToolScanConfigurer;
 import com.ai.plug.component.toolCallbackProvider.CustomToolCallbackProvider;
@@ -58,12 +57,12 @@ public class Server2McpAutoConfiguration {
                 .toolObjects(tools).build();
     }
 
-    @Bean(name = "customExecutorStrategy")
-    public ExecutorStrategy customExecutorStrategy(PluginProperties pluginProperties, List<AbstractDesParser> concreteParserHandlers) {
 
-        return new CustomExecutorStrategy(pluginProperties, concreteParserHandlers);
-
+    @Bean("DesParserAggregater")
+    public DesParserAggregater desParserAggregater(List<AbstractDesParser> desParsers) {
+        return new DesParserAggregater(desParsers);
     }
+
 
     @Configuration(proxyBeanMethods = false)
     @Conditional(Conditions.IsInterfaceCondition.class)

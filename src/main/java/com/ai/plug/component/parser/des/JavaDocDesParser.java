@@ -1,15 +1,21 @@
 package com.ai.plug.component.parser.des;
 
+import com.ai.plug.component.config.PluginProperties;
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.comments.JavadocComment;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.lang.reflect.Method;
 import java.util.Objects;
+
+import static com.ai.plug.common.constants.ConfigConstants.PARSER_PREFIX;
+import static com.ai.plug.common.constants.ConfigConstants.VARIABLE_PREFIX;
+import static com.ai.plug.component.config.PluginProperties.ParserType.JAVADOC;
 
 /**
  * @author: 韩
@@ -20,24 +26,30 @@ import java.util.Objects;
  */
 @Component("JavaDocParserHandler")
 @Deprecated
+@ConditionalOnProperty(prefix = VARIABLE_PREFIX, name = PARSER_PREFIX, havingValue = "JAVADOC")
 public class JavaDocDesParser extends AbstractDesParser {
 
 
-
-    public String getName(){
-        return "javadoc";
+    @Override
+    public PluginProperties.ParserType getName(){
+        return JAVADOC;
     }
 
 
 
     @Override
-    public String handleLogic(Method method, Class<?> handlerType) throws FileNotFoundException {
+    public String handleLogic(Method method, Class<?> toolClass) {
 
 
 
-        String className = handlerType.getName().replace('.', '/') + ".java";
+        String className = toolClass.getName().replace('.', '/') + ".java";
         File file = new File("src/main/java/" + className);
-        CompilationUnit cu = StaticJavaParser.parse(file);
+        CompilationUnit cu = null;
+        try {
+            cu = StaticJavaParser.parse(file);
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        }
 
         // 查找类声明
         for (MethodDeclaration itemMethod : cu.findAll(MethodDeclaration.class)) {
