@@ -4,7 +4,6 @@ import com.ai.plug.component.config.PluginProperties;
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.MethodDeclaration;
-import com.github.javaparser.ast.comments.JavadocComment;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
@@ -38,7 +37,7 @@ public class JavaDocDesParser extends AbstractDesParser {
 
 
     @Override
-    public String handleLogic(Method method, Class<?> toolClass) {
+    public String doParse(Method method, Class<?> toolClass) {
 
 
 

@@ -1,7 +1,8 @@
 package com.ai.plug.common.utils;
 
-import ch.qos.logback.core.util.StringUtil;
+import com.ai.plug.component.parser.AbstractParser;
 import com.ai.plug.component.parser.des.AbstractDesParser;
+import com.ai.plug.component.parser.starter.Starter;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyDescription;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -12,25 +13,23 @@ import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.javadoc.Javadoc;
 import com.github.javaparser.javadoc.JavadocBlockTag;
-import com.github.victools.jsonschema.generator.Module;
 import com.github.victools.jsonschema.generator.*;
+import com.github.victools.jsonschema.generator.Module;
 import com.github.victools.jsonschema.module.jackson.JacksonModule;
 import com.github.victools.jsonschema.module.jackson.JacksonOption;
+import com.github.victools.jsonschema.module.swagger15.SwaggerModule;
 import com.github.victools.jsonschema.module.swagger2.Swagger2Module;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiParam;
 import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.model.ToolContext;
 import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.ai.tool.annotation.ToolParam;
 import org.springframework.ai.tool.definition.DefaultToolDefinition;
 import org.springframework.ai.tool.definition.ToolDefinition;
-import org.springframework.ai.util.ParsingUtils;
 import org.springframework.ai.util.json.JsonParser;
 import org.springframework.ai.util.json.schema.JsonSchemaGenerator;
 import org.springframework.ai.util.json.schema.SpringAiSchemaModule;
@@ -45,7 +44,8 @@ import java.io.FileNotFoundException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Stream;
 
 
@@ -58,26 +58,40 @@ import java.util.stream.Stream;
 @Slf4j
 public class AIUtils {
 
-
-
-    private static final boolean PROPERTY_REQUIRED_BY_DEFAULT = true;
-    private static final SchemaGenerator TYPE_SCHEMA_GENERATOR;
     private static final SchemaGenerator SUBTYPE_SCHEMA_GENERATOR;
-    SchemaGeneratorConfig subtypeSchemaGeneratorConfig;
     static {
-        Module jacksonModule = new JacksonModule(JacksonOption.RESPECT_JSONPROPERTY_REQUIRED);
-        Module openApiModule = new Swagger2Module();
         Module springAiSchemaModule = new SpringAiSchemaModule();
+        Module jacksonModule = new JacksonModule(JacksonOption.RESPECT_JSONPROPERTY_REQUIRED);
+        Module swagger3Module = new Swagger2Module();
+        Module swagger2Module = new SwaggerModule();
+
+        // 基本就很少用了，因为一般都是接口作为工具
         SchemaGeneratorConfigBuilder schemaGeneratorConfigBuilder =
                 (new SchemaGeneratorConfigBuilder(SchemaVersion.DRAFT_2020_12, OptionPreset.PLAIN_JSON))
-                        .with(jacksonModule).with(openApiModule).with(springAiSchemaModule)
+                        .with(springAiSchemaModule)
+                        .with(jacksonModule)
+                        .with(swagger2Module)
+                        .with(swagger3Module)
                         .with(Option.EXTRA_OPEN_API_FORMAT_VALUES)
                         .with(Option.PLAIN_DEFINITION_KEYS);
-        SchemaGeneratorConfig typeSchemaGeneratorConfig = schemaGeneratorConfigBuilder.build();
-        TYPE_SCHEMA_GENERATOR = new SchemaGenerator(typeSchemaGeneratorConfig);
 
         SchemaGeneratorConfig subtypeSchemaGeneratorConfig = schemaGeneratorConfigBuilder.without(Option.SCHEMA_VERSION_INDICATOR).build();
         SUBTYPE_SCHEMA_GENERATOR = new SchemaGenerator(subtypeSchemaGeneratorConfig);
+    }
+
+    /**
+     * 构造Tool定义数据对象
+     * @param toolMethod
+     * @param desParserList
+     * @return
+     */
+    public static ToolDefinition buildToolDefinition(Method toolMethod, List<AbstractDesParser> desParserList, Starter starter) {
+
+
+        return DefaultToolDefinition.builder().name(AIUtils.getToolName(toolMethod))
+                .description(AIUtils.getToolDescription(toolMethod, desParserList, starter))
+                .inputSchema(AIUtils.getInputSchema(toolMethod)).build();
+
     }
 
     public static String getToolName(Method method) {
@@ -94,39 +108,26 @@ public class AIUtils {
         }
     }
 
-    public static String getToolDescription(Method toolMethod, AbstractDesParser parserHandler) {
+    public static String getToolDescription(Method toolMethod, List<AbstractDesParser> desParserList, Starter starter) {
 
-        String reConcatenateCamelCase = ParsingUtils.reConcatenateCamelCase(toolMethod.getName(), " ");
         // 把本来的操作作为第一优先级
         Assert.notNull(toolMethod, "方法不能为空");
-        Tool tool = toolMethod.getAnnotation(Tool.class);
-        if (tool != null && StringUtils.hasText(tool.description())) {
-            return tool.description();
-        }
 
-        while (parserHandler != null) {
-            String itemParserResult = parserHandler.handleParse(toolMethod, toolMethod.getDeclaringClass());
-            if (StringUtils.hasText(itemParserResult)) {
-                return itemParserResult;
-            }
-            parserHandler = parserHandler.getNextParserHandler();
-        }
 
-        // 如果到这里都没返回, 证明没有注解表示过该工具方法了, 那么就触发工具类的注解扫描
-        // todo 需要再建一套Parser
 
-        return reConcatenateCamelCase;
+        return starter.runDesParse(desParserList, toolMethod, toolMethod.getDeclaringClass());
+
     }
 
 
 
-    public static String getInputSchema(Method toolMethod) {
 
-        // 把本来的操作作为备选
-        return generateForMethodInput(toolMethod);
-    }
-
-
+    /**
+     * 检查一个参数 是否必须，默认必须
+     * @param method
+     * @param index
+     * @return
+     */
     private static boolean isMethodParameterRequired(Method method, int index) {
         Parameter parameter = method.getParameters()[index];
         Class<?> parameterType = parameter.getType();
@@ -215,7 +216,7 @@ public class AIUtils {
     }
 
 
-    public static String generateForMethodInput(Method method, JsonSchemaGenerator.SchemaOption... schemaOptions) {
+    public static String getInputSchema(Method method, JsonSchemaGenerator.SchemaOption... schemaOptions) {
         ObjectNode schema = JsonParser.getObjectMapper().createObjectNode();
         schema.put("$schema", SchemaVersion.DRAFT_2020_12.getIdentifier());
         schema.put("type", "object");
@@ -235,6 +236,7 @@ public class AIUtils {
                 required.add(parameterName);
             }
 
+            // 构造参数对象 节点
             ObjectNode parameterNode = SUBTYPE_SCHEMA_GENERATOR.generateSchema(parameterType);
 
 
@@ -247,7 +249,9 @@ public class AIUtils {
         }
 
         ArrayNode requiredArray = schema.putArray("required");
-        Objects.requireNonNull(requiredArray);
+//        Objects.requireNonNull(requiredArray);
+
+
         required.forEach(requiredArray::add);
         processSchemaOptions(schemaOptions, schema);
         return schema.toPrettyString();
@@ -335,26 +339,9 @@ public class AIUtils {
     }
 
 
-    /**
-     *  构造Tool定义数据对象
-     * @param toolMethod
-     * @param parserHandler
-     * @return
-     */
-    public static ToolDefinition buildToolDefinition(Method toolMethod, AbstractDesParser parserHandler) {
-
-
-        return DefaultToolDefinition.builder().name(AIUtils.getToolName(toolMethod))
-                .description(AIUtils.getToolDescription(toolMethod, parserHandler))
-                .inputSchema(AIUtils.getInputSchema(toolMethod)).build();
-
-    }
 
 
 
-    /**
-     * 提取参数数据 所需要函数
-     * */
     private static void processSchemaOptions(JsonSchemaGenerator.SchemaOption[] schemaOptions, ObjectNode schema) {
         if (Stream.of(schemaOptions).noneMatch((option) -> {
             return option == JsonSchemaGenerator.SchemaOption.ALLOW_ADDITIONAL_PROPERTIES_BY_DEFAULT;

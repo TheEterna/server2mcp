@@ -2,7 +2,6 @@ package com.ai.plug.component.parser;
 
 import com.ai.plug.component.config.PluginProperties;
 
-import java.io.FileNotFoundException;
 import java.lang.reflect.Method;
 
 /**
@@ -10,9 +9,13 @@ import java.lang.reflect.Method;
  * time: 2025/4/23 11:05
  */
 
-public interface Parser {
+public abstract class AbstractParser {
 
-    String handleLogic(Method method, Class<?> handlerType) ;
 
-    PluginProperties.ParserType getName();
+    public abstract String doParse(Method method, Class<?> toolClass) ;
+
+    protected abstract PluginProperties.ParserType getName();
+
+
+
 }

@@ -4,11 +4,11 @@ import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
-import java.util.Arrays;
 import java.util.List;
 
 import static com.ai.plug.common.constants.ConfigConstants.VARIABLE_PREFIX;
-import static com.ai.plug.component.config.PluginProperties.ParserType.*;
+import static com.ai.plug.component.config.PluginProperties.ParserType.SWAGGER2;
+import static com.ai.plug.component.config.PluginProperties.ParserType.SWAGGER3;
 import static com.ai.plug.component.config.PluginProperties.ScopeType.INTERFACE;
 
 
@@ -34,7 +34,7 @@ public class PluginProperties {
 
     }
     public enum ParserType {
-        JAVADOC, SWAGGER2, SWAGGER3;
+        JAVADOC, SWAGGER2, SWAGGER3
     }
 
 

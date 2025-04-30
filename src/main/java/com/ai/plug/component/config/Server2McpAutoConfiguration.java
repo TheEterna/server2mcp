@@ -3,8 +3,6 @@ package com.ai.plug.component.config;
 import com.ai.plug.common.annotation.ToolScan;
 import com.ai.plug.component.ToolContext;
 import com.ai.plug.component.conditional.Conditions;
-import com.ai.plug.component.parser.aggregater.DesParserAggregater;
-import com.ai.plug.component.parser.des.AbstractDesParser;
 import com.ai.plug.component.register.ToolScanConfigurer;
 import com.ai.plug.component.toolCallbackProvider.CustomToolCallbackProvider;
 import org.slf4j.Logger;
@@ -24,7 +22,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -40,28 +37,22 @@ public class Server2McpAutoConfiguration {
     public static final Logger logger = LoggerFactory.getLogger(Server2McpAutoConfiguration.class);
 
 
-    @Bean("CustomToolCallbackProvider")
+    @Bean
     @ConditionalOnProperty(prefix = VARIABLE_PREFIX, name = ".enabled", havingValue = "true")
     @Primary
     // 如果扫描区域为接口
     public ToolCallbackProvider customToolCallbackProvider(ApplicationContext applicationContext, PluginProperties properties){
-
         Map<Object, ToolContext.ToolRegisterDefinition> tools = ToolContext.getRawTools().entrySet().stream().collect(Collectors.toMap(
                 entry -> applicationContext.getBean(entry.getKey()),
                 Map.Entry::getValue
         ));
-
         // 需要在这里添加被@ToolScan注解scan到的bean
-
         return CustomToolCallbackProvider.builder()
-                .toolObjects(tools).build();
+                .toolObjects(tools)
+                .build();
     }
 
 
-    @Bean("DesParserAggregater")
-    public DesParserAggregater desParserAggregater(List<AbstractDesParser> desParsers) {
-        return new DesParserAggregater(desParsers);
-    }
 
 
     @Configuration(proxyBeanMethods = false)

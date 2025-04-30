@@ -1,15 +1,11 @@
 package com.ai.plug.component;
 
 import com.ai.plug.common.annotation.ToolScan;
-import com.ai.plug.component.parser.aggregater.DesParserAggregater;
-import com.ai.plug.component.parser.des.AbstractDesParser;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -37,13 +33,6 @@ public class ToolContext {
     }
 
 
-
-    @Autowired
-    public ToolContext(DesParserAggregater desParserAggregater) {
-
-        desParserAggregater.chainDesParsers();
-
-    }
 
 
     public static class ToolRegisterDefinition {

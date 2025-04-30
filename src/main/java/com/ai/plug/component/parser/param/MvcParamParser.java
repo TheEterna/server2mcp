@@ -6,10 +6,10 @@ import java.lang.reflect.Method;
 
 /**
  * @ author 韩
- * time: 2025/4/30 2:56
+ * time: 2025/4/30 2:55
  */
 
-public class Swagger2ParamParser extends AbstractParamAbstractParser {
+public class MvcParamParser extends AbstractParamAbstractParser {
     @Override
     public String doParse(Method method, Class<?> toolClass) {
         return null;

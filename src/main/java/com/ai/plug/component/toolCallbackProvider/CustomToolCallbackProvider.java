@@ -3,7 +3,9 @@ package com.ai.plug.component.toolCallbackProvider;
 import com.ai.plug.common.annotation.ToolScan;
 import com.ai.plug.common.utils.AIUtils;
 import com.ai.plug.component.ToolContext;
+import com.ai.plug.component.parser.AbstractParser;
 import com.ai.plug.component.parser.des.AbstractDesParser;
+import com.ai.plug.component.parser.starter.Starter;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.tool.ToolCallback;
@@ -13,7 +15,6 @@ import org.springframework.ai.tool.method.MethodToolCallback;
 import org.springframework.ai.tool.util.ToolUtils;
 import org.springframework.aop.support.AopUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
@@ -42,9 +43,10 @@ public class CustomToolCallbackProvider implements ToolCallbackProvider {
     private final Map<Object, ToolContext.ToolRegisterDefinition> toolAndDefinitions;
 
     @Autowired
-    @Qualifier("EmptyDesParser")
-    protected AbstractDesParser header;
+    private List<AbstractDesParser> desParserList;
 
+    @Autowired
+    private Starter starter;
 
 
     private CustomToolCallbackProvider(Map<Object, ToolContext.ToolRegisterDefinition> toolAndDefinitions) {
@@ -126,7 +128,7 @@ public class CustomToolCallbackProvider implements ToolCallbackProvider {
 
                 return MethodToolCallback.builder()
                         // 这个ToolDefinition需要重写
-                        .toolDefinition(AIUtils.buildToolDefinition(toolMethod, header))
+                        .toolDefinition(AIUtils.buildToolDefinition(toolMethod, desParserList, starter))
                         .toolMetadata(ToolMetadata.from(toolMethod))
                         .toolMethod(toolMethod)
                         .toolObject(toolBean)

@@ -82,7 +82,12 @@
             <artifactId>spring-boot-autoconfigure-processor</artifactId>
             <optional>true</optional>
         </dependency>
-        
+        <dependency>
+            <groupId>com.github.victools</groupId>
+            <artifactId>jsonschema-module-swagger-1.5</artifactId>
+            <version>4.37.0</version>
+        </dependency>
+
         <!-- 配置处理器 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -117,17 +122,13 @@
             <version>3.25.5</version>
         </dependency>
 
-        <!-- <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-actuator</artifactId>
-            <optional>true</optional>
-        </dependency> -->
-        
+
         <!-- 测试依赖 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
+            <optional>true</optional>
         </dependency>
     </dependencies>
     
