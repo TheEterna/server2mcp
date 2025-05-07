@@ -37,7 +37,7 @@ public class JavaDocDesParser extends AbstractDesParser {
 
 
     @Override
-    public String doParse(Method method, Class<?> toolClass) {
+    public String doDesParse(Method method, Class<?> toolClass) {
 
 
 

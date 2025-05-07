@@ -2,6 +2,7 @@ package com.ai.plug.common.utils;
 
 import com.ai.plug.component.parser.AbstractParser;
 import com.ai.plug.component.parser.des.AbstractDesParser;
+import com.ai.plug.component.parser.param.AbstractParamParser;
 import com.ai.plug.component.parser.starter.Starter;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyDescription;
@@ -58,6 +59,8 @@ import java.util.stream.Stream;
 @Slf4j
 public class AIUtils {
 
+    private static Starter starter;
+
     private static final SchemaGenerator SUBTYPE_SCHEMA_GENERATOR;
     static {
         Module springAiSchemaModule = new SpringAiSchemaModule();
@@ -85,12 +88,12 @@ public class AIUtils {
      * @param desParserList
      * @return
      */
-    public static ToolDefinition buildToolDefinition(Method toolMethod, List<AbstractDesParser> desParserList, Starter starter) {
-
-
+    public static ToolDefinition buildToolDefinition(Method toolMethod, List<AbstractDesParser> desParserList, List<AbstractParamParser> paramParserList, Starter starter) {
+        Assert.notNull(toolMethod, "方法不能为空");
+        AIUtils.starter = starter;
         return DefaultToolDefinition.builder().name(AIUtils.getToolName(toolMethod))
-                .description(AIUtils.getToolDescription(toolMethod, desParserList, starter))
-                .inputSchema(AIUtils.getInputSchema(toolMethod)).build();
+                .description(AIUtils.getToolDescription(toolMethod, desParserList))
+                .inputSchema(AIUtils.getInputSchema(paramParserList, toolMethod)).build();
 
     }
 
@@ -108,19 +111,10 @@ public class AIUtils {
         }
     }
 
-    public static String getToolDescription(Method toolMethod, List<AbstractDesParser> desParserList, Starter starter) {
-
-        // 把本来的操作作为第一优先级
-        Assert.notNull(toolMethod, "方法不能为空");
-
-
+    public static String getToolDescription(Method toolMethod, List<AbstractDesParser> desParserList) {
 
         return starter.runDesParse(desParserList, toolMethod, toolMethod.getDeclaringClass());
-
     }
-
-
-
 
     /**
      * 检查一个参数 是否必须，默认必须
@@ -128,95 +122,13 @@ public class AIUtils {
      * @param index
      * @return
      */
-    private static boolean isMethodParameterRequired(Method method, int index) {
-        Parameter parameter = method.getParameters()[index];
-        Class<?> parameterType = parameter.getType();
-        ToolParam toolParamAnnotation = parameter.getAnnotation(ToolParam.class);
-        if (toolParamAnnotation != null) {
-            return toolParamAnnotation.required();
-        }
-        {
-            // 这个是 映射的逻辑，它是首位，如果这个参数json都决定不映射，那就不映射
-            JsonProperty propertyAnnotation = parameter.getAnnotation(JsonProperty.class);
-            if (propertyAnnotation != null) {
-                return propertyAnnotation.required();
-            }
-        }
-        // 先看 swagger3 注解
-        {
-            io.swagger.v3.oas.annotations.Parameter parameterAnnotation = parameter.getAnnotation(io.swagger.v3.oas.annotations.Parameter.class);
-            if (parameterAnnotation != null) {
-                return parameterAnnotation.required();
-            }
-            // 由于swagger还有方法配置模式，还需要看方法里的Parameters注解和分离的Parameter注解(超过两个会转化成Parameters注解)，代码从上到下，优先级递减
-            io.swagger.v3.oas.annotations.Parameter methodParameterAnnotation = method.getAnnotation(io.swagger.v3.oas.annotations.Parameter.class);
-            if (methodParameterAnnotation != null && methodParameterAnnotation.name().equals(parameter.getName())) {
-                return methodParameterAnnotation.required();
-            }
-            Parameters methodParametersAnnotation = method.getAnnotation(Parameters.class);
-            if (methodParametersAnnotation != null) {
-                for (io.swagger.v3.oas.annotations.Parameter itemParameter : methodParametersAnnotation.value()) {
-                    // 如果在parameters里有 这个属性就返回
-                    if (itemParameter.name().equals(parameter.getName())) {
-                        return itemParameter.required();
-                    }
-                }
-            }
+    private static boolean isMethodParameterRequired(List<AbstractParamParser> parserList, Method method, int index) {
 
-            Schema schemaAnnotation = parameter.getAnnotation(Schema.class);
-            if (schemaAnnotation != null) {
-                return schemaAnnotation.requiredMode() == Schema.RequiredMode.REQUIRED
-                        || schemaAnnotation.requiredMode() == Schema.RequiredMode.AUTO
-                        || schemaAnnotation.required();
-
-            }
-        }
-
-        // swagger2 注解
-        {
-            ApiParam apiParamAnnotation = parameter.getAnnotation(ApiParam.class);
-            if (apiParamAnnotation != null) {
-                return apiParamAnnotation.required();
-            }
-            // 由于swagger还有方法配置模式，还需要看方法里的Parameters注解和分离的Parameter注解(超过两个会转化成Parameters注解)，代码从上到下，优先级递减
-            ApiImplicitParam apiImplicitParamAnnotation = method.getAnnotation(ApiImplicitParam.class);
-            if (apiImplicitParamAnnotation != null && apiImplicitParamAnnotation.name().equals(parameter.getName())) {
-
-                return apiImplicitParamAnnotation.required();
-            }
-            // 需要增加处理对象逻辑
-            if (parameter.getAnnotation(RequestBody.class) != null) {
-                // 标志着这是一个list, map, dto
-                if (parameterType.isInstance(List.class)) {
-
-                }
-            }
-
-            ApiImplicitParams apiImplicitParamsAnnotation = method.getAnnotation(ApiImplicitParams.class);
-            if (apiImplicitParamsAnnotation != null) {
-                for (ApiImplicitParam itemApiImplicitParam : apiImplicitParamsAnnotation.value()) {
-                    // 如果在parameters里有 这个属性就返回
-                    if (itemApiImplicitParam.name().equals(parameter.getName())) {
-                        return itemApiImplicitParam.required();
-                    }
-                }
-            }
-
-
-
-
-        }
-
-
-        // 如果有标志可以为空，那就返回不是必需的
-        {
-            Nullable nullableAnnotation = parameter.getAnnotation(Nullable.class);
-            return nullableAnnotation == null;
-        }
+        return starter.runParamRequiredParse(parserList, method, method.getDeclaringClass(), index);
     }
 
 
-    public static String getInputSchema(Method method, JsonSchemaGenerator.SchemaOption... schemaOptions) {
+    public static String getInputSchema(List<AbstractParamParser> paramParserList, Method method, JsonSchemaGenerator.SchemaOption... schemaOptions) {
         ObjectNode schema = JsonParser.getObjectMapper().createObjectNode();
         schema.put("$schema", SchemaVersion.DRAFT_2020_12.getIdentifier());
         schema.put("type", "object");
@@ -232,7 +144,12 @@ public class AIUtils {
                 }
             }
 
-            if (isMethodParameterRequired(method, i)) {
+            // 这个应该是取交集 什么意思 举个例子 比如swagger3注解 解析出来 id和name都是不必须的 但是mvc解析出来都是必须的
+            // 每一个参数都是一个链 mvc优先级大于 id 所以 两个都是必须的
+            // 如果是所有参数都是一个链 会出现问题 导致控制的不够精细，如果我的参数列表就有一个参数配置了mvc的注解 其他的没有配置
+            // 这种情况要不要传递给下一个处理对象呢？ 如果放任 现在配置了mvc注解的参数就会出现巨大问题 如果不管 那其他的参数就会出现问题
+            // 理论上可以解决，比如把未处理的参数传递下去，但没有必要徒增工作量
+            if (isMethodParameterRequired(paramParserList , method, i)) {
                 required.add(parameterName);
             }
 
@@ -385,8 +302,6 @@ public class AIUtils {
         }
 
     }
-
-
 
 
 

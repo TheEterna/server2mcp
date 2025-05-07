@@ -25,7 +25,7 @@ public class Swagger3DesParser extends AbstractDesParser {
     }
 
     @Override
-    public String doParse(Method method, Class<?> toolClass) {
+    public String doDesParse(Method method, Class<?> toolClass) {
         StringBuilder result = new StringBuilder();
 
         Operation operationAnnotation = method.getAnnotation(Operation.class);

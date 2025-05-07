@@ -26,7 +26,7 @@ public class Swagger2DesParser extends AbstractDesParser {
     }
 
     @Override
-    public String doParse(Method method, Class<?> toolClass) {
+    public String doDesParse(Method method, Class<?> toolClass) {
 
         StringBuilder result = new StringBuilder();
         // 显示获取swagger的方法注解

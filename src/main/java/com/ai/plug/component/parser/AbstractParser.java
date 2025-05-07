@@ -12,7 +12,6 @@ import java.lang.reflect.Method;
 public abstract class AbstractParser {
 
 
-    public abstract String doParse(Method method, Class<?> toolClass) ;
 
     protected abstract PluginProperties.ParserType getName();
 

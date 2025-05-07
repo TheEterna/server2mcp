@@ -15,9 +15,9 @@ public class Config implements WebMvcConfigurer {
     @Autowired
     private Interceptor interceptor;
 
-    @Override
-    public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(interceptor);
-
-    }
+//    @Override
+//    public void addInterceptors(InterceptorRegistry registry) {
+//        registry.addInterceptor(interceptor);
+//
+//    }
 }

@@ -2,6 +2,7 @@ package com.ai.plug.component.parser.starter;
 
 import com.ai.plug.component.parser.AbstractParser;
 import com.ai.plug.component.parser.des.AbstractDesParser;
+import com.ai.plug.component.parser.param.AbstractParamParser;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -24,7 +25,11 @@ import java.util.List;
 public abstract class Starter {
     public abstract String runDesParse(List<AbstractDesParser> parserList, Method method, Class<?> toolClass);
 
-    public Boolean runParamRequiredParse(Method method, int index) {
+
+    public abstract Boolean runParamRequiredParse(List<AbstractParamParser> parserList, Method method, Class<?> toolClass, int index);
+
+    
+    public Boolean runParamParamRequiredParse(Method method, int index) {
         Parameter parameter = method.getParameters()[index];
         Class<?> parameterType = parameter.getType();
 

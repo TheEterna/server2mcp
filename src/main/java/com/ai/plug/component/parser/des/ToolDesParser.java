@@ -16,7 +16,7 @@ import java.lang.reflect.Method;
 @Component("ToolDesParser")
 public class ToolDesParser extends AbstractDesParser{
     @Override
-    public String doParse(Method method, Class<?> toolClass) {
+    public String doDesParse(Method method, Class<?> toolClass) {
         Tool toolAnnotation = method.getAnnotation(Tool.class);
 
         String des = toolAnnotation.description();

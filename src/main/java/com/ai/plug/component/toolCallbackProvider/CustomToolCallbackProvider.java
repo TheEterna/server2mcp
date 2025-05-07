@@ -5,6 +5,7 @@ import com.ai.plug.common.utils.AIUtils;
 import com.ai.plug.component.ToolContext;
 import com.ai.plug.component.parser.AbstractParser;
 import com.ai.plug.component.parser.des.AbstractDesParser;
+import com.ai.plug.component.parser.param.AbstractParamParser;
 import com.ai.plug.component.parser.starter.Starter;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
@@ -44,6 +45,9 @@ public class CustomToolCallbackProvider implements ToolCallbackProvider {
 
     @Autowired
     private List<AbstractDesParser> desParserList;
+
+    @Autowired
+    private List<AbstractParamParser> paramParserList;
 
     @Autowired
     private Starter starter;
@@ -128,7 +132,7 @@ public class CustomToolCallbackProvider implements ToolCallbackProvider {
 
                 return MethodToolCallback.builder()
                         // 这个ToolDefinition需要重写
-                        .toolDefinition(AIUtils.buildToolDefinition(toolMethod, desParserList, starter))
+                        .toolDefinition(AIUtils.buildToolDefinition(toolMethod, desParserList, paramParserList, starter))
                         .toolMetadata(ToolMetadata.from(toolMethod))
                         .toolMethod(toolMethod)
                         .toolObject(toolBean)

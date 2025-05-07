@@ -1,13 +1,11 @@
 package com.ai.plug;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 
 /**
@@ -31,11 +29,11 @@ public class TestController {
         return "666";
     }
     @GetMapping("/test1")
-    @ApiOperation("获取用户信息")
+    @ApiOperation("进行普通测试")
     @ApiImplicitParams({
             @ApiImplicitParam(name="id", value="用户Id")
     })
-    public String test1(@RequestParam String id) {
+    public String test1(@RequestParam(value = "olderId", required = false) String oldId) {
 //    public String test(String dto) {
         return "666";
     }

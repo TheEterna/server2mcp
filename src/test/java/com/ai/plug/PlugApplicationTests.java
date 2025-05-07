@@ -19,11 +19,21 @@ class PlugApplicationTests {
     @Test
     public void test() {
 
-//        context.doParse();
-        Configuration annotation = AnnotationUtils.findAnnotation(SpringBootApplication.class, Configuration.class);
-        System.out.println(annotation);
+        TestObject testObject = new TestObject("111");
+        try {
+            testObject.doTest();
+        } catch (NullPointerException e) {
+            throw new RuntimeException(e);
+        }
+        System.out.println("6666");
+    }
+}
+class TestObject {
+    String name;
 
-
-//        System.out.println(new PlugApplication().getClass().isAnnotationPresent(EnableAutoConfiguration.class));
+    public TestObject(String name) {
+        this.name = name;
+    }
+    public void doTest() {
     }
 }
