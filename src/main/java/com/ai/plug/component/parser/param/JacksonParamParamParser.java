@@ -1,8 +1,12 @@
 package com.ai.plug.component.parser.param;
 
 import com.ai.plug.component.config.PluginProperties;
+import com.fasterxml.jackson.annotation.JsonClassDescription;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyDescription;
+import io.swagger.v3.oas.annotations.media.Schema;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
@@ -34,6 +38,13 @@ public class JacksonParamParamParser extends AbstractParamParser {
 
     @Override
     public String doParamDesParse(Method method, Class<?> toolClass, int index) {
+        Parameter parameter = method.getParameters()[index];
+
+        JsonPropertyDescription jsonPropertyDescriptionAnnotation = parameter.getAnnotation(JsonPropertyDescription.class);
+        if (jsonPropertyDescriptionAnnotation != null && StringUtils.hasText(jsonPropertyDescriptionAnnotation.value())) {
+            return jsonPropertyDescriptionAnnotation.value();
+        }
+
         return null;
     }
 }

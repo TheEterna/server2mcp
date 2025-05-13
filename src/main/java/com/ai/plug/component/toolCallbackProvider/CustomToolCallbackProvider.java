@@ -2,6 +2,7 @@ package com.ai.plug.component.toolCallbackProvider;
 
 import com.ai.plug.common.annotation.ToolScan;
 import com.ai.plug.common.utils.AIUtils;
+import com.ai.plug.common.utils.CustomToolUtil;
 import com.ai.plug.component.ToolContext;
 import com.ai.plug.component.parser.AbstractParser;
 import com.ai.plug.component.parser.des.AbstractDesParser;
@@ -11,9 +12,11 @@ import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.tool.ToolCallback;
 import org.springframework.ai.tool.ToolCallbackProvider;
+import org.springframework.ai.tool.definition.DefaultToolDefinition;
+import org.springframework.ai.tool.definition.ToolDefinition;
 import org.springframework.ai.tool.metadata.ToolMetadata;
 import org.springframework.ai.tool.method.MethodToolCallback;
-import org.springframework.ai.tool.util.ToolUtils;
+import org.springframework.ai.tool.support.ToolUtils;
 import org.springframework.aop.support.AopUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.AnnotationUtils;
@@ -24,6 +27,8 @@ import org.springframework.util.ReflectionUtils;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -72,15 +77,26 @@ public class CustomToolCallbackProvider implements ToolCallbackProvider {
     private void validateToolCallbacks(ToolCallback[] toolCallbacks) {
         List<String> duplicateToolNames = ToolUtils.getDuplicateToolNames(toolCallbacks);
         if (!duplicateToolNames.isEmpty()) {
-            throw new IllegalStateException("Multiple tools with the same name (%s) found in sources: %s".formatted(String.join(", ", duplicateToolNames), this.toolAndDefinitions.keySet().stream().map((o) -> {
+//            return toolCallbacks;
+            /* 这个以前的 !duplicateToolNames.isEmpty() 条件下的
+                        throw new IllegalStateException("Multiple tools with the same name (%s) found in sources: %s".formatted(String.join(", ", duplicateToolNames), this.toolAndDefinitions.keySet().stream().map((o) -> {
+                            return o.getClass().getName();
+                       }).collect(Collectors.joining(", "))));*/
+
+            log.warn("Multiple tools with the same name (%s) found in sources: %s".formatted(String.join(", ", duplicateToolNames), this.toolAndDefinitions.keySet().stream().map((o) -> {
                 return o.getClass().getName();
             }).collect(Collectors.joining(", "))));
+
+            // todo 目前是默认操作
+            log.warn("Perform default operation: The newly defined tool will overwrite the previous tool");
+
+
         }
+
     }
 
     @Override
     public ToolCallback[] getToolCallbacks() {
-
 
         ToolCallback[] toolCallbacks = this.toolAndDefinitions.entrySet().stream().map((toolAndDefinition) -> {
 
@@ -129,14 +145,16 @@ public class CustomToolCallbackProvider implements ToolCallbackProvider {
             }).map((toolMethod) -> {
 
 //                return DefaultToolDefinition.builder().name(ToolUtils.getToolName(method)).description(ToolUtils.getToolDescription(method)).inputSchema(JsonSchemaGenerator.generateForMethodInput(method, new JsonSchemaGenerator.SchemaOption[0]));
-
-                return MethodToolCallback.builder()
+                MethodToolCallback toolCallback = MethodToolCallback.builder()
                         // 这个ToolDefinition需要重写
                         .toolDefinition(AIUtils.buildToolDefinition(toolMethod, desParserList, paramParserList, starter))
                         .toolMetadata(ToolMetadata.from(toolMethod))
                         .toolMethod(toolMethod)
                         .toolObject(toolBean)
                         .toolCallResultConverter(ToolUtils.getToolCallResultConverter(toolMethod)).build();
+
+
+                return toolCallback;
 
             }).toArray((item) -> {
                 return new ToolCallback[item];
@@ -145,6 +163,8 @@ public class CustomToolCallbackProvider implements ToolCallbackProvider {
             return new ToolCallback[item];
         });
         this.validateToolCallbacks(toolCallbacks);
+
+
         return toolCallbacks;
     }
 

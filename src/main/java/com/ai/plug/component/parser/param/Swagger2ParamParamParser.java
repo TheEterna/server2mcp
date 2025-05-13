@@ -5,6 +5,7 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiParam;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
@@ -30,14 +31,11 @@ public class Swagger2ParamParamParser extends AbstractParamParser {
         if (apiParamAnnotation != null) {
             return apiParamAnnotation.required();
         }
-        // 由于swagger还有方法配置模式，还需要看方法里的Parameters注解和分离的Parameter注解(超过两个会转化成Parameters注解)，代码从上到下，优先级递减
         ApiImplicitParam apiImplicitParamAnnotation = method.getAnnotation(ApiImplicitParam.class);
         if (apiImplicitParamAnnotation != null && apiImplicitParamAnnotation.name().equals(parameter.getName())) {
 
             return apiImplicitParamAnnotation.required();
         }
-
-
         ApiImplicitParams apiImplicitParamsAnnotation = method.getAnnotation(ApiImplicitParams.class);
         if (apiImplicitParamsAnnotation != null) {
             for (ApiImplicitParam itemApiImplicitParam : apiImplicitParamsAnnotation.value()) {
@@ -47,12 +45,41 @@ public class Swagger2ParamParamParser extends AbstractParamParser {
                 }
             }
         }
-
         return null;
     }
 
     @Override
     public String doParamDesParse(Method method, Class<?> toolClass, int index) {
+        Parameter parameter = method.getParameters()[index];
+
+        ApiParam apiParamAnnotation = parameter.getAnnotation(ApiParam.class);
+        if (apiParamAnnotation != null && StringUtils.hasText(apiParamAnnotation.value())) {
+            return apiParamAnnotation.value();
+        }
+
+        ApiImplicitParam apiImplicitParamAnnotation = method.getAnnotation(ApiImplicitParam.class);
+        if (apiImplicitParamAnnotation != null
+                && apiImplicitParamAnnotation.name().equals(parameter.getName())
+                && StringUtils.hasText(apiImplicitParamAnnotation.value())) {
+            return apiImplicitParamAnnotation.value();
+        }
+        ApiImplicitParams apiImplicitParamsAnnotation = method.getAnnotation(ApiImplicitParams.class);
+        if (apiImplicitParamsAnnotation != null) {
+            for (ApiImplicitParam itemApiImplicitParam : apiImplicitParamsAnnotation.value()) {
+                // 如果在parameters里有 这个属性就返回
+                if (itemApiImplicitParam.name().equals(parameter.getName())) {
+                    if (StringUtils.hasText(itemApiImplicitParam.value())) {
+                        return itemApiImplicitParam.value();
+                    }
+                    break;
+                }
+            }
+        }
+
+
+
+
+
         return null;
     }
 }

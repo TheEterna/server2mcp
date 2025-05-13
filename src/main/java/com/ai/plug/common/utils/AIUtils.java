@@ -27,14 +27,17 @@ import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.model.ToolContext;
+import org.springframework.ai.tool.ToolCallback;
 import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.ai.tool.annotation.ToolParam;
 import org.springframework.ai.tool.definition.DefaultToolDefinition;
 import org.springframework.ai.tool.definition.ToolDefinition;
+import org.springframework.ai.tool.support.ToolUtils;
 import org.springframework.ai.util.json.JsonParser;
 import org.springframework.ai.util.json.schema.JsonSchemaGenerator;
 import org.springframework.ai.util.json.schema.SpringAiSchemaModule;
 import org.springframework.lang.Nullable;
+import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.StringUtils;
@@ -47,19 +50,24 @@ import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 
 /**
  * @author: han
  * time: 2025/04/2025/4/1 15:40
- * des: AI操作工具类
+ * des:
  */
 
 @Slf4j
+@Component
 public class AIUtils {
 
     private static Starter starter;
+
+    ToolCallback[] toolCallbacks;
 
     private static final SchemaGenerator SUBTYPE_SCHEMA_GENERATOR;
     static {
@@ -91,6 +99,9 @@ public class AIUtils {
     public static ToolDefinition buildToolDefinition(Method toolMethod, List<AbstractDesParser> desParserList, List<AbstractParamParser> paramParserList, Starter starter) {
         Assert.notNull(toolMethod, "方法不能为空");
         AIUtils.starter = starter;
+
+
+
         return DefaultToolDefinition.builder().name(AIUtils.getToolName(toolMethod))
                 .description(AIUtils.getToolDescription(toolMethod, desParserList))
                 .inputSchema(AIUtils.getInputSchema(paramParserList, toolMethod)).build();
@@ -101,14 +112,18 @@ public class AIUtils {
 
         String className = method.getDeclaringClass().getSimpleName();
 
+        String presentToolName;
         // 把本来的操作作为备选
         Assert.notNull(method, "方法不能为空");
         Tool tool = method.getAnnotation(Tool.class);
+        // 为了保证0侵入, 由于toolName是唯一的所以, 每次注册tool, 都要验证一下有没有相同的toolName, 然后修改
         if (tool == null) {
-            return className + "." + method.getName();
+            presentToolName = className + "." + method.getName();
         } else {
-            return className + "." + (StringUtils.hasText(tool.name()) ? tool.name() : method.getName()) ;
+            presentToolName = className + "." + (StringUtils.hasText(tool.name()) ? tool.name() : method.getName()) ;
         }
+
+        return presentToolName;
     }
 
     public static String getToolDescription(Method toolMethod, List<AbstractDesParser> desParserList) {
@@ -138,6 +153,8 @@ public class AIUtils {
         for(int i = 0; i < method.getParameterCount(); ++i) {
             String parameterName = method.getParameters()[i].getName();
             Type parameterType = method.getGenericParameterTypes()[i];
+
+
             if (parameterType instanceof Class<?> parameterClass) {
                 if (ClassUtils.isAssignable(parameterClass, ToolContext.class)) {
                     continue;
@@ -157,8 +174,15 @@ public class AIUtils {
             ObjectNode parameterNode = SUBTYPE_SCHEMA_GENERATOR.generateSchema(parameterType);
 
 
-            String parameterDescription = getMethodParameterDescription(method, i);
+            String parameterDescription = getMethodParameterDescription(paramParserList, method, i);
+
+
+            // 由于对象类型比如Dto dto 它可以在类上写des, 也可以在对应参数上写des, 则是和参数上的des会对这个 类上的des进行覆盖并提醒
             if (StringUtils.hasText(parameterDescription)) {
+                if (parameterNode.get("description") != null && StringUtils.hasText(parameterNode.get("description").asText())) {
+                    log.warn("Please note the conflicting descriptions on the {} method", CommonUtil.getFullyQualifiedName(method));
+                }
+
                 parameterNode.put("description", parameterDescription);
             }
 
@@ -166,7 +190,7 @@ public class AIUtils {
         }
 
         ArrayNode requiredArray = schema.putArray("required");
-//        Objects.requireNonNull(requiredArray);
+        Objects.requireNonNull(requiredArray);
 
 
         required.forEach(requiredArray::add);
@@ -175,84 +199,8 @@ public class AIUtils {
     }
 
 
-    private static String getMethodParameterDescription(Method method, int index) {
-
-
-        // todo 逻辑
-        Parameter parameter = method.getParameters()[index];
-        String parameterName = parameter.getName();
-
-        // toolParam 有数据当然用ToolParam里的
-        ToolParam toolParamAnnotation = parameter.getAnnotation(ToolParam.class);
-        if (toolParamAnnotation != null && StringUtils.hasText(toolParamAnnotation.description())) {
-            return toolParamAnnotation.description();
-        }
-
-        JsonPropertyDescription jacksonAnnotation = parameter.getAnnotation(JsonPropertyDescription.class);
-        if (jacksonAnnotation != null && StringUtils.hasText(jacksonAnnotation.value())) {
-            return jacksonAnnotation.value();
-        }
-        Schema schemaAnnotation = parameter.getAnnotation(Schema.class);
-        if (schemaAnnotation != null && StringUtils.hasText(schemaAnnotation.description())) {
-            return schemaAnnotation.description();
-        }
-
-
-
-        String className = method.getDeclaringClass().getName().replace('.', '/') + ".java";
-        File file = new File("src/main/java/"  + className);
-
-        try {
-            CompilationUnit compilationUnit = StaticJavaParser.parse(file);
-            // 遍历所有方法声明
-            for (MethodDeclaration methodDeclaration : compilationUnit.findAll(MethodDeclaration.class)) {
-                if (methodDeclaration.getNameAsString().equals(method.getName())
-                        && methodDeclaration.getParameters().size() == method.getParameterCount()
-                        && methodDeclaration.hasJavaDocComment()
-                ) {
-                    // 检查参数类型是否匹配
-                    boolean match = true;
-                    // 对比每个参数
-                    for (int i = 0; i < methodDeclaration.getParameters().size(); i++) {
-                        String paramType = methodDeclaration.getParameters().get(i).getType().toString();
-                        String actualParamType = method.getParameterTypes()[i].getSimpleName();
-                        if (!paramType.equals(actualParamType)) {
-                            match = false;
-                            break;
-                        }
-                    }
-                    // 如果不匹配， 就continue
-                    if (!match) continue;
-
-                    // 到这里了，说明找到了匹配方法，并有注释
-                    Javadoc javadoc = methodDeclaration.getJavadoc().get();
-                    // 带 tag的信息 例如@param
-                    List<JavadocBlockTag> blockTags = javadoc.getBlockTags();
-                    for (JavadocBlockTag item : blockTags) {
-                        if (item.getName().equals(parameterName) && JavadocBlockTag.Type.PARAM == item.getType()) {
-                            return item.getContent().getElements().get(0).toText();
-                        }
-                    }
-
-                    return "暂不了解该参数意义, 我将返回其javadoc和方法体,供你了解 javadoc：" + methodDeclaration.getJavadoc() + "方法体：" + methodDeclaration.getBody().map(Object::toString).orElse("");
-                }
-
-                else {
-                    if (methodDeclaration.getComment().isPresent()) {
-                        return "暂不了解该参数意义, 我将返回其方法体和注释,供你了解 方法体：" +  methodDeclaration.getBody().map(Object::toString).orElse("") + "注释：" + methodDeclaration.getComment().get();
-                    } else {
-                        return "暂不了解该参数意义, 我将返回其方法体,供你了解" +  methodDeclaration.getBody().map(Object::toString).orElse("");
-                    }
-                }
-            }
-
-
-        } catch (FileNotFoundException e) {
-            log.error("没找到该文件: " + "classPath" + ", 请检查");
-        }
-
-        return "抱歉,我无法向你提供该参数的描述,请根据上下文推测其意义";
-
+    private static String getMethodParameterDescription(List<AbstractParamParser> parserList, Method method, int index) {
+        return starter.runParamDesParse(parserList, method, method.getDeclaringClass(), index);
     }
 
 

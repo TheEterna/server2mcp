@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Condition;
 import org.springframework.context.annotation.ConditionContext;
 import org.springframework.core.env.Environment;
 import org.springframework.core.type.AnnotatedTypeMetadata;
+import org.springframework.stereotype.Component;
 
 import static com.ai.plug.common.constants.ConfigConstants.VARIABLE_PREFIX;
 

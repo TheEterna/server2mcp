@@ -28,7 +28,8 @@ public abstract class Starter {
 
     public abstract Boolean runParamRequiredParse(List<AbstractParamParser> parserList, Method method, Class<?> toolClass, int index);
 
-    
+    public abstract String runParamDesParse(List<AbstractParamParser> parserList, Method method, Class<?> toolClass, int index);
+
     public Boolean runParamParamRequiredParse(Method method, int index) {
         Parameter parameter = method.getParameters()[index];
         Class<?> parameterType = parameter.getType();

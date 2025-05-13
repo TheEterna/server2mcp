@@ -72,6 +72,7 @@ public class MvcParamParamParser extends AbstractParamParser {
 
     @Override
     public String doParamDesParse(Method method, Class<?> toolClass, int index) {
+        // 由于mvc不提供注解功能，这里直接返回null，略过该处理器
         return null;
     }
 

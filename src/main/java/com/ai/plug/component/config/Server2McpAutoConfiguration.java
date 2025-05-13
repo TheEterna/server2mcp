@@ -72,6 +72,7 @@ public class Server2McpAutoConfiguration {
             this.beanFactory = beanFactory;
         }
 
+        // 注册BeanDefinitions
         public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
             if (!AutoConfigurationPackages.has(this.beanFactory)) {
                 Server2McpAutoConfiguration.logger.debug("Could not determine auto-configuration package, automatic mapper scanning disabled.");

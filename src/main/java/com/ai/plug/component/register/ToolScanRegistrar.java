@@ -71,6 +71,8 @@ public class ToolScanRegistrar implements BeanFactoryAware, ImportBeanDefinition
     private static String getDefaultBasePackage(AnnotationMetadata importingClassMetadata) {
         return ClassUtils.getPackageName(importingClassMetadata.getClassName());
     }
+
+    // 类型转换用
     private ToolScan.ToolFilter[] convertToToolFilters(AnnotationAttributes[] attributesArray) {
         if (attributesArray == null) {
             return new ToolScan.ToolFilter[0];
@@ -104,14 +106,13 @@ public class ToolScanRegistrar implements BeanFactoryAware, ImportBeanDefinition
     }
 
 
-
+    // 给ToolScans用
     public static class RepeatingRegistrar extends ToolScanRegistrar {
         public RepeatingRegistrar() {
         }
 
         @Override
         public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
-
             AnnotationAttributes attributes = (AnnotationAttributes) importingClassMetadata.getAnnotationAttributes(ToolScans.class.getName());
             if (attributes != null) {
                 AnnotationAttributes[] annotations = attributes.getAnnotationArray("value");
@@ -120,8 +121,6 @@ public class ToolScanRegistrar implements BeanFactoryAware, ImportBeanDefinition
                 }
 
             }
-
-
         }
 
     }

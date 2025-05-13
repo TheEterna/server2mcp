@@ -79,5 +79,20 @@ public final class SingleStarter extends Starter {
         return result;
     }
 
+    @Override
+    public String runParamDesParse(List<AbstractParamParser> parserList, Method method, Class<?> toolClass, int index) {
+        String result = parserList.stream().map((parser) -> {
+            return parser.doParamDesParse(method, toolClass, index);
+        }).filter(Objects::nonNull).findFirst().orElse(null);
+
+        if (result == null) {
+//            log.warn("Please note that the parsing module you specified resulted in the {} tool not parsing the param required", toolClass.getName() + "-" + method.getName());
+            return AbstractParamParser.doDefaultParamDesParse(method, toolClass, index);
+        }
+
+        return result;
+
+    }
+
 
 }

@@ -3,6 +3,7 @@ package com.ai.plug.component.parser.param;
 import com.ai.plug.component.config.PluginProperties;
 import org.springframework.ai.tool.annotation.ToolParam;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
@@ -34,6 +35,14 @@ public class ToolParamParamParser extends AbstractParamParser {
 
     @Override
     public String doParamDesParse(Method method, Class<?> toolClass, int index) {
+
+        Parameter parameter = method.getParameters()[index];
+
+        ToolParam toolParamAnnotation = parameter.getAnnotation(ToolParam.class);
+        if (toolParamAnnotation != null && StringUtils.hasText(toolParamAnnotation.description())) {
+            return toolParamAnnotation.description();
+        }
+
         return null;
     }
 }
