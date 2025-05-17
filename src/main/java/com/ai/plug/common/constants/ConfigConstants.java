@@ -12,5 +12,7 @@ public class ConfigConstants {
     // 解析器前缀字段
     public final static String PARSER_PREFIX = "parser";
 
+    public final static String VARIABLE_PARAM = "param";
+    public final static String VARIABLE_DES = "des";
 
 }

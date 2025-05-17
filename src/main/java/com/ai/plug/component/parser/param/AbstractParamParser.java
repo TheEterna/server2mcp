@@ -14,7 +14,7 @@ import static com.ai.plug.common.constants.PromptConstants.DEFAULT_PARAM_DES;
  * time: 2025/04/2025/4/1 23:18
  * des:
  */
-public abstract class AbstractParamParser extends AbstractParser  {
+public abstract class AbstractParamParser extends AbstractParser {
 
     public abstract Boolean doParamRequiredParse(Method method, Class<?> toolClass, int index);
 

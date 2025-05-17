@@ -1,29 +1,17 @@
 package com.ai.plug.component.parser.des;
 
-import com.ai.plug.component.config.PluginProperties;
 import io.swagger.annotations.ApiOperation;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import java.lang.reflect.Method;
-
-import static com.ai.plug.common.constants.ConfigConstants.PARSER_PREFIX;
-import static com.ai.plug.common.constants.ConfigConstants.VARIABLE_PREFIX;
-import static com.ai.plug.component.config.PluginProperties.ParserType.SWAGGER2;
 
 /**
  * @ author 韩
  * time: 2025/4/23 10:54
  */
 
-@Component("Swagger2DesParser")
 public class Swagger2DesParser extends AbstractDesParser {
 
-    @Override
-    public PluginProperties.ParserType getName(){
-        return SWAGGER2;
-    }
 
     @Override
     public String doDesParse(Method method, Class<?> toolClass) {
@@ -31,6 +19,10 @@ public class Swagger2DesParser extends AbstractDesParser {
         StringBuilder result = new StringBuilder();
         // 显示获取swagger的方法注解
         ApiOperation apiOperationAnnotation = method.getAnnotation(ApiOperation.class);
+
+        if (apiOperationAnnotation == null) {
+            return null;
+        }
 
         String simpleDes = apiOperationAnnotation.value();
 

@@ -1,35 +1,25 @@
 package com.ai.plug.component.parser.des;
 
-import com.ai.plug.component.config.PluginProperties;
 import io.swagger.v3.oas.annotations.Operation;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import java.lang.reflect.Method;
-
-import static com.ai.plug.common.constants.ConfigConstants.PARSER_PREFIX;
-import static com.ai.plug.common.constants.ConfigConstants.VARIABLE_PREFIX;
-import static com.ai.plug.component.config.PluginProperties.ParserType.SWAGGER3;
 
 /**
  * @ author 韩
  * time: 2025/4/24 3:43
  */
 
-@Component("Swagger3DesParser")
 public class Swagger3DesParser extends AbstractDesParser {
-    @Override
-    public PluginProperties.ParserType getName(){
-        return SWAGGER3;
-    }
 
     @Override
     public String doDesParse(Method method, Class<?> toolClass) {
         StringBuilder result = new StringBuilder();
 
         Operation operationAnnotation = method.getAnnotation(Operation.class);
-
+        if (operationAnnotation == null) {
+            return null;
+        }
         String simpleDes = operationAnnotation.summary();
 
         String detailedDes = operationAnnotation.description();

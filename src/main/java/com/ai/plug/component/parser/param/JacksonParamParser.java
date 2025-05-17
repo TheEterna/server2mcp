@@ -1,11 +1,7 @@
 package com.ai.plug.component.parser.param;
 
-import com.ai.plug.component.config.PluginProperties;
-import com.fasterxml.jackson.annotation.JsonClassDescription;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyDescription;
-import io.swagger.v3.oas.annotations.media.Schema;
-import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import java.lang.reflect.Method;
@@ -15,14 +11,8 @@ import java.lang.reflect.Parameter;
  * @ author 韩
  * time: 2025/4/27 8:57
  */
-@Component
-public class JacksonParamParamParser extends AbstractParamParser {
+public class JacksonParamParser extends AbstractParamParser {
 
-
-    @Override
-    protected PluginProperties.ParserType getName() {
-        return null;
-    }
 
     @Override
     public Boolean doParamRequiredParse(Method method, Class<?> toolClass, int index) {

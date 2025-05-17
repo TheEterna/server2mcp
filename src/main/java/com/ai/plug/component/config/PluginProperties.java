@@ -3,12 +3,8 @@ package com.ai.plug.component.config;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
-
 import java.util.List;
-
 import static com.ai.plug.common.constants.ConfigConstants.VARIABLE_PREFIX;
-import static com.ai.plug.component.config.PluginProperties.ParserType.SWAGGER2;
-import static com.ai.plug.component.config.PluginProperties.ParserType.SWAGGER3;
 import static com.ai.plug.component.config.PluginProperties.ScopeType.INTERFACE;
 
 
@@ -16,11 +12,12 @@ import static com.ai.plug.component.config.PluginProperties.ScopeType.INTERFACE;
 @Component
 @Data
 public class PluginProperties {
+
     private boolean enabled = false;
     /**
      * doc
      */
-    private List<ParserType> parser = List.of(SWAGGER2, SWAGGER3);
+    private Parser parser;
 
     /**
      * scope, 默认取值 interface 即为扫描接口
@@ -33,9 +30,17 @@ public class PluginProperties {
         CUSTOM;
 
     }
-    public enum ParserType {
-        JAVADOC, SWAGGER2, SWAGGER3
+    public enum DesParserType {
+        TOOL, JACKSON, JAVADOC, SWAGGER2, SWAGGER3
+    }
+    public enum ParamParserType {
+        TOOL, JACKSON, SPRINGMVC, JAVADOC, SWAGGER2, SWAGGER3
     }
 
+    @Data
+    public static class Parser {
+        private List<DesParserType> des;
+        private List<ParamParserType> param;
+    }
 
 }

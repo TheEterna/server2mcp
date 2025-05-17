@@ -1,10 +1,8 @@
 package com.ai.plug.component.parser.param;
 
-import com.ai.plug.component.config.PluginProperties;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiParam;
-import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import java.lang.reflect.Method;
@@ -14,14 +12,7 @@ import java.lang.reflect.Parameter;
  * @ author 韩
  * time: 2025/4/30 2:56
  */
-@Component
-public class Swagger2ParamParamParser extends AbstractParamParser {
-
-
-    @Override
-    protected PluginProperties.ParserType getName() {
-        return null;
-    }
+public class Swagger2ParamParser extends AbstractParamParser {
 
     @Override
     public Boolean doParamRequiredParse(Method method, Class<?> toolClass, int index) {

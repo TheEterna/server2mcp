@@ -3,7 +3,6 @@ package com.ai.plug.component.parser.starter;
 import com.ai.plug.component.parser.des.AbstractDesParser;
 import com.ai.plug.component.parser.param.AbstractParamParser;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import java.lang.reflect.Method;
@@ -14,7 +13,6 @@ import java.util.List;
  * @ author 韩
  * time: 2025/4/29 17:02
  */
-@Component
 @Slf4j
 @Deprecated
 public class AddStarter extends Starter {

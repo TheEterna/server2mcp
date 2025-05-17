@@ -1,7 +1,5 @@
 package com.ai.plug.component.parser.param;
 
-import com.ai.plug.component.config.PluginProperties;
-import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.*;
 
 import java.lang.reflect.Method;
@@ -11,13 +9,8 @@ import java.lang.reflect.Parameter;
  * @ author 韩
  * time: 2025/4/30 2:55
  */
-@Component
-public class MvcParamParamParser extends AbstractParamParser {
+public class MvcParamParser extends AbstractParamParser {
 
-    @Override
-    protected PluginProperties.ParserType getName() {
-        return null;
-    }
 
     @Override
     public Boolean doParamRequiredParse(Method method, Class<?> toolClass, int index) {

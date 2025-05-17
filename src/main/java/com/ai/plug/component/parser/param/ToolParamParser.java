@@ -1,6 +1,5 @@
 package com.ai.plug.component.parser.param;
 
-import com.ai.plug.component.config.PluginProperties;
 import org.springframework.ai.tool.annotation.ToolParam;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
@@ -12,15 +11,7 @@ import java.lang.reflect.Parameter;
  * @ author 韩
  * time: 2025/4/30 2:56
  */
-@Component
-
-public class ToolParamParamParser extends AbstractParamParser {
-
-    @Override
-    protected PluginProperties.ParserType getName() {
-        return null;
-    }
-
+public class ToolParamParser extends AbstractParamParser {
     @Override
     public Boolean doParamRequiredParse(Method method, Class<?> toolClass, int index) {
 

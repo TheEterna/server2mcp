@@ -3,6 +3,8 @@ package com.ai.plug.component.config;
 import com.ai.plug.common.annotation.ToolScan;
 import com.ai.plug.component.ToolContext;
 import com.ai.plug.component.conditional.Conditions;
+import com.ai.plug.component.parser.starter.SingleStarter;
+import com.ai.plug.component.parser.starter.Starter;
 import com.ai.plug.component.register.ToolScanConfigurer;
 import com.ai.plug.component.toolCallbackProvider.CustomToolCallbackProvider;
 import org.slf4j.Logger;
@@ -32,7 +34,7 @@ import static com.ai.plug.common.constants.ConfigConstants.VARIABLE_PREFIX;
 @Configuration(proxyBeanMethods = false)
 @ComponentScan(basePackages = "com.ai.plug")
 @Conditional(Conditions.SystemCondition.class)
-@Import(Server2McpAutoConfiguration.AutoConfiguredToolScannerRegistrar.class)
+@Import({Server2McpAutoConfiguration.AutoConfiguredToolScannerRegistrar.class, ParserConfig.class})
 public class Server2McpAutoConfiguration {
     public static final Logger logger = LoggerFactory.getLogger(Server2McpAutoConfiguration.class);
 
@@ -51,7 +53,12 @@ public class Server2McpAutoConfiguration {
                 .toolObjects(tools)
                 .build();
     }
-
+    @Bean
+    @ConditionalOnProperty(prefix = VARIABLE_PREFIX, name = ".enabled", havingValue = "true")
+    public Starter starter() {
+        return new SingleStarter();
+    }
+    
 
 
 

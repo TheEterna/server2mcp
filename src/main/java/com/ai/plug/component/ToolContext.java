@@ -2,7 +2,6 @@ package com.ai.plug.component;
 
 import com.ai.plug.common.annotation.ToolScan;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;

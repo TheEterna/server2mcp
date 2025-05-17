@@ -2,18 +2,13 @@ package com.ai.plug.component.toolCallbackProvider;
 
 import com.ai.plug.common.annotation.ToolScan;
 import com.ai.plug.common.utils.AIUtils;
-import com.ai.plug.common.utils.CustomToolUtil;
 import com.ai.plug.component.ToolContext;
-import com.ai.plug.component.parser.AbstractParser;
 import com.ai.plug.component.parser.des.AbstractDesParser;
 import com.ai.plug.component.parser.param.AbstractParamParser;
 import com.ai.plug.component.parser.starter.Starter;
-import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.tool.ToolCallback;
 import org.springframework.ai.tool.ToolCallbackProvider;
-import org.springframework.ai.tool.definition.DefaultToolDefinition;
-import org.springframework.ai.tool.definition.ToolDefinition;
 import org.springframework.ai.tool.metadata.ToolMetadata;
 import org.springframework.ai.tool.method.MethodToolCallback;
 import org.springframework.ai.tool.support.ToolUtils;
@@ -27,8 +22,6 @@ import org.springframework.util.ReflectionUtils;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -48,15 +41,27 @@ import java.util.stream.Stream;
 public class CustomToolCallbackProvider implements ToolCallbackProvider {
     private final Map<Object, ToolContext.ToolRegisterDefinition> toolAndDefinitions;
 
-    @Autowired
     private List<AbstractDesParser> desParserList;
 
-    @Autowired
     private List<AbstractParamParser> paramParserList;
 
-    @Autowired
     private Starter starter;
 
+    @Autowired
+    public void setDesParserList(List<AbstractDesParser> desParserList) {
+        this.desParserList = desParserList;
+        log.info("DesParserList have {} parser", desParserList.size());
+    }
+    @Autowired
+    public void setParamParserList(List<AbstractParamParser> paramParserList) {
+        this.paramParserList = paramParserList;
+        log.info("ParamParserList have {} parser", paramParserList.size());
+
+    }
+    @Autowired
+    public void setStarter(Starter starter) {
+        this.starter = starter;
+    }
 
     private CustomToolCallbackProvider(Map<Object, ToolContext.ToolRegisterDefinition> toolAndDefinitions) {
         Assert.notNull(toolAndDefinitions, "toolAndDefinitions cannot be null");

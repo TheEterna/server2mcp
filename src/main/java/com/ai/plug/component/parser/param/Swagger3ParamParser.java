@@ -1,10 +1,8 @@
 package com.ai.plug.component.parser.param;
 
-import com.ai.plug.component.config.PluginProperties;
 import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
-import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import java.lang.reflect.Method;
@@ -15,14 +13,7 @@ import java.lang.reflect.Parameter;
  * time: 2025/4/30 2:56
  */
 
-@Component
-public class Swagger3ParamParamParser extends AbstractParamParser {
-
-    @Override
-    protected PluginProperties.ParserType getName() {
-        return null;
-    }
-
+public class Swagger3ParamParser extends AbstractParamParser {
     @Override
     public Boolean doParamRequiredParse(Method method, Class<?> toolClass, int index) {
         Parameter parameter = method.getParameters()[index];

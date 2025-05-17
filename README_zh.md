@@ -10,12 +10,13 @@
 
 - 自动配置 MCP 服务，类似mybatis-plus于mybatis的关系，无侵入，纯增强
 - 支持一切mcp的javaSdk原生功能，提供工具注册和回调机制等等
-- 支持自定义工具解析
+- 支持自定义 工具注册，通过@ToolScan注解
 - 用户可自定义Parser，而无关责任链实现，完成独特接口注解的属性解析
+- 拥有javadoc，swagger2，swagger3，springmvc（只负责部分解析逻辑），jackson 以及springai原生的tool 解析器
 
 # 👀未完善点
 
-    仍有许多springai的解析扩展点未接入，比如目前只完成了javadoc版（注意：并不成熟，后续将提供解决方案，因为jar包部署，源码中不含注释），相关解析逻辑不断更新中，一周后将会推出第一版v0.0.1，但解析架构使用责任链加模板，极易扩展，后续将集成各种主流方法描述注解的解析
+已经具有较为成熟的解析逻辑，目前主流解析逻辑已经较为完善，如果有我没考虑到的，欢迎踊跃交流，后续将会提供强有力的自定义扩展功能，用户可以通过简单的配置类等方式，来完成自定义注释注解的解析。
 
 # 🎯快速开始
 
@@ -26,21 +27,57 @@
     <dependency>
         <groupId>com.ai.plug</groupId>
         <artifactId>server2mcp-spring-boot-starter</artifactId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>1.0.1</version>
     </dependency>
 
 然后在配置文件中添加配置：
 
-```
-plugin.mcp.enabled=true
-
-# 如果是yml，则为
+```yaml
 plugin:
   mcp:
     enabled: true
+    parser:
+      param: JAVADOC, TOOL, SPRINGMVC, JACKSON, SWAGGER2, SWAGGER3  # 可不填 ，默认注册除JAVADOC之外的解析器
+      des:  JAVADOC, TOOL, JACKSON, SWAGGER3, SWAGGER2     # 可不填 ，默认注册除JAVADOC之外的解析器
+    scope: interface # 有两种配置，custom和interface，默认interface，会预先注册controller下的接口为工具；custom 则不会预先注册工具
+
 ```
 
-    以上就是该项目启动的最基本配置，它包含了所有的原生配置如spring.ai.mcp.server.name等等，它默认会将你的所有启动类路径下的所有controller注册为mcp接口，如果接口方法或类上有@Deprecated注解将不会注册。
+    以上就是该项目启动的最基本配置，它包含了所有的原生配置如spring.ai.mcp.server.name等等，interface配置它默认会将你的所有启动类路径下的所有controller注册为mcp接口，如果接口方法或类上有@Deprecated注解将不会注册。
+
+## 注意：JAVADOC解析器
+
+    javadoc的解析逻辑本质上就是通过解析源码文件，而上线之后java代码是以字节码 class文件的形式存在，所以javadoc就无法使用，但是javadoc的注解方式在开发者中间还是比较流行的，所以不能够完全舍弃。现给出解决方案，要使用javadoc方式的解析器，必须将源码打包到资源目录里，如果你使用maven，需要加一段打包配置，如下所示：
+
+```xml
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-java-sources</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.outputDirectory}</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>src/main/java</directory>
+                                    <includes>
+                                        <include>**/*.java</include>
+                                    </includes>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            
+```
+
+
 
 # 📚原理
 
@@ -63,3 +100,5 @@ plugin:
 # 📄 版权声明/开源协议
 
     根据 [Apache 2.0 许可证](https://www.apache.org/licenses/LICENSE-2.0.html)发布的代码
+
+

@@ -1,6 +1,7 @@
 package com.ai.plug.component.parser.des;
 
 import com.ai.plug.component.parser.AbstractParser;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.util.ParsingUtils;
 
 import java.lang.reflect.Method;
@@ -8,7 +9,6 @@ import java.lang.reflect.Method;
 /**
  * 需要重新getName
  */
-
 public abstract class AbstractDesParser extends AbstractParser {
 
 

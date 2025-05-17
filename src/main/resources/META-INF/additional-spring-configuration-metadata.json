@@ -7,16 +7,35 @@
       "defaultValue": false
     },
     {
-      "name": "plugin.mcp.parser",
-      "type": "java.util.List<java.lang.String>",
-      "description": "解析器配置列表，可选值包括：javadoc, empty等",
-      "defaultValue": ["javadoc"]
-    },
-    {
       "name": "plugin.mcp.scope",
       "type": "com.ai.plug.component.config.PluginProperties$ScopeType",
-      "description": "扫描范围类型，可选值：INTERFACE, CUSTOM等",
+      "description": "扫描范围类型，可选值：INTERFACE, CUSTOM",
       "defaultValue": "INTERFACE"
+    },
+    {
+      "name": "plugin.mcp.parser.des",
+      "type": "java.util.List<java.lang.String>",
+      "description": "功能描述解析器列表。可选值: TOOL, JACKSON, JAVADOC, SWAGGER2, SWAGGER3",
+      "defaultValue": [
+        "TOOL",
+        "JACKSON",
+        "JAVADOC",
+        "SWAGGER3",
+        "SWAGGER2"
+      ]
+    },
+    {
+      "name": "plugin.mcp.parser.param",
+      "type": "java.util.List<java.lang.String>",
+      "description": "参数解析器列表。可选值: TOOL, JACKSON, SPRINGMVC, JAVADOC, SWAGGER2, SWAGGER3",
+      "defaultValue": [
+        "TOOL",
+        "JACKSON",
+        "JAVADOC",
+        "SPRINGMVC",
+        "SWAGGER3",
+        "SWAGGER2"
+      ]
     }
   ]
 }
