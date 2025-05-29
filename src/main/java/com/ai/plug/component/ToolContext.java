@@ -17,8 +17,6 @@ import java.util.Map;
 public class ToolContext {
 
     private static Map<String, ToolRegisterDefinition> rawTools = new HashMap<>();
-    
-
 
     public ToolContext() {
     }

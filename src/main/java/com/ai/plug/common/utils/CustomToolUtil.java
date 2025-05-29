@@ -1,7 +1,13 @@
 package com.ai.plug.common.utils;
 
+import com.ai.plug.component.provider.CustomToolCallResultConverter;
 import org.springframework.ai.tool.ToolCallback;
+import org.springframework.ai.tool.annotation.Tool;
+import org.springframework.ai.tool.execution.DefaultToolCallResultConverter;
+import org.springframework.ai.tool.execution.ToolCallResultConverter;
+import org.springframework.util.Assert;
 
+import java.lang.reflect.Method;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -20,5 +26,21 @@ public class CustomToolUtil {
 
 
 
+    }
+
+    public static ToolCallResultConverter getToolCallResultConverter(Method method) {
+        Assert.notNull(method, "method cannot be null");
+        Tool tool = method.getAnnotation(Tool.class);
+        if (tool == null) {
+            return new CustomToolCallResultConverter();
+        } else {
+            Class<? extends ToolCallResultConverter> type = tool.resultConverter();
+
+            try {
+                return type.getDeclaredConstructor().newInstance();
+            } catch (Exception var4) {
+                throw new IllegalArgumentException("Failed to instantiate ToolCallResultConverter: " + String.valueOf(type), var4);
+            }
+        }
     }
 }

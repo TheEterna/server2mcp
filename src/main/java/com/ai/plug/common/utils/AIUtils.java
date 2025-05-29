@@ -46,7 +46,6 @@ public class AIUtils {
 
     private static Starter starter;
 
-    ToolCallback[] toolCallbacks;
 
     private static final SchemaGenerator SUBTYPE_SCHEMA_GENERATOR;
     static {
@@ -99,7 +98,7 @@ public class AIUtils {
         if (tool == null) {
             presentToolName = className + "." + method.getName();
         } else {
-            presentToolName = className + "." + (StringUtils.hasText(tool.name()) ? tool.name() : method.getName()) ;
+            presentToolName = StringUtils.hasText(tool.name()) ? tool.name() :className + "." + method.getName();
         }
 
         return presentToolName;

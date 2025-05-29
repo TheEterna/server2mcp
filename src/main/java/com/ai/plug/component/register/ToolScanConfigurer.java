@@ -21,7 +21,7 @@ import java.util.Set;
 /**
  * @author: han
  * time: 2025/04/2025/4/15 00:35
- * des:
+ * des: 这个是提取出来的一层
  */
 public class ToolScanConfigurer implements BeanDefinitionRegistryPostProcessor, BeanFactoryPostProcessor {
 
@@ -75,8 +75,6 @@ public class ToolScanConfigurer implements BeanDefinitionRegistryPostProcessor, 
     @Override
     public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
 
-
-
         ToolContext.ToolRegisterDefinition toolRegisterDefinition = new ToolContext.ToolRegisterDefinition(includeToolFilters, excludeToolFilters);
         // 创建类路径扫描器
         ClassPathBeanDefinitionScanner scanner = new ClassPathToolScanner(registry, toolRegisterDefinition);
@@ -112,7 +110,7 @@ public class ToolScanConfigurer implements BeanDefinitionRegistryPostProcessor, 
                 switch ((ToolScan.FilterType) includeFilter.getEnum("type")) {
                     case CLASS ->
                         // 如果是 class过滤器
-                            scanner.addIncludeFilter(new DeclaredClassExcludeFilter(includeClasses));
+                        scanner.addIncludeFilter(new DeclaredClassExcludeFilter(includeClasses));
                     case ANNOTATION -> {
                         for (Class<?> excludeClass : includeClasses) {
                             if (!Annotation.class.isAssignableFrom(excludeClass)) {
@@ -121,6 +119,7 @@ public class ToolScanConfigurer implements BeanDefinitionRegistryPostProcessor, 
                             scanner.addIncludeFilter(new AnnotationTypeFilter((Class<? extends Annotation>) excludeClass));
                         }
                     }
+
                 }
             }
 
@@ -141,21 +140,23 @@ public class ToolScanConfigurer implements BeanDefinitionRegistryPostProcessor, 
 
 
     }
+
+
     private static class DeclaredClassExcludeFilter extends AbstractTypeHierarchyTraversingFilter {
         private final Set<String> classNames = new HashSet<>();
 
         public DeclaredClassExcludeFilter(boolean considerInherited, boolean considerInterfaces, Class<?>... sources) {
             super(considerInherited, considerInterfaces);
-            for(int i = 0; i < sources.length; i++) {
-                this.classNames.add(sources[i].getName());
+            for (Class<?> source : sources) {
+                this.classNames.add(source.getName());
             }
         }
 
         DeclaredClassExcludeFilter(Class<?>... sources) {
             super(false, false);
 
-            for(int i = 0; i < sources.length; i++) {
-                this.classNames.add(sources[i].getName());
+            for (Class<?> source : sources) {
+                this.classNames.add(source.getName());
             }
 
         }

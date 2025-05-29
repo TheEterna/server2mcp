@@ -19,6 +19,8 @@ public class PluginProperties {
      */
     private Parser parser;
 
+    private Resource resource;
+
     /**
      * scope, 默认取值 interface 即为扫描接口
      */
@@ -41,6 +43,11 @@ public class PluginProperties {
     public static class Parser {
         private List<DesParserType> des;
         private List<ParamParserType> param;
+    }
+
+    @Data
+    private static class Resource {
+        private boolean enabled = true;
     }
 
 }

@@ -1,4 +1,4 @@
-package com.ai.plug.component.toolCallbackProvider;
+package com.ai.plug.component.provider;
 
 import com.ai.plug.common.annotation.ToolScan;
 import com.ai.plug.common.utils.AIUtils;
@@ -71,13 +71,18 @@ public class CustomToolCallbackProvider implements ToolCallbackProvider {
 
 
     private boolean isFunctionalType(Method toolMethod) {
-        boolean isFunction = ClassUtils.isAssignable(toolMethod.getReturnType(), Function.class) || ClassUtils.isAssignable(toolMethod.getReturnType(), Supplier.class) || ClassUtils.isAssignable(toolMethod.getReturnType(), Consumer.class);
+        var isFunction = ClassUtils.isAssignable(Function.class, toolMethod.getReturnType())
+                || ClassUtils.isAssignable(Supplier.class, toolMethod.getReturnType())
+                || ClassUtils.isAssignable(Consumer.class, toolMethod.getReturnType());
+
         if (isFunction) {
-            log.warn("Method {} is annotated with @Tool but returns a functional type. This is not supported and the method will be ignored.", toolMethod.getName());
+            log.warn("Method {} is annotated with @Tool but returns a functional type. "
+                    + "This is not supported and the method will be ignored.", toolMethod.getName());
         }
 
         return isFunction;
     }
+
 
     private void validateToolCallbacks(ToolCallback[] toolCallbacks) {
         List<String> duplicateToolNames = ToolUtils.getDuplicateToolNames(toolCallbacks);

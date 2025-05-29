@@ -14,6 +14,11 @@ import org.springframework.util.CollectionUtils;
 
 import java.util.List;
 
+/**
+ * @author: han
+ * time: 2025/04/2025/4/15 00:35
+ * des: ToolScan注解上import的注册类
+ */
 public class ToolScanRegistrar implements BeanFactoryAware, ImportBeanDefinitionRegistrar {
 
     private BeanFactory beanFactory;

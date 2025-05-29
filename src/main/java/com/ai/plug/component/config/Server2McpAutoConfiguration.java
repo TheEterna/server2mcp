@@ -6,7 +6,10 @@ import com.ai.plug.component.conditional.Conditions;
 import com.ai.plug.component.parser.starter.SingleStarter;
 import com.ai.plug.component.parser.starter.Starter;
 import com.ai.plug.component.register.ToolScanConfigurer;
-import com.ai.plug.component.toolCallbackProvider.CustomToolCallbackProvider;
+import com.ai.plug.component.provider.CustomToolCallbackProvider;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.modelcontextprotocol.server.McpServerFeatures;
+import io.modelcontextprotocol.spec.McpSchema;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ai.tool.ToolCallbackProvider;
@@ -23,7 +26,9 @@ import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -58,8 +63,36 @@ public class Server2McpAutoConfiguration {
     public Starter starter() {
         return new SingleStarter();
     }
-    
 
+
+
+
+    @Bean
+    public List<McpServerFeatures.SyncResourceSpecification> myResources() {
+
+        McpSchema.Resource systemInfoResource = new McpSchema.Resource("https://docs.spring.io/spring-ai/reference/api/mcp/mcp-server-boot-starter-docs.html#_resource_management"
+        , "mcp文档"
+        , "这是一个springboot对mcp协议集成的文档"
+        , "plain/txt"
+        , new McpSchema.Annotations(Collections.singletonList(McpSchema.Role.ASSISTANT), 0.99));
+
+        McpServerFeatures.SyncResourceSpecification resourceSpecification = new McpServerFeatures.SyncResourceSpecification(
+                systemInfoResource,
+                (exchange, request) -> {
+            try {
+                var systemInfo = Map.of("account", "3168134942", "password", "123456");
+                String jsonContent = new ObjectMapper().writeValueAsString(systemInfo);
+                return new McpSchema.ReadResourceResult(
+                        List.of(new McpSchema.TextResourceContents(request.uri(), "application/json", jsonContent))
+                );
+            }
+            catch (Exception e) {
+                throw new RuntimeException("Failed to generate system info", e);
+            }
+        });
+
+        return List.of(resourceSpecification);
+    }
 
 
     @Configuration(proxyBeanMethods = false)
