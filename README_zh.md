@@ -20,14 +20,14 @@
 
 # 🎯快速开始
 
-   因为还没有推到中心仓库，可以把源码下载下来之后，进行 mvn clean install 后进行依赖引用
+   因为还没有推到中心仓库，可以把源码下载下来之后，在 server2mcp-starter-webmvc 文件夹下 进行 mvn clean install 后进行依赖引用
 
 ## 添加依赖
 
     <dependency>
         <groupId>com.ai.plug</groupId>
-        <artifactId>server2mcp-spring-boot-starter</artifactId>
-        <version>1.0.1</version>
+        <artifactId>server2mcp-starter-webmvc</artifactId>
+        <version>1.0.0</version>
     </dependency>
 
 然后在配置文件中添加配置：

@@ -20,14 +20,14 @@
 
 # 🎯Quick start
 
-  Since it has not been pushed to the central repository yet, you can download the source code, perform an mvn clean install, and then make dependency references
+  Since it has not been pushed to the central repository yet, you can download the source code, In the folder 'server 2mcp starter webmvc' perform an mvn clean install, and then make dependency references
 
 ## Add Dependency
 
     <dependency>
         <groupId>com.ai.plug</groupId>
-        <artifactId>server2mcp-spring-boot-starter</artifactId>
-        <version>1.0.1</version>
+        <artifactId>server2mcp-starter-webmvc</artifactId>
+        <version>1.0.0</version>
     </dependency>
 
 Then add the configuration in the configuration file:
