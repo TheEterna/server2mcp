@@ -1,0 +1,33 @@
+spring:
+  application:
+    name: plug
+  main:
+    allow-bean-definition-overriding: true
+    banner-mode: off
+  ai:
+    mcp:
+      server:
+        name: test-mcp
+        version: 1.0.0
+        type: SYNC
+        tool-response-mime-type:
+          readJPEGImage: image/jpg
+
+#management:
+#  endpoints:
+#    web:
+#      exposure:
+#        include: beans
+
+
+plugin:
+  mcp:
+    enabled: true
+    parser:
+      param: JAVADOC
+      des:  JAVADOC ,TOOL, JACKSON, SWAGGER3, SWAGGER2
+    scope: interface
+
+
+
+

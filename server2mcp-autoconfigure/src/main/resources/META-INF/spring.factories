@@ -1,0 +1,4 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+com.ai.plug.autoconfigure.Server2McpAutoConfiguration
+
+

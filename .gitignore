@@ -32,5 +32,3 @@ build/
 ### VS Code ###
 .vscode/
 *.log
-src/main/resources/application.yml
-/src/main/java/com/ai/plug/test/

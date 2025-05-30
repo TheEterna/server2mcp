@@ -1,0 +1,41 @@
+{
+  "properties": [
+    {
+      "name": "plugin.mcp.enabled",
+      "type": "java.lang.Boolean",
+      "description": "是否启用MCP插件功能",
+      "defaultValue": false
+    },
+    {
+      "name": "plugin.mcp.scope",
+      "type": "com.ai.plug.autoconfigure.PluginProperties$ScopeType",
+      "description": "扫描范围类型，可选值：INTERFACE, CUSTOM",
+      "defaultValue": "INTERFACE"
+    },
+    {
+      "name": "plugin.mcp.parser.des",
+      "type": "java.util.List<java.lang.String>",
+      "description": "功能描述解析器列表。可选值: TOOL, JACKSON, JAVADOC, SWAGGER2, SWAGGER3",
+      "defaultValue": [
+        "TOOL",
+        "JACKSON",
+        "JAVADOC",
+        "SWAGGER3",
+        "SWAGGER2"
+      ]
+    },
+    {
+      "name": "plugin.mcp.parser.param",
+      "type": "java.util.List<java.lang.String>",
+      "description": "参数解析器列表。可选值: TOOL, JACKSON, SPRINGMVC, JAVADOC, SWAGGER2, SWAGGER3",
+      "defaultValue": [
+        "TOOL",
+        "JACKSON",
+        "JAVADOC",
+        "SPRINGMVC",
+        "SWAGGER3",
+        "SWAGGER2"
+      ]
+    }
+  ]
+}
