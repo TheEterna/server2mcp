@@ -3,7 +3,7 @@ package com.ai.plug.core.builder;
 import com.ai.plug.common.utils.CommonUtil;
 import com.ai.plug.core.parser.des.AbstractDesParser;
 import com.ai.plug.core.parser.param.AbstractParamParser;
-import com.ai.plug.core.parser.starter.Starter;
+import com.ai.plug.core.parser.starter.AbstractStarter;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -44,7 +44,7 @@ import java.util.stream.Stream;
 @Component
 public class ToolDefinitionBuilder {
 
-    private static Starter starter;
+    private static AbstractStarter starter;
 
 
     private static final SchemaGenerator SUBTYPE_SCHEMA_GENERATOR;
@@ -74,13 +74,15 @@ public class ToolDefinitionBuilder {
      * @param desParserList
      * @return
      */
-    public static ToolDefinition buildToolDefinition(Method toolMethod, List<AbstractDesParser> desParserList, List<AbstractParamParser> paramParserList, Starter starter) {
+    public static ToolDefinition buildToolDefinition(Method toolMethod
+            , List<AbstractDesParser> desParserList
+            , List<AbstractParamParser> paramParserList
+            , AbstractStarter starter) {
         Assert.notNull(toolMethod, "方法不能为空");
         ToolDefinitionBuilder.starter = starter;
 
-
-
-        return DefaultToolDefinition.builder().name(ToolDefinitionBuilder.getToolName(toolMethod))
+        return DefaultToolDefinition.builder()
+                .name(ToolDefinitionBuilder.getToolName(toolMethod))
                 .description(ToolDefinitionBuilder.getToolDescription(toolMethod, desParserList))
                 .inputSchema(ToolDefinitionBuilder.getInputSchema(paramParserList, toolMethod)).build();
 
@@ -105,7 +107,6 @@ public class ToolDefinitionBuilder {
     }
 
     public static String getToolDescription(Method toolMethod, List<AbstractDesParser> desParserList) {
-
         return starter.runDesParse(desParserList, toolMethod, toolMethod.getDeclaringClass());
     }
 
@@ -199,6 +200,8 @@ public class ToolDefinitionBuilder {
         }
 
     }
+
+
     public static void convertTypeValuesToUpperCase(ObjectNode node) {
         if (node.isObject()) {
             node.fields().forEachRemaining((entry) -> {
@@ -212,7 +215,7 @@ public class ToolDefinitionBuilder {
                         }
 
                     });
-                } else if (value.isTextual() && entry.getKey().equals("type")) {
+                } else if (value.isTextual() && "type".equals(entry.getKey())) {
                     String oldValue = node.get("type").asText();
                     node.put("type", oldValue.toUpperCase());
                 }

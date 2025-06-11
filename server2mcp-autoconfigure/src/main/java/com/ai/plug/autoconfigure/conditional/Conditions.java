@@ -25,8 +25,7 @@ public class Conditions {
             Environment environment = context.getEnvironment();
 
 
-            Boolean flag = environment.getProperty(VARIABLE_PREFIX + "." + "enabled", Boolean.class, false);
-            return flag;
+            return environment.getProperty(VARIABLE_PREFIX + "." + "enabled", Boolean.class, false);
         }
     }
     public static class IsInterfaceCondition implements Condition {

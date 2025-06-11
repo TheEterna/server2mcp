@@ -2,7 +2,6 @@ spring:
   application:
     name: plug
   main:
-    allow-bean-definition-overriding: true
     banner-mode: off
   ai:
     mcp:
@@ -13,12 +12,6 @@ spring:
         tool-response-mime-type:
           readJPEGImage: image/jpg
 
-#management:
-#  endpoints:
-#    web:
-#      exposure:
-#        include: beans
-
 
 plugin:
   mcp:
@@ -27,6 +20,8 @@ plugin:
       param: JAVADOC
       des:  JAVADOC ,TOOL, JACKSON, SWAGGER3, SWAGGER2
     scope: interface
+    resources:
+      enabled: true
 
 
 

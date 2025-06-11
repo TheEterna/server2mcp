@@ -1,6 +1,6 @@
-package com.ai.plug.core.register;
+package com.ai.plug.core.register.tool;
 
-import com.ai.plug.core.ToolContext;
+import com.ai.plug.core.context.ToolContext;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.context.annotation.AnnotationBeanNameGenerator;
@@ -15,7 +15,7 @@ import org.springframework.context.annotation.ClassPathBeanDefinitionScanner;
 
 public class ClassPathToolScanner extends ClassPathBeanDefinitionScanner {
 
-    private ToolContext.ToolRegisterDefinition toolRegisterDefinition;
+    private final ToolContext.ToolRegisterDefinition toolRegisterDefinition;
 
     public ClassPathToolScanner(BeanDefinitionRegistry registry, ToolContext.ToolRegisterDefinition toolRegisterDefinition) {
         super(registry, false);

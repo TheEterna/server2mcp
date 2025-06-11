@@ -5,7 +5,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 /**
- * @ author 韩
+ * @author 韩
  * time: 2025/4/23 4:17
  */
 

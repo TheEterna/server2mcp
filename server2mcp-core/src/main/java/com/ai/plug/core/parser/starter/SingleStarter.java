@@ -11,11 +11,11 @@ import java.util.Objects;
 
 
 /**
- * @ author 韩
+ * @author 韩
  * time: 2025/4/29 17:03
  */
 @Slf4j
-public final class SingleStarter extends Starter {
+public final class SingleStarter extends AbstractStarter {
 
 
     @Override
@@ -41,7 +41,7 @@ public final class SingleStarter extends Starter {
         }).filter(Objects::nonNull).findFirst().orElse(null);
 
         if (result == null) {
-//            log.warn("Please note that the parsing module you specified resulted in the {} tool not parsing the param required", toolClass.getName() + "-" + method.getName());
+            log.warn("Please note that the parsing module you specified resulted in the {} tool not parsing the param required", toolClass.getName() + "-" + method.getName());
             return AbstractParamParser.doDefaultParamRequiredParse(method, toolClass, index);
         }
         return result;
@@ -54,7 +54,7 @@ public final class SingleStarter extends Starter {
         }).filter(Objects::nonNull).findFirst().orElse(null);
 
         if (result == null) {
-//            log.warn("Please note that the parsing module you specified resulted in the {} tool not parsing the param required", toolClass.getName() + "-" + method.getName());
+            log.warn("Please note that the parsing module you specified resulted in the {} tool not parsing the param required", toolClass.getName() + "-" + method.getName());
             return AbstractParamParser.doDefaultParamDesParse(method, toolClass, index);
         }
 

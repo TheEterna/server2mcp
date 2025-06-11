@@ -15,6 +15,7 @@
     <dependencies>
 
 
+
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
@@ -27,6 +28,7 @@
             <artifactId>server2mcp-starter-webmvc</artifactId>
             <version>${project.version}</version>
         </dependency>
+
         <dependency>
             <groupId>io.swagger.core.v3</groupId>
             <artifactId>swagger-annotations</artifactId>

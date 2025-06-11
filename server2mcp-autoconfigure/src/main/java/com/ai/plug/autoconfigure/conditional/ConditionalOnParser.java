@@ -8,7 +8,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * @ author 韩
+ * @author 韩
  * time: 2025/5/16 12:37
  */
 @Target({ElementType.TYPE, ElementType.METHOD})

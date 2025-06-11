@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * @ author 韩
+ * @author 韩
  * time: 2025/5/13 2:05
  * JAVADOC 还是一种很有用的注解方式, 不能够废弃, 后面会给他提供一种可用的方式改造
  */
@@ -135,19 +135,23 @@ public class JavaDocParamParser extends AbstractParamParser {
     private static File getJavaSourceFile(Class<?> clazz) throws Exception {
 
         // 获取当前类的class文件位置
-        URI classURI = clazz.getProtectionDomain().getCodeSource().getLocation().toURI();
-        File classLocation = new File(classURI);
+        URI classUri = clazz.getProtectionDomain().getCodeSource().getLocation().toURI();
+        File classLocation = new File(classUri);
+        String jarSuffix = ".jar";
 
         // 情况1：类从JAR包加载（生产环境）
-        if (classLocation.getName().endsWith(".jar")) {
-            System.err.println("无法从JAR包中获取源文件路径");
+        if (classLocation.getName().endsWith(jarSuffix)) {
+            log.debug("无法从JAR包中获取源文件路径");
             return null;
         }
 
         // 情况2：类从文件系统加载（开发环境）
         // 确定模块目录：假设target/classes的父目录是模块根目录
-        File moduleRoot = classLocation.getParentFile(); // target
-        moduleRoot = moduleRoot.getParentFile();         // 模块根目录
+
+        // target
+        File moduleRoot = classLocation.getParentFile();
+        // 模块根目录
+        moduleRoot = moduleRoot.getParentFile();
 
         // 计算源文件路径
         String packagePath = clazz.getPackage().getName().replace('.', '/');

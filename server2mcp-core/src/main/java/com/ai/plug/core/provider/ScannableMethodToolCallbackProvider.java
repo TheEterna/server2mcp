@@ -1,11 +1,12 @@
 package com.ai.plug.core.provider;
 
 import com.ai.plug.core.annotation.ToolScan;
-import com.ai.plug.core.ToolContext;
+import com.ai.plug.core.context.ToolContext;
 import com.ai.plug.core.builder.ToolDefinitionBuilder;
 import com.ai.plug.core.parser.des.AbstractDesParser;
 import com.ai.plug.core.parser.param.AbstractParamParser;
-import com.ai.plug.core.parser.starter.Starter;
+import com.ai.plug.core.parser.starter.AbstractStarter;
+import com.ai.plug.core.utils.CustomToolUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.tool.ToolCallback;
 import org.springframework.ai.tool.ToolCallbackProvider;
@@ -38,14 +39,14 @@ import java.util.stream.Stream;
  */
 
 @Slf4j
-public class CustomToolCallbackProvider implements ToolCallbackProvider {
+public class ScannableMethodToolCallbackProvider implements ToolCallbackProvider {
     private final Map<Object, ToolContext.ToolRegisterDefinition> toolAndDefinitions;
 
     private List<AbstractDesParser> desParserList;
 
     private List<AbstractParamParser> paramParserList;
 
-    private Starter starter;
+    private AbstractStarter starter;
 
     @Autowired
     public void setDesParserList(List<AbstractDesParser> desParserList) {
@@ -56,14 +57,13 @@ public class CustomToolCallbackProvider implements ToolCallbackProvider {
     public void setParamParserList(List<AbstractParamParser> paramParserList) {
         this.paramParserList = paramParserList;
         log.info("ParamParserList have {} parser", paramParserList.size());
-
     }
     @Autowired
-    public void setStarter(Starter starter) {
+    public void setStarter(AbstractStarter starter) {
         this.starter = starter;
     }
 
-    private CustomToolCallbackProvider(Map<Object, ToolContext.ToolRegisterDefinition> toolAndDefinitions) {
+    private ScannableMethodToolCallbackProvider(Map<Object, ToolContext.ToolRegisterDefinition> toolAndDefinitions) {
         Assert.notNull(toolAndDefinitions, "toolAndDefinitions cannot be null");
 
         this.toolAndDefinitions = toolAndDefinitions;
@@ -87,11 +87,6 @@ public class CustomToolCallbackProvider implements ToolCallbackProvider {
     private void validateToolCallbacks(ToolCallback[] toolCallbacks) {
         List<String> duplicateToolNames = ToolUtils.getDuplicateToolNames(toolCallbacks);
         if (!duplicateToolNames.isEmpty()) {
-//            return toolCallbacks;
-            /* 这个以前的 !duplicateToolNames.isEmpty() 条件下的
-                        throw new IllegalStateException("Multiple tools with the same name (%s) found in sources: %s".formatted(String.join(", ", duplicateToolNames), this.toolAndDefinitions.keySet().stream().map((o) -> {
-                            return o.getClass().getName();
-                       }).collect(Collectors.joining(", "))));*/
 
             log.warn("Multiple tools with the same name (%s) found in sources: %s".formatted(String.join(", ", duplicateToolNames), this.toolAndDefinitions.keySet().stream().map((o) -> {
                 return o.getClass().getName();
@@ -121,7 +116,7 @@ public class CustomToolCallbackProvider implements ToolCallbackProvider {
                 ToolScan.ToolFilter[] includeToolFilters = toolDefinition.getIncludeFilters();
 
 
-                if (!CollectionUtils.isEmpty(List.of(excludeToolFilters))) {
+                if (excludeToolFilters != null && excludeToolFilters.length != 0 && !CollectionUtils.isEmpty(List.of(excludeToolFilters))) {
                     // 如果不为空 就开始遍历
                     for (ToolScan.ToolFilter excludeToolFilter : excludeToolFilters) {
                         boolean isFilter = doFilter(toolMethod, excludeToolFilter);
@@ -132,7 +127,7 @@ public class CustomToolCallbackProvider implements ToolCallbackProvider {
                     }
                 }
 
-                if (!CollectionUtils.isEmpty(List.of(includeToolFilters))) {
+                if (includeToolFilters != null && includeToolFilters.length != 0 &&!CollectionUtils.isEmpty(List.of(includeToolFilters))) {
                     // 如果不为空 就开始遍历
                     for (ToolScan.ToolFilter includeToolFilter : includeToolFilters) {
                         boolean isFilter = doFilter(toolMethod, includeToolFilter);
@@ -154,14 +149,12 @@ public class CustomToolCallbackProvider implements ToolCallbackProvider {
                 return !this.isFunctionalType(toolMethod);
             }).map((toolMethod) -> {
 
-//                return DefaultToolDefinition.builder().name(ToolUtils.getToolName(method)).description(ToolUtils.getToolDescription(method)).inputSchema(JsonSchemaGenerator.generateForMethodInput(method, new JsonSchemaGenerator.SchemaOption[0]));
                 MethodToolCallback toolCallback = MethodToolCallback.builder()
-                        // 这个ToolDefinition需要重写
                         .toolDefinition(ToolDefinitionBuilder.buildToolDefinition(toolMethod, desParserList, paramParserList, starter))
                         .toolMetadata(ToolMetadata.from(toolMethod))
                         .toolMethod(toolMethod)
                         .toolObject(toolBean)
-                        .toolCallResultConverter(ToolUtils.getToolCallResultConverter(toolMethod)).build();
+                        .toolCallResultConverter(CustomToolUtil.getToolCallResultConverter(toolMethod)).build();
 
 
                 return toolCallback;
@@ -231,8 +224,8 @@ public class CustomToolCallbackProvider implements ToolCallbackProvider {
             return this;
         }
 
-        public CustomToolCallbackProvider build() {
-            return new CustomToolCallbackProvider(this.toolAndDefinitions);
+        public ScannableMethodToolCallbackProvider build() {
+            return new ScannableMethodToolCallbackProvider(this.toolAndDefinitions);
         }
     }
 

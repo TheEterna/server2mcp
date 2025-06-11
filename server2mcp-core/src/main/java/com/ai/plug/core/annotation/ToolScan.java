@@ -1,6 +1,6 @@
 package com.ai.plug.core.annotation;
 
-import com.ai.plug.core.register.ToolScanRegistrar;
+import com.ai.plug.core.register.tool.ToolScanRegistrar;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.annotation.AliasFor;
 
@@ -60,11 +60,39 @@ public @interface ToolScan {
 
     }
 
+    /**
+     * resource 扫描的类 的过滤方式目前有
+     * CLASS 按类扫描
+     * ANNOTATION 按注解扫描
+     */
     enum FilterType {
-        CLASS, ANNOTATION;
+        /**
+         * CLASS 按类扫描
+         */
+        CLASS,
+
+        /**
+         * ANNOTATION 按注解扫描
+         */
+        ANNOTATION;
     }
+
+
+    /**
+     * resource 扫描具体工具 的过滤方式目前有
+     * META_ANNOTATION 按元注解扫描
+     * ANNOTATION 按注解扫描
+     */
     enum ToolFilterType {
-        ANNOTATION, META_ANNOTATION;
+        /**
+         * ANNOTATION 按注解扫描
+         */
+        ANNOTATION,
+
+        /**
+         * META_ANNOTATION 按元注解扫描
+         */
+        META_ANNOTATION;
     }
 
 

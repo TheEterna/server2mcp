@@ -7,6 +7,12 @@
       "defaultValue": false
     },
     {
+      "name": "plugin.mcp.resources.enabled",
+      "type": "java.lang.Boolean",
+      "description": "是否启用MCP资源功能",
+      "defaultValue": true
+    },
+    {
       "name": "plugin.mcp.scope",
       "type": "com.ai.plug.autoconfigure.PluginProperties$ScopeType",
       "description": "扫描范围类型，可选值：INTERFACE, CUSTOM",

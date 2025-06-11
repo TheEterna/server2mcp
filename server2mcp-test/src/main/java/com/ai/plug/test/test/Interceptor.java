@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 /**
- * @ author 韩
+ * @author 韩
  * time: 2025/4/23 4:15
  */
 @Component

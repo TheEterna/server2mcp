@@ -1,6 +1,6 @@
 package com.ai.plug.core.annotation;
 
-import com.ai.plug.core.register.ToolScanRegistrar;
+import com.ai.plug.core.register.tool.ToolScanRegistrar;
 import org.springframework.context.annotation.Import;
 
 import java.lang.annotation.*;

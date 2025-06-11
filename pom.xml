@@ -17,6 +17,7 @@
         <javaparser.version>3.25.5</javaparser.version>
         <victools.module.swagger1-5.version>4.37.0</victools.module.swagger1-5.version>
         <swagger1-5.annotations.version>1.5.20</swagger1-5.annotations.version>
+        <mcp-annotations.version>0.2.0-PRIVATE</mcp-annotations.version>
     </properties>
 
 
@@ -57,6 +58,19 @@
                 <version>${spring-boot.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
+            </dependency>
+
+
+
+            <dependency>
+                <groupId>com.logaritex.mcp</groupId>
+                <artifactId>spring-ai-mcp-annotations</artifactId>
+                <version>${mcp-annotations.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.logaritex.mcp</groupId>
+                <artifactId>mcp-annotations</artifactId>
+                <version>${mcp-annotations.version}</version>
             </dependency>
 
             <dependency>

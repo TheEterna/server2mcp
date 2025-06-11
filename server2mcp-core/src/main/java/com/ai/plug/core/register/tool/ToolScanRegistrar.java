@@ -1,15 +1,13 @@
-package com.ai.plug.core.register;
+package com.ai.plug.core.register.tool;
 
 import com.ai.plug.core.annotation.ToolScan;
 import com.ai.plug.core.annotation.ToolScans;
-import org.springframework.beans.factory.BeanFactory;
-import org.springframework.beans.factory.BeanFactoryAware;
+import com.ai.plug.core.utils.CustomToolUtil;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.context.annotation.ImportBeanDefinitionRegistrar;
 import org.springframework.core.annotation.AnnotationAttributes;
 import org.springframework.core.type.AnnotationMetadata;
-import org.springframework.util.ClassUtils;
 import org.springframework.util.CollectionUtils;
 
 import java.util.List;
@@ -19,13 +17,11 @@ import java.util.List;
  * time: 2025/04/2025/4/15 00:35
  * des: ToolScan注解上import的注册类
  */
-public class ToolScanRegistrar implements BeanFactoryAware, ImportBeanDefinitionRegistrar {
+public class ToolScanRegistrar implements ImportBeanDefinitionRegistrar {
 
-    private BeanFactory beanFactory;
 
-    public void setBeanFactory(BeanFactory beanFactory) {
-        this.beanFactory = beanFactory;
-    }
+    private static int index = 0;
+
     @Override
     public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
         // 获取 @ToolScan 注解的属性值
@@ -44,7 +40,7 @@ public class ToolScanRegistrar implements BeanFactoryAware, ImportBeanDefinition
         if (!CollectionUtils.isEmpty(List.of(basePackages))) {
             builder.addPropertyValue("basePackages", basePackages);
         } else {
-            builder.addPropertyValue("basePackages", getDefaultBasePackage(importingClassMetadata));
+            builder.addPropertyValue("basePackages", CustomToolUtil.getDefaultBasePackage(importingClassMetadata));
         }
 
         AnnotationAttributes[] excludeFilters = attributes.getAnnotationArray("excludeFilters");
@@ -63,21 +59,18 @@ public class ToolScanRegistrar implements BeanFactoryAware, ImportBeanDefinition
         }
         ToolScan.ToolFilter[] includeToolFilters = convertToToolFilters(attributes.getAnnotationArray("includeToolFilters"));
         if (!CollectionUtils.isEmpty(List.of(includeToolFilters))) {
-            builder.addPropertyValue("includeAttributesArray", includeToolFilters);
+            builder.addPropertyValue("includeToolFilters", includeToolFilters);
         }
         builder.setRole(2);
-        registry.registerBeanDefinition(generateBaseBeanName(importingClassMetadata, 0), builder.getBeanDefinition());
+        registry.registerBeanDefinition(CustomToolUtil.generateBaseBeanName(importingClassMetadata, index++), builder.getBeanDefinition());
     }
 
-    private static String generateBaseBeanName(AnnotationMetadata importingClassMetadata, int index) {
-        String className = importingClassMetadata.getClassName();
-        return className + "#" + ToolScanRegistrar.class.getSimpleName() + "#" + index;
-    }
-    private static String getDefaultBasePackage(AnnotationMetadata importingClassMetadata) {
-        return ClassUtils.getPackageName(importingClassMetadata.getClassName());
-    }
 
-    // 类型转换用
+    /**
+     * 类型转换用
+     * @param attributesArray
+     * @return
+     */
     private ToolScan.ToolFilter[] convertToToolFilters(AnnotationAttributes[] attributesArray) {
         if (attributesArray == null) {
             return new ToolScan.ToolFilter[0];
@@ -111,7 +104,9 @@ public class ToolScanRegistrar implements BeanFactoryAware, ImportBeanDefinition
     }
 
 
-    // 给ToolScans用
+    /**
+     * 给ToolScans用
+     */
     public static class RepeatingRegistrar extends ToolScanRegistrar {
         public RepeatingRegistrar() {
         }

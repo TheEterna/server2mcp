@@ -61,6 +61,16 @@
             <optional>true</optional>
         </dependency>
 
+        <dependency>
+            <groupId>com.logaritex.mcp</groupId>
+            <artifactId>spring-ai-mcp-annotations</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.logaritex.mcp</groupId>
+            <artifactId>mcp-annotations</artifactId>
+        </dependency>
+
     </dependencies>
 
 </project>

@@ -10,12 +10,12 @@ import java.util.List;
 
 
 /**
- * @ author 韩
+ * @author 韩
  * time: 2025/4/29 17:02
  */
 @Slf4j
 @Deprecated
-public class AddStarter extends Starter {
+public class AddStarter extends AbstractStarter {
 
 
     @Override
