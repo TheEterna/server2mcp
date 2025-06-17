@@ -12,7 +12,6 @@ import java.util.Map;
  * time: 2025/04/2025/4/11 02:33
  * des:
  */
-@Component
 @Slf4j
 public class ToolContext {
 

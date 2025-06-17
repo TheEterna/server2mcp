@@ -7,9 +7,27 @@
       "defaultValue": false
     },
     {
-      "name": "plugin.mcp.resources.enabled",
+      "name": "plugin.mcp.tool.enabled",
+      "type": "java.lang.Boolean",
+      "description": "是否启用MCP工具功能",
+      "defaultValue": true
+    },
+    {
+      "name": "plugin.mcp.resource.enabled",
       "type": "java.lang.Boolean",
       "description": "是否启用MCP资源功能",
+      "defaultValue": true
+    },
+    {
+      "name": "plugin.mcp.prompt.enabled",
+      "type": "java.lang.Boolean",
+      "description": "是否启用MCP的Prompt功能",
+      "defaultValue": true
+    },
+    {
+      "name": "plugin.mcp.complete.enabled",
+      "type": "java.lang.Boolean",
+      "description": "是否启用MCP的complete功能",
       "defaultValue": true
     },
     {

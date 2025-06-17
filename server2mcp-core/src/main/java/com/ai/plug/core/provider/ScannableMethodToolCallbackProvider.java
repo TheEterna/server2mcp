@@ -196,7 +196,9 @@ public class ScannableMethodToolCallbackProvider implements ToolCallbackProvider
                     annotation = AnnotationUtils.findAnnotation(toolMethod, (Class<? extends Annotation>) includeClass);
                 }
             }
-            default -> throw new IllegalStateException("Unexpected value: " + includeToolFilter.type());
+            default -> {
+                throw new IllegalStateException("Unexpected value: " + includeToolFilter.type());
+            }
         }
         return annotation != null;
     }

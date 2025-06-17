@@ -1,6 +1,7 @@
-package com.ai.plug.core.register.resource;
+package com.ai.plug.core.register.complete;
 
-import com.ai.plug.core.annotation.McpResourceScan;
+import com.ai.plug.core.annotation.McpCompleteScan;
+import com.ai.plug.core.register.complete.ClassPathCompleteScanner;
 import com.ai.plug.core.spring.filter.DeclaredClassExcludeFilter;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
@@ -16,11 +17,11 @@ import java.lang.annotation.Annotation;
 import java.util.List;
 
 /**
- * @author 韩
- * time: 2025/6/3 11:29
+ * @author han
+ * @time 2025/6/16 17:07
  */
 
-public class McpResourceScanConfigurer implements BeanDefinitionRegistryPostProcessor, BeanFactoryPostProcessor {
+public class McpCompleteScanConfigurer implements BeanDefinitionRegistryPostProcessor {
 
     private String[] basePackages;
     private AnnotationAttributes[] excludeFilters;
@@ -56,14 +57,14 @@ public class McpResourceScanConfigurer implements BeanDefinitionRegistryPostProc
     public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
 
         // 创建类路径扫描器
-        ClassPathBeanDefinitionScanner scanner = new ClassPathResourceScanner(registry);
+        ClassPathBeanDefinitionScanner scanner = new ClassPathCompleteScanner(registry);
 
         // 排除过滤器
         if (excludeFilters != null && excludeFilters.length != 0 && !CollectionUtils.isEmpty(List.of(excludeFilters))) {
 
             for (AnnotationAttributes excludeFilter : excludeFilters) {
                 Class<?>[] excludeClasses = excludeFilter.getClassArray("value");
-                switch ((McpResourceScan.FilterType) excludeFilter.getEnum("type")) {
+                switch ((McpCompleteScan.FilterType) excludeFilter.getEnum("type")) {
                     case CLASS:
                         // 如果是 class过滤器
                         scanner.addExcludeFilter(new DeclaredClassExcludeFilter(excludeClasses));
@@ -86,7 +87,7 @@ public class McpResourceScanConfigurer implements BeanDefinitionRegistryPostProc
 
             for (AnnotationAttributes includeFilter : includeFilters) {
                 Class<?>[] includeClasses = includeFilter.getClassArray("value");
-                switch ((McpResourceScan.FilterType) includeFilter.getEnum("type")) {
+                switch ((McpCompleteScan.FilterType) includeFilter.getEnum("type")) {
                     case CLASS:
                         // 如果是 class过滤器
                         scanner.addIncludeFilter(new DeclaredClassExcludeFilter(includeClasses));
@@ -114,14 +115,6 @@ public class McpResourceScanConfigurer implements BeanDefinitionRegistryPostProc
         scanner.scan(this.basePackages);
     }
 
-    @Override
-    public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) {
-
-
-
-
-
-    }
 
 
 }

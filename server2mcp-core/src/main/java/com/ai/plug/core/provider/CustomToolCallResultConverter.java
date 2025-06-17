@@ -3,6 +3,7 @@ package com.ai.plug.core.provider;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.tool.execution.ToolCallResultConverter;
 import org.springframework.ai.util.json.JsonParser;
+import reactor.core.publisher.Mono;
 
 import javax.imageio.ImageIO;
 import java.awt.image.RenderedImage;
@@ -24,6 +25,12 @@ public class CustomToolCallResultConverter implements ToolCallResultConverter {
             log.debug("The tool has no return type. Converting to conventional response.");
             return JsonParser.toJson("Done");
         }
+
+        // 过滤
+        if (result instanceof Mono<?>) {
+            result = ((Mono<?>) result).block();
+        }
+
         if (result instanceof RenderedImage) {
             final ByteArrayOutputStream buf = new ByteArrayOutputStream(1024 * 4);
             try {

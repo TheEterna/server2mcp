@@ -1,44 +1,30 @@
 package com.ai.plug.autoconfigure;
 
-import com.ai.plug.core.annotation.McpResourceScan;
-import com.ai.plug.core.annotation.ToolScan;
 import com.ai.plug.autoconfigure.conditional.Conditions;
+import com.ai.plug.common.utils.ConvertUtil;
+import com.ai.plug.core.context.CompleteContext;
 import com.ai.plug.core.context.ResourceContext;
 import com.ai.plug.core.context.ToolContext;
-import com.ai.plug.core.parser.starter.SingleStarter;
-import com.ai.plug.core.parser.starter.AbstractStarter;
 import com.ai.plug.core.provider.ScannableMethodToolCallbackProvider;
-import com.ai.plug.core.register.resource.McpResourceScanConfigurer;
-import com.ai.plug.core.register.tool.ToolScanConfigurer;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.logaritex.mcp.spring.AsyncMcpAnnotationProvider;
 import com.logaritex.mcp.spring.SyncMcpAnnotationProvider;
 import io.modelcontextprotocol.server.McpServerFeatures;
+import io.modelcontextprotocol.server.McpSyncServerExchange;
 import io.modelcontextprotocol.spec.McpSchema;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.ai.mcp.server.autoconfigure.McpServerProperties;
 import org.springframework.ai.tool.ToolCallbackProvider;
-import org.springframework.beans.factory.BeanFactory;
-import org.springframework.beans.factory.BeanFactoryAware;
-import org.springframework.beans.factory.support.BeanDefinitionBuilder;
-import org.springframework.beans.factory.support.BeanDefinitionRegistry;
-import org.springframework.beans.factory.support.BeanNameGenerator;
-import org.springframework.boot.autoconfigure.AutoConfigurationPackages;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.*;
-import org.springframework.core.annotation.AnnotationAttributes;
-import org.springframework.core.type.AnnotationMetadata;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
+import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.ai.plug.common.constants.ConfigConstants.VARIABLE_RESOURCE;
-import static com.ai.plug.core.annotation.ToolScan.FilterType.ANNOTATION;
-import static com.ai.plug.core.annotation.ToolScan.ToolFilterType.META_ANNOTATION;
-import static com.ai.plug.common.constants.ConfigConstants.VARIABLE_PREFIX;
+import static com.ai.plug.common.constants.ConfigConstants.*;
 
 /**
  * @author 她也曾美如画
@@ -48,16 +34,24 @@ import static com.ai.plug.common.constants.ConfigConstants.VARIABLE_PREFIX;
 @ComponentScan(basePackages = "com.ai.plug")
 @Conditional(Conditions.SystemCondition.class)
 @Import({
-        Server2McpAutoConfiguration.AutoConfiguredToolScannerRegistrar.class,
-        Server2McpAutoConfiguration.AutoConfiguredResourceScannerRegistrar.class,
-        ParserConfig.class
+        McpConfig.AutoConfiguredToolScannerRegistrar.class,
+        McpConfig.AutoConfiguredResourceScannerRegistrar.class,
+        McpConfig.AutoConfiguredPromptScannerRegistrar.class,
+        McpConfig.AutoConfiguredCompleteScannerRegistrar.class,
+        ToolConfig.class
 })
 public class Server2McpAutoConfiguration {
     public static final Logger logger = LoggerFactory.getLogger(Server2McpAutoConfiguration.class);
 
-    // @ConditionalOnProperty(prefix = VARIABLE_PREFIX, name = ".enabled", havingValue = "true")
+    /**
+     * 创建自定义工具回调, 用于扫描自定义工具, 当false时, 不使用该回调(不启用自动注册功能), 使用spring-ai默认功能
+     * @param applicationContext spring容器
+     * @param properties 应用参数
+     * @return
+     */
     @Bean
     @Primary
+    @ConditionalOnProperty(prefix = VARIABLE_PREFIX + '.' + VARIABLE_TOOL, name = ".enabled", havingValue = "true", matchIfMissing = true)
     public ToolCallbackProvider customToolCallbackProvider(ApplicationContext applicationContext, PluginProperties properties){
         Map<Object, ToolContext.ToolRegisterDefinition> tools = ToolContext.getRawTools().entrySet().stream().collect(Collectors.toMap(
                 entry -> applicationContext.getBean(entry.getKey()),
@@ -71,230 +65,37 @@ public class Server2McpAutoConfiguration {
 
     /**
      * 创建同步资源包括资源模板, 无需担心同步和异步的区别,系统会自动转换
-     * @param applicationContext
-     * @param properties
-     * @return
+     * @param applicationContext spring容器
+     * @return 异步的resources
      */
     @Bean
     @Primary
-    public List<McpServerFeatures.SyncResourceSpecification> syncResourceSpecifications(ApplicationContext applicationContext, PluginProperties properties){
+    @ConditionalOnProperty(prefix = VARIABLE_PREFIX + '.' + VARIABLE_RESOURCE, name = ".enabled", havingValue = "true", matchIfMissing = true)
+    public List<McpServerFeatures.AsyncResourceSpecification> asyncResourceSpecifications(ApplicationContext applicationContext){
         List<Object> resources = ResourceContext.getRawResources().stream().map(applicationContext::getBean).collect(Collectors.toList());
+        // 通过sync转换成的async资源, 无需关注异步和同步的区别, 系统会自动转换
+        return AsyncMcpAnnotationProvider.createAsyncResourceSpecifications(resources);
 
-        // 需要在这里添加被@ResourceScan注解scan到的bean
-        return SyncMcpAnnotationProvider.createSyncResourceSpecifications(resources);
     }
 
 
     @Bean
-    @ConditionalOnProperty(prefix = VARIABLE_PREFIX, name = ".enabled", havingValue = "true")
-    public AbstractStarter starter() {
-        return new SingleStarter();
+    @Primary
+    @ConditionalOnProperty(prefix = VARIABLE_PREFIX + '.' + VARIABLE_PROMPT, name = ".enabled", havingValue = "true", matchIfMissing = true)
+    public List<McpServerFeatures.AsyncPromptSpecification> asyncPromptSpecification(ApplicationContext applicationContext){
+        List<Object> prompts = CompleteContext.getRawCompletes().stream().map(applicationContext::getBean).toList();
+        return AsyncMcpAnnotationProvider.createAsyncPromptSpecification(prompts);
+    }
+
+    @Bean
+    @Primary
+    @ConditionalOnProperty(prefix = VARIABLE_PREFIX + '.' + VARIABLE_COMPLETE, name = ".enabled", havingValue = "true", matchIfMissing = true)
+    public List<McpServerFeatures.AsyncCompletionSpecification> asyncCompletionSpecification(ApplicationContext applicationContext){
+        List<Object> completions = CompleteContext.getRawCompletes().stream().map(applicationContext::getBean).toList();
+        return AsyncMcpAnnotationProvider.createAsyncCompletionSpecification(completions);
     }
 
 
 
-
-//    @Bean
-//    public List<McpServerFeatures.SyncResourceSpecification> myResources() {
-//
-//        McpSchema.Resource systemInfoResource = new McpSchema.Resource("https://docs.spring.io/spring-ai/reference/api/mcp/mcp-server-boot-starter-docs.html#_resource_management"
-//        , "mcp文档"
-//        , "这是一个springboot对mcp协议集成的文档"
-//        , "plain/txt"
-//        , new McpSchema.Annotations(Collections.singletonList(McpSchema.Role.ASSISTANT), 0.99));
-//
-//        McpServerFeatures.SyncResourceSpecification resourceSpecification = new McpServerFeatures.SyncResourceSpecification(
-//                systemInfoResource,
-//                (exchange, request) -> {
-//            try {
-//                var systemInfo = Map.of("account", "3168134942", "password", "123456");
-//                String jsonContent = new ObjectMapper().writeValueAsString(systemInfo);
-//                return new McpSchema.ReadResourceResult(
-//                        List.of(new McpSchema.TextResourceContents(request.uri(), "application/json", jsonContent))
-//                );
-//            }
-//            catch (Exception e) {
-//                throw new RuntimeException("Failed to generate system info", e);
-//            }
-//        });
-//
-//        return List.of(resourceSpecification);
-//    }
-
-
-    @Conditional(Conditions.IsInterfaceCondition.class)
-    public static class AutoConfiguredToolScannerRegistrar implements ImportBeanDefinitionRegistrar, BeanFactoryAware {
-        private BeanFactory beanFactory;
-
-        // 无参构造器
-        public AutoConfiguredToolScannerRegistrar() {
-        }
-
-        public BeanFactory getBeanFactory() {
-            return beanFactory;
-        }
-
-        public void setBeanFactory(BeanFactory beanFactory) {
-            this.beanFactory = beanFactory;
-        }
-
-        // 注册BeanDefinitions
-        public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
-            if (!AutoConfigurationPackages.has(this.beanFactory)) {
-                Server2McpAutoConfiguration.logger.debug("Could not determine auto-configuration package, automatic mapper scanning disabled.");
-                return;
-            }
-            Server2McpAutoConfiguration.logger.debug("Searching for tools of interfaces");
-
-            BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(ToolScanConfigurer.class);
-
-            String[] basePackages = AutoConfigurationPackages.get(this.beanFactory).toArray(new String[0]);
-            builder.addPropertyValue("basePackages", basePackages);
-
-            HashMap<String, Object> excludeMap = new HashMap<>();
-            excludeMap.put("classes", Deprecated.class);
-            excludeMap.put("type", ANNOTATION);
-            excludeMap.put("value", Deprecated.class);
-            AnnotationAttributes[] excludeFilters = new AnnotationAttributes[]{new AnnotationAttributes(excludeMap)};
-            builder.addPropertyValue("excludeFilters", excludeFilters);
-
-            HashMap<String, Object> includeMap = new HashMap<>();
-            includeMap.put("classes", Controller.class);
-            includeMap.put("type", ANNOTATION);
-            includeMap.put("value", Controller.class);
-            AnnotationAttributes[] includeFilters = new AnnotationAttributes[]{new AnnotationAttributes(includeMap)};
-            builder.addPropertyValue("includeFilters", includeFilters);
-
-
-            HashMap<String, Object> excludeToolMap = new HashMap<>();
-            excludeToolMap.put("classes", Deprecated.class);
-            excludeToolMap.put("type", META_ANNOTATION);
-            excludeToolMap.put("value", Deprecated.class);
-            ToolScan.ToolFilter[] excludeToolFilters= convertToToolFilters(new AnnotationAttributes[]{new AnnotationAttributes(excludeToolMap)});
-            builder.addPropertyValue("excludeToolFilters", excludeToolFilters);
-
-            HashMap<String, Object> includeToolMap = new HashMap<>();
-            includeToolMap.put("classes", RequestMapping.class);
-            includeToolMap.put("type", META_ANNOTATION);
-            includeToolMap.put("value", RequestMapping.class);
-            ToolScan.ToolFilter[] includeToolFilters = convertToToolFilters(new AnnotationAttributes[]{new AnnotationAttributes(includeToolMap)});
-            builder.addPropertyValue("includeToolFilters", includeToolFilters);
-
-
-            builder.setRole(2);
-            registry.registerBeanDefinition(ToolScanConfigurer.class.getName(), builder.getBeanDefinition());
-
-        }
-        private ToolScan.ToolFilter[] convertToToolFilters(AnnotationAttributes[] attributesArray) {
-            if (attributesArray == null) {
-                return new ToolScan.ToolFilter[0];
-            }
-            ToolScan.ToolFilter[] toolFilters = new ToolScan.ToolFilter[attributesArray.length];
-            for (int i = 0; i < attributesArray.length; i++) {
-                AnnotationAttributes attributes = attributesArray[i];
-                toolFilters[i] = new ToolScan.ToolFilter() {
-                    @Override
-                    public ToolScan.ToolFilterType type() {
-                        return attributes.getEnum("type");
-                    }
-
-                    @Override
-                    public Class<?>[] value() {
-                        return attributes.getClassArray("value");
-                    }
-
-                    @Override
-                    public Class<?>[] classes() {
-                        return attributes.getClassArray("classes");
-                    }
-
-                    @Override
-                    public Class<? extends java.lang.annotation.Annotation> annotationType() {
-                        return ToolScan.ToolFilter.class;
-                    }
-                };
-            }
-            return toolFilters;
-        }
-
-
-    }
-
-
-
-    @ConditionalOnProperty(prefix = VARIABLE_PREFIX + '.' + VARIABLE_RESOURCE, name = ".enabled", havingValue = "true")
-    public static class AutoConfiguredResourceScannerRegistrar implements ImportBeanDefinitionRegistrar, BeanFactoryAware {
-        private BeanFactory beanFactory;
-
-        // 无参构造器
-        public AutoConfiguredResourceScannerRegistrar() {
-        }
-
-        public BeanFactory getBeanFactory() {
-            return beanFactory;
-        }
-
-        public void setBeanFactory(BeanFactory beanFactory) {
-            this.beanFactory = beanFactory;
-        }
-
-
-        // 注册BeanDefinitions
-        public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
-            if (!AutoConfigurationPackages.has(this.beanFactory)) {
-                Server2McpAutoConfiguration.logger.debug("Could not determine auto-configuration package, automatic mapper scanning disabled.");
-                return;
-            }
-
-            BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(McpResourceScanConfigurer.class);
-
-            String[] basePackages = AutoConfigurationPackages.get(this.beanFactory).toArray(new String[0]);
-            builder.addPropertyValue("basePackages", basePackages);
-
-            HashMap<String, Object> excludeMap = new HashMap<>(10);
-            excludeMap.put("classes", Deprecated.class);
-            excludeMap.put("type", McpResourceScan.FilterType.ANNOTATION);
-            excludeMap.put("value", Deprecated.class);
-            AnnotationAttributes[] excludeFilters = new AnnotationAttributes[]{new AnnotationAttributes(excludeMap)};
-            builder.addPropertyValue("excludeFilters", excludeFilters);
-
-            builder.setRole(2);
-            registry.registerBeanDefinition(McpResourceScanConfigurer.class.getName(), builder.getBeanDefinition());
-
-        }
-        private ToolScan.ToolFilter[] convertToToolFilters(AnnotationAttributes[] attributesArray) {
-            if (attributesArray == null) {
-                return new ToolScan.ToolFilter[0];
-            }
-            ToolScan.ToolFilter[] toolFilters = new ToolScan.ToolFilter[attributesArray.length];
-            for (int i = 0; i < attributesArray.length; i++) {
-                AnnotationAttributes attributes = attributesArray[i];
-                toolFilters[i] = new ToolScan.ToolFilter() {
-                    @Override
-                    public ToolScan.ToolFilterType type() {
-                        return attributes.getEnum("type");
-                    }
-
-                    @Override
-                    public Class<?>[] value() {
-                        return attributes.getClassArray("value");
-                    }
-
-                    @Override
-                    public Class<?>[] classes() {
-                        return attributes.getClassArray("classes");
-                    }
-
-                    @Override
-                    public Class<? extends java.lang.annotation.Annotation> annotationType() {
-                        return ToolScan.ToolFilter.class;
-                    }
-                };
-            }
-            return toolFilters;
-        }
-
-
-    }
 
 }

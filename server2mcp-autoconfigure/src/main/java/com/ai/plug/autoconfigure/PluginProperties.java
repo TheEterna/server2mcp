@@ -18,12 +18,16 @@ import static com.ai.plug.common.constants.ConfigConstants.VARIABLE_PREFIX;
 public class PluginProperties {
 
     private boolean enabled = false;
-    /**
-     * doc
-     */
+
     private Parser parser;
 
+    private Tool tool;
+
     private Resource resource;
+
+    private Prompt prompt;
+
+    private Complete complete;
 
     /**
      * scope, 默认取值 interface 即为扫描接口
@@ -115,6 +119,18 @@ public class PluginProperties {
 
     @Data
     private static class Resource {
+        private boolean enabled = true;
+    }
+    @Data
+    private static class Prompt {
+        private boolean enabled = true;
+    }
+    @Data
+    private static class Tool {
+        private boolean enabled = true;
+    }
+    @Data
+    private static class Complete {
         private boolean enabled = true;
     }
 

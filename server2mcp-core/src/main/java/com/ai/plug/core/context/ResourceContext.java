@@ -10,11 +10,10 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * @ author 韩
+ * @author 韩
  * time: 2025/6/4 15:14
  */
 
-@Component
 @Slf4j
 public class ResourceContext {
 

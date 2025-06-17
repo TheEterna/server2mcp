@@ -23,6 +23,11 @@ public class ConfigConstants {
     public final static String VARIABLE_PARAM = "param";
     public final static String VARIABLE_DES = "des";
 
-    public final static String VARIABLE_RESOURCE = "resources";
+    public final static String VARIABLE_TOOL = "tool";
+    public final static String VARIABLE_RESOURCE = "resource";
+    public final static String VARIABLE_PROMPT = "prompt";
+    public final static String VARIABLE_COMPLETE = "complete";
+
+
 
 }

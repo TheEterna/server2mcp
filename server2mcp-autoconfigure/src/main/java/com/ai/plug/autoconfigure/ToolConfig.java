@@ -3,16 +3,25 @@ package com.ai.plug.autoconfigure;
 import com.ai.plug.autoconfigure.conditional.ConditionalOnParser;
 import com.ai.plug.core.parser.des.*;
 import com.ai.plug.core.parser.param.*;
+import com.ai.plug.core.parser.starter.AbstractStarter;
+import com.ai.plug.core.parser.starter.SingleStarter;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.annotation.Order;
+
+import static com.ai.plug.common.constants.ConfigConstants.VARIABLE_PREFIX;
+import static com.ai.plug.common.constants.ConfigConstants.VARIABLE_TOOL;
 
 /**
  * @author 韩
  * time: 2025/5/16 11:40
  */
-
-public class ParserConfig {
-
+@ConditionalOnProperty(prefix = VARIABLE_PREFIX + '.' + VARIABLE_TOOL, name = ".enabled", havingValue = "true", matchIfMissing = true)
+public class ToolConfig {
+    @Bean
+    public AbstractStarter starter() {
+        return new SingleStarter();
+    }
     @Bean
     @ConditionalOnParser(value = "TOOL", type = AbstractDesParser.class)
     @Order(0)

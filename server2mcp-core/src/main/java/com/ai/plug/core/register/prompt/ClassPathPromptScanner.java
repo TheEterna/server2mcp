@@ -1,7 +1,7 @@
-package com.ai.plug.core.register.resource;
+package com.ai.plug.core.register.prompt;
 
+import com.ai.plug.core.context.PromptContext;
 import com.ai.plug.core.context.ResourceContext;
-import com.ai.plug.core.context.ToolContext;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.context.annotation.AnnotationBeanNameGenerator;
@@ -10,28 +10,27 @@ import org.springframework.context.annotation.ClassPathBeanDefinitionScanner;
 
 /**
  * @author han
- * time: 2025/04/2025/4/10 15:49
- * des:
+ * time: 2025/6/13 11:02
  */
 
-public class ClassPathResourceScanner extends ClassPathBeanDefinitionScanner {
+public class ClassPathPromptScanner extends ClassPathBeanDefinitionScanner {
 
 
-    public ClassPathResourceScanner(BeanDefinitionRegistry registry) {
+    public ClassPathPromptScanner(BeanDefinitionRegistry registry) {
         super(registry, false);
-        setBeanNameGenerator(new ResourceBeanNameGenerator());
+        setBeanNameGenerator(new PromptBeanNameGenerator());
     }
 
 
-    public static class ResourceBeanNameGenerator extends AnnotationBeanNameGenerator {
-        public ResourceBeanNameGenerator() {
+    public static class PromptBeanNameGenerator extends AnnotationBeanNameGenerator {
+        public PromptBeanNameGenerator() {
         }
 
         @Override
         public String generateBeanName(BeanDefinition definition, BeanDefinitionRegistry registry) {
             String beanName = super.generateBeanName(definition, registry);
 
-            ResourceContext.addResource(beanName);
+            PromptContext.addPrompt(beanName);
 
             return beanName;
         }

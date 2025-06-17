@@ -6,6 +6,10 @@
 
 这是一个用于自动化集成 MCP (Model Control Protocol) 服务的 Spring Boot Starter。
 
+
+# 设计思路
+- 对Tool注册提供二级Filter, 因为对工具(几乎等同于方法)定义宽泛, 基本不需要专有注解即可注册出一个工具, 这必须提供更细粒度的过滤方式, 比如在一个类中, 我只想注册post接口的接口为工具. 但Resource等等更像是一种范式化的资源只是通过方法的方式表示和注册, 所以直接使用@McpResource等对应注解进行注册即可
+
 # ✨功能特性
 
 - 自动配置 MCP 服务，类似mybatis-plus于mybatis的关系，无侵入，纯增强
