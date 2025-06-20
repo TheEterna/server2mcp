@@ -83,7 +83,7 @@ plugin:
 
 1. You can easily build a multi-agent application by using multiple AI dialogue interfaces that you have customized, and then simply calling the corresponding MCP interface on the client side.
 
-2. It can quickly access AI dialogue calls for your management system, with high customization. You don't need to pay attention to any details in the AI field, just focus on your favorite areas of web and front-end, and you can achieve cool effects. Compared to this, applications like DB-GPT may seem bulky and difficult to expand
+2. It can quickly access AI dialogue calls for your management system, with high customization. You don't need to pay attention to any details in the AI field, just focus on your favorite areas of web and front-end, and you can achieve cool effects. Compared to this
 
 3. It can be used in conjunction with simple MCP clients like cursor to easily complete interface debugging
 
