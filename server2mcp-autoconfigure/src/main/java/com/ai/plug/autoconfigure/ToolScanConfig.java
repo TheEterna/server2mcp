@@ -17,7 +17,7 @@ import static com.ai.plug.common.constants.ConfigConstants.VARIABLE_TOOL;
  * time: 2025/5/16 11:40
  */
 @ConditionalOnProperty(prefix = VARIABLE_PREFIX + '.' + VARIABLE_TOOL, name = ".enabled", havingValue = "true", matchIfMissing = true)
-public class ToolConfig {
+public class ToolScanConfig {
     @Bean
     public AbstractStarter starter() {
         return new SingleStarter();

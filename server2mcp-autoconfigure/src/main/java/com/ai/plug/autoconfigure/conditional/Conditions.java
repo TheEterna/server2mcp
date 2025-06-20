@@ -4,6 +4,7 @@ import com.ai.plug.autoconfigure.PluginProperties;
 import com.ai.plug.core.parser.des.AbstractDesParser;
 import com.ai.plug.core.parser.param.AbstractParamParser;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.ai.mcp.server.autoconfigure.McpServerProperties;
 import org.springframework.context.annotation.Condition;
 import org.springframework.context.annotation.ConditionContext;
 import org.springframework.core.env.Environment;
@@ -34,6 +35,22 @@ public class Conditions {
             Environment environment = context.getEnvironment();
             PluginProperties.ScopeType type = environment.getProperty(VARIABLE_PREFIX + "." + "scope", PluginProperties.ScopeType.class, PluginProperties.ScopeType.INTERFACE);
             return type.equals(PluginProperties.ScopeType.INTERFACE);
+        }
+    }
+    public static class IsSyncCondition implements Condition {
+        @Override
+        public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
+            Environment environment = context.getEnvironment();
+            McpServerProperties.ServerType type = environment.getProperty(SPRING_AI_VARIABLE_PREFIX + "." + VARIABLE_TYPE, McpServerProperties.ServerType.class, McpServerProperties.ServerType.SYNC);
+            return type.equals(McpServerProperties.ServerType.SYNC);
+        }
+    }
+    public static class IsAsyncCondition implements Condition {
+        @Override
+        public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
+            Environment environment = context.getEnvironment();
+            McpServerProperties.ServerType type = environment.getProperty(SPRING_AI_VARIABLE_PREFIX + "." + VARIABLE_TYPE, McpServerProperties.ServerType.class, McpServerProperties.ServerType.SYNC);
+            return type.equals(McpServerProperties.ServerType.ASYNC);
         }
     }
 

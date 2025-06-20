@@ -41,26 +41,6 @@ import static com.ai.plug.core.annotation.ToolScan.ToolFilterType.META_ANNOTATIO
 @Configuration
 @ConditionalOnProperty(prefix = VARIABLE_PREFIX , name = ".enabled", havingValue = "true", matchIfMissing = false)
 public class McpConfig {
-//
-//    @Bean
-//    public List<McpServerFeatures.SyncCompletionSpecification> syncCompletionSpecifications(
-//            List<AutocompleteProvider> completeProviders) {
-//        return SpringAiMcpAnnotationProvider.createSyncCompleteSpecifications(completeProviders);
-//    }
-//
-//    @Bean
-//    public List<McpServerFeatures.SyncPromptSpecification> syncPromptSpecifications(
-//            List<PromptProvider> promptProviders) {
-//        return SpringAiMcpAnnotationProvider.createSyncPromptSpecifications(promptProviders);
-//    }
-    
-
-    
-//    @Bean
-//    public List<Consumer<McpSchema.LoggingMessageNotification>> syncLoggingConsumers(
-//            List<LoggingHandler> loggingHandlers) {
-//        return SpringAiMcpAnnotationProvider.createSyncLoggingConsumers(loggingHandlers);
-//    }
 
     @Conditional(Conditions.IsInterfaceCondition.class)
     @ConditionalOnProperty(prefix = VARIABLE_PREFIX + '.' + VARIABLE_TOOL, name = ".enabled", havingValue = "true", matchIfMissing = true)

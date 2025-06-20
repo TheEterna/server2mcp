@@ -20,7 +20,13 @@ plugin:
       param: JAVADOC
       des:  JAVADOC ,TOOL, JACKSON, SWAGGER3, SWAGGER2
     scope: interface
-    resources:
+    resource:
+      enabled: true
+    tool:
+      enabled: true
+    complete:
+      enabled: true
+    prompt:
       enabled: true
 
 

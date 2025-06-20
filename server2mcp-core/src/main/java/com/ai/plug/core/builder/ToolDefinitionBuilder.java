@@ -98,9 +98,9 @@ public class ToolDefinitionBuilder {
         Tool tool = method.getAnnotation(Tool.class);
         // 为了保证0侵入, 由于toolName是唯一的所以, 每次注册tool, 都要验证一下有没有相同的toolName, 然后修改
         if (tool == null) {
-            presentToolName = className + "." + method.getName();
+            presentToolName = className + "_" + method.getName();
         } else {
-            presentToolName = StringUtils.hasText(tool.name()) ? tool.name() :className + "." + method.getName();
+            presentToolName = StringUtils.hasText(tool.name()) ? tool.name() :className + "_" + method.getName();
         }
 
         return presentToolName;

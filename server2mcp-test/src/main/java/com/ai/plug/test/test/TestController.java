@@ -149,6 +149,24 @@ public class TestController {
             return null;
         }
     }
+
+
+    @GetMapping("/api/poi")
+    @ApiOperation("获取超市中奥利奥销售数据,没有参数,获取的是所有超市的奥利奥销售数据, 可能需要进一步处理")
+    public List<PoiData> getPoiData() {
+        return Arrays.asList(
+                new PoiData("新雅(上海站店)", 121.455415, 31.249743, "日杂店", 128),
+                new PoiData("临泰超市(上海站)", 121.455777, 31.25046, "超市", 215),
+                new PoiData("全家便利店(上海站店)", 121.455751, 31.250742, "便利店", 189),
+                new PoiData("LAWSON罗森(上海火车新客站南广场东南出口店)", 121.456212, 31.248177, "日杂店", 156),
+                new PoiData("美宜佳(上海站店)", 121.457075, 31.250525, "便利店", 172),
+                new PoiData("韩非雨超市1(上海站店)", 121.457075, 31.250625, "便利店", 1072),
+                new PoiData("韩非雨超市2(上海站店)", 121.457075, 31.250825, "便利店", 2202),
+                new PoiData("韩非雨超市3(上海站店)", 121.457075, 31.250925, "便利店", 3564)
+        );
+    }
+
+
     @GetMapping("/test")
     public Mono<String> test() {
         return Mono.just("OK");
@@ -186,27 +204,5 @@ public class TestController {
         return supermarket;
     }
 
-    @GetMapping("/oreo-sales/shanghai")
-    @ApiOperation("获取上海超市的奥利奥(OREO)销量")
-    public List<Map<String, Object>> getShanghaiOreoSales() {
-        List<Map<String, Object>> salesList = new ArrayList<>();
-        Random random = new Random();
 
-        // 使用真实超市数据生成10条模拟销量记录
-        for (Map<String, Object> supermarket : REAL_SUPERMARKETS) {
-            Map<String, Object> saleItem = new LinkedHashMap<>();
-            saleItem.put("supermarketName", supermarket.get("name"));
-            saleItem.put("address", supermarket.get("address"));
-            saleItem.put("location", new LinkedHashMap<String, Double>() {{
-                put("latitude", (Double) supermarket.get("latitude"));
-                put("longitude", (Double) supermarket.get("longitude"));
-            }});
-            saleItem.put("oreoSales", random.nextInt(500) + 100); // 销量范围100-599
-            saleItem.put("reportDate", "2025-06-" + String.format("%02d", random.nextInt(15) + 1));
-            saleItem.put("categoryRank", random.nextInt(10) + 1); // 品类排名1-10
-            salesList.add(saleItem);
-        }
-
-        return salesList;
-    }
 }

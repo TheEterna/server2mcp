@@ -35,7 +35,6 @@ public class McpCompleteScanRegistrar implements ImportBeanDefinitionRegistrar {
 
         BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(McpCompleteScanConfigurer.class);
 
-
         AnnotationAttributes[] basePackages = attributes.getAnnotationArray("basePackages");
         if (!CollectionUtils.isEmpty(List.of(basePackages))) {
             builder.addPropertyValue("basePackages", basePackages);

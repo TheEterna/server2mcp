@@ -13,6 +13,15 @@ public class ConfigConstants {
     public final static String VARIABLE_PREFIX = "plugin.mcp";
 
     /**
+     * 变量总前缀字段
+     */
+    public final static String SPRING_AI_VARIABLE_PREFIX = "spring.ai.mcp.server";
+    /**
+     * 变量总前缀字段
+     */
+    public final static String VARIABLE_TYPE = "type";
+
+    /**
      * 解析器前缀字段
      */
     public final static String PARSER_PREFIX = "parser";
