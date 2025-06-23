@@ -29,6 +29,11 @@ plugin:
     prompt:
       enabled: true
 
+logging:
+  level:
+    logging.level.org.springframework.ai: DEBUG
+    logging.level.io.modelcontextprotocol: DEBUG
+
 
 
 
