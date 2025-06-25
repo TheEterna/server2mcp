@@ -1,5 +1,6 @@
 package com.ai.plug.autoconfigure;
 
+import com.ai.plug.autoconfigure.annotation.ToolNotScanForAuto;
 import com.ai.plug.autoconfigure.conditional.Conditions;
 import com.ai.plug.core.annotation.McpCompleteScan;
 import com.ai.plug.core.annotation.McpPromptScan;
@@ -27,6 +28,7 @@ import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.function.Consumer;
@@ -72,11 +74,17 @@ public class McpConfig {
             String[] basePackages = AutoConfigurationPackages.get(this.beanFactory).toArray(new String[0]);
             builder.addPropertyValue("basePackages", basePackages);
 
-            HashMap<String, Object> excludeMap = new HashMap<>();
-            excludeMap.put("classes", Deprecated.class);
-            excludeMap.put("type", ANNOTATION);
-            excludeMap.put("value", Deprecated.class);
-            AnnotationAttributes[] excludeFilters = new AnnotationAttributes[]{new AnnotationAttributes(excludeMap)};
+            List<Class<?>> excludeClass = List.of(Deprecated.class, ToolNotScanForAuto.class);
+            AnnotationAttributes[] excludeFilters = new AnnotationAttributes[excludeClass.size()];
+            int index = 0;
+            for (Class<?> clazz : excludeClass) {
+                HashMap<String, Object> excludeMap = new HashMap<>();
+                excludeMap.put("classes", clazz);
+                excludeMap.put("type", ANNOTATION);
+                excludeMap.put("value", clazz);
+                excludeFilters[index] = new AnnotationAttributes(excludeMap);
+                index++;
+            }
             builder.addPropertyValue("excludeFilters", excludeFilters);
 
             HashMap<String, Object> includeMap = new HashMap<>();
