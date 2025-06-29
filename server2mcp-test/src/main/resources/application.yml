@@ -18,7 +18,7 @@ plugin:
     enabled: true
     parser:
       param: JAVADOC
-      des:  JAVADOC ,TOOL, JACKSON, SWAGGER3, SWAGGER2
+      des: MCPTOOL, JAVADOC ,TOOL, JACKSON, SWAGGER3, SWAGGER2
     scope: interface
     resource:
       enabled: true

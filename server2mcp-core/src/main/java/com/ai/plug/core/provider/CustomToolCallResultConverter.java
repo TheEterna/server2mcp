@@ -19,6 +19,7 @@ import java.util.Base64;
  */
 @Slf4j
 public class CustomToolCallResultConverter implements ToolCallResultConverter {
+
     @Override
     public String convert(Object result, Type returnType) {
         if (returnType == Void.TYPE) {

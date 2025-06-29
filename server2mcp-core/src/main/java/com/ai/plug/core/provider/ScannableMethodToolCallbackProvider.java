@@ -31,6 +31,8 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.ai.plug.common.utils.AssetUtils.isFunctionalType;
+
 
 /**
  * @author: han
@@ -39,29 +41,13 @@ import java.util.stream.Stream;
  */
 
 @Slf4j
+@Deprecated
 public class ScannableMethodToolCallbackProvider implements ToolCallbackProvider {
     private final Map<Object, ToolContext.ToolRegisterDefinition> toolAndDefinitions;
 
-    private List<AbstractDesParser> desParserList;
 
-    private List<AbstractParamParser> paramParserList;
+    private ToolDefinitionBuilder toolDefinitionBuilder;
 
-    private AbstractStarter starter;
-
-    @Autowired
-    public void setDesParserList(List<AbstractDesParser> desParserList) {
-        this.desParserList = desParserList;
-        log.info("DesParserList have {} parser", desParserList.size());
-    }
-    @Autowired
-    public void setParamParserList(List<AbstractParamParser> paramParserList) {
-        this.paramParserList = paramParserList;
-        log.info("ParamParserList have {} parser", paramParserList.size());
-    }
-    @Autowired
-    public void setStarter(AbstractStarter starter) {
-        this.starter = starter;
-    }
 
     private ScannableMethodToolCallbackProvider(Map<Object, ToolContext.ToolRegisterDefinition> toolAndDefinitions) {
         Assert.notNull(toolAndDefinitions, "toolAndDefinitions cannot be null");
@@ -70,18 +56,6 @@ public class ScannableMethodToolCallbackProvider implements ToolCallbackProvider
     }
 
 
-    private boolean isFunctionalType(Method toolMethod) {
-        boolean isFunction = ClassUtils.isAssignable(Function.class, toolMethod.getReturnType())
-                || ClassUtils.isAssignable(Supplier.class, toolMethod.getReturnType())
-                || ClassUtils.isAssignable(Consumer.class, toolMethod.getReturnType());
-
-        if (isFunction) {
-            log.warn("Method {} is annotated with @Tool but returns a functional type. "
-                    + "This is not supported and the method will be ignored.", toolMethod.getName());
-        }
-
-        return isFunction;
-    }
 
 
     private void validateToolCallbacks(ToolCallback[] toolCallbacks) {
@@ -109,49 +83,16 @@ public class ScannableMethodToolCallbackProvider implements ToolCallbackProvider
             ToolContext.ToolRegisterDefinition toolDefinition = toolAndDefinition.getValue();
 
             // 把所有方法获取出来
-            return Stream.of(ReflectionUtils.getDeclaredMethods(AopUtils.isAopProxy(toolBean) ? AopUtils.getTargetClass(toolBean) : toolBean.getClass())).filter((toolMethod) -> {
-
-                // 看一下配置
-                ToolScan.ToolFilter[] excludeToolFilters = toolDefinition.getExcludeFilters();
-                ToolScan.ToolFilter[] includeToolFilters = toolDefinition.getIncludeFilters();
-
-
-                if (excludeToolFilters != null && excludeToolFilters.length != 0 && !CollectionUtils.isEmpty(List.of(excludeToolFilters))) {
-                    // 如果不为空 就开始遍历
-                    for (ToolScan.ToolFilter excludeToolFilter : excludeToolFilters) {
-                        boolean isFilter = doFilter(toolMethod, excludeToolFilter);
-                        if (isFilter) {
-                            // 拦截到了
-                            return false;
-                        }
-                    }
-                }
-
-                if (includeToolFilters != null && includeToolFilters.length != 0 &&!CollectionUtils.isEmpty(List.of(includeToolFilters))) {
-                    // 如果不为空 就开始遍历
-                    for (ToolScan.ToolFilter includeToolFilter : includeToolFilters) {
-                        boolean isFilter = doFilter(toolMethod, includeToolFilter);
-                        if (isFilter) {
-                            // 拦截到了
-                            return true;
-                        }
-                    }
-
-                }
-                else {
-                    // 如果没有拦截到 也没有includeFilter的 就全部放行
-                    return true;
-                }
-
-                return false;
+            return Stream.of(ReflectionUtils.getDeclaredMethods(AopUtils.isAopProxy(toolBean) ? AopUtils.getTargetClass(toolBean) : toolBean.getClass()
+            )).filter((toolMethod) -> {
+                return doToolFilter(toolMethod, toolDefinition);
             }).filter((toolMethod) -> {
                 // 过滤函数式方法
-                return !this.isFunctionalType(toolMethod);
+                return !isFunctionalType(toolMethod, log);
             }).map((toolMethod) -> {
 
                 MethodToolCallback toolCallback = MethodToolCallback.builder()
-                        .toolDefinition(ToolDefinitionBuilder.buildToolDefinition(toolMethod, desParserList, paramParserList, starter))
-                        .toolMetadata(ToolMetadata.from(toolMethod))
+                        .toolDefinition(toolDefinitionBuilder.buildToolDefinition(toolMethod))
                         .toolMethod(toolMethod)
                         .toolObject(toolBean)
                         .toolCallResultConverter(CustomToolUtil.getToolCallResultConverter(toolMethod)).build();
@@ -170,6 +111,43 @@ public class ScannableMethodToolCallbackProvider implements ToolCallbackProvider
 
         return toolCallbacks;
     }
+
+    private boolean doToolFilter(Method toolMethod, ToolContext.ToolRegisterDefinition toolDefinition) {
+        // 看一下配置
+        ToolScan.ToolFilter[] excludeToolFilters = toolDefinition.getExcludeFilters();
+        ToolScan.ToolFilter[] includeToolFilters = toolDefinition.getIncludeFilters();
+
+
+        if (excludeToolFilters != null && excludeToolFilters.length != 0 && !CollectionUtils.isEmpty(List.of(excludeToolFilters))) {
+            // 如果不为空 就开始遍历
+            for (ToolScan.ToolFilter excludeToolFilter : excludeToolFilters) {
+                boolean isFilter = doFilter(toolMethod, excludeToolFilter);
+                if (isFilter) {
+                    // 拦截到了
+                    return false;
+                }
+            }
+        }
+
+        if (includeToolFilters != null && includeToolFilters.length != 0 &&!CollectionUtils.isEmpty(List.of(includeToolFilters))) {
+            // 如果不为空 就开始遍历
+            for (ToolScan.ToolFilter includeToolFilter : includeToolFilters) {
+                boolean isFilter = doFilter(toolMethod, includeToolFilter);
+                if (isFilter) {
+                    // 拦截到了
+                    return true;
+                }
+            }
+
+        }
+        else {
+            // 如果没有拦截到 也没有includeFilter的 就全部放行
+            return true;
+        }
+
+        return false;
+    }
+
 
     private boolean doFilter(Method toolMethod, ToolScan.ToolFilter includeToolFilter) {
         Class<?>[] includeClasses = includeToolFilter.value();
@@ -202,7 +180,6 @@ public class ScannableMethodToolCallbackProvider implements ToolCallbackProvider
         }
         return annotation != null;
     }
-
 
     public static Builder builder() {
         return new Builder();

@@ -56,6 +56,10 @@ public class PluginProperties {
      */
     public enum DesParserType {
         /**
+         * 自创MCP专属注解
+         */
+        MCPTOOL,
+        /**
          * Spring-ai 原生Tool系列注解解析
          */
         TOOL,
@@ -85,6 +89,11 @@ public class PluginProperties {
      * @Field SWAGGER3
      */
     public enum ParamParserType {
+
+        /**
+         * 自创MCP专属注解
+         */
+        MCPTOOL,
         /**
          * Spring-ai 原生Tool系列注解解析
          */

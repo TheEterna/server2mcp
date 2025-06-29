@@ -4,8 +4,14 @@ import com.logaritex.mcp.annotation.McpArg;
 import com.logaritex.mcp.annotation.McpComplete;
 import com.logaritex.mcp.annotation.McpPrompt;
 import com.logaritex.mcp.annotation.McpResource;
+import com.logaritex.mcp.utils.McpLogger;
+import com.logaritex.mcp.utils.McpLoggerFactory;
+import io.modelcontextprotocol.server.McpSyncServer;
 import io.modelcontextprotocol.spec.McpSchema;
 import io.swagger.annotations.*;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -25,7 +31,16 @@ import java.util.*;
 @RestController
 //@Tag(name = "UserController",description = "注册功能实现")
 @Api(tags="用户模块")
+@Slf4j
+
 public class TestController {
+
+    private McpSyncServer mcpSyncServer;
+
+    @Autowired
+    public TestController(@Lazy McpSyncServer mcpSyncServer) {
+        this.mcpSyncServer = mcpSyncServer;
+    }
 
     private final Map<String, List<String>> cityDatabase = new HashMap<>();
 
@@ -70,6 +85,8 @@ public class TestController {
     public String getUserStatus(String username) {
         return "OK";
     }
+
+
 
 
     @McpComplete(prompt = "personalized-message")
@@ -169,16 +186,10 @@ public class TestController {
 
     @GetMapping("/test")
     public Mono<String> test() {
-        return Mono.just("OK");
-    }
-    @GetMapping("/com/ai/plug/test")
-    @ApiOperation("普通测试")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name="filePath", value="读取文件路径")
-    })
-    public Object test(@RequestParam(value = "filePath", defaultValue = "image.jpg") String filePath) {
+        McpLogger logger = McpLoggerFactory.getSyncLogger(mcpSyncServer, null, this.getClass());
+        logger.emergency("Hello, world!", true);
 
-        return Map.of("num", "111");
+        return Mono.just("OK");
     }
 
     // 预定义的真实上海超市数据（名称、地址、经纬度）
