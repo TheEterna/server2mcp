@@ -112,11 +112,11 @@ public class ToolScanConfigurer implements BeanDefinitionRegistryPostProcessor, 
                         scanner.addIncludeFilter(new DeclaredClassExcludeFilter(includeClasses));
                         break;
                     case ANNOTATION:
-                        for (Class<?> excludeClass : includeClasses) {
-                            if (!Annotation.class.isAssignableFrom(excludeClass)) {
-                                throw new IllegalArgumentException("The passed class: " + excludeClass.getName() + " is not an annotation type");
+                        for (Class<?> includeClass : includeClasses) {
+                            if (!Annotation.class.isAssignableFrom(includeClass)) {
+                                throw new IllegalArgumentException("The passed class: " + includeClass.getName() + " is not an annotation type");
                             }
-                            scanner.addIncludeFilter(new AnnotationTypeFilter((Class<? extends Annotation>) excludeClass));
+                            scanner.addIncludeFilter(new AnnotationTypeFilter((Class<? extends Annotation>) includeClass));
                         }
                         break;
 

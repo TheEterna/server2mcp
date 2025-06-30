@@ -20,7 +20,7 @@ public class ClassPathToolScanner extends ClassPathBeanDefinitionScanner {
     public ClassPathToolScanner(BeanDefinitionRegistry registry, ToolContext.ToolRegisterDefinition toolRegisterDefinition) {
         super(registry, false);
         this.toolRegisterDefinition = toolRegisterDefinition;
-        setBeanNameGenerator(new ToolBeanNameGenerator());
+        super.setBeanNameGenerator(new ToolBeanNameGenerator());
     }
 
 
