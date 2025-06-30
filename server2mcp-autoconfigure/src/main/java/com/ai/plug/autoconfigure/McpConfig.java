@@ -6,13 +6,14 @@ import com.ai.plug.core.annotation.McpCompleteScan;
 import com.ai.plug.core.annotation.McpPromptScan;
 import com.ai.plug.core.annotation.McpResourceScan;
 import com.ai.plug.core.annotation.ToolScan;
+import com.ai.plug.core.builder.ToolDefinitionBuilder;
+import com.ai.plug.core.parser.des.AbstractDesParser;
+import com.ai.plug.core.parser.param.AbstractParamParser;
+import com.ai.plug.core.parser.starter.AbstractStarter;
 import com.ai.plug.core.register.complete.McpCompleteScanConfigurer;
 import com.ai.plug.core.register.prompt.McpPromptScanConfigurer;
 import com.ai.plug.core.register.resource.McpResourceScanConfigurer;
 import com.ai.plug.core.register.tool.ToolScanConfigurer;
-import com.logaritex.mcp.spring.SyncMcpAnnotationProvider;
-import io.modelcontextprotocol.server.McpServerFeatures;
-import io.modelcontextprotocol.spec.McpSchema;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
@@ -41,7 +42,6 @@ import static com.ai.plug.core.annotation.ToolScan.ToolFilterType.META_ANNOTATIO
  * @author 韩
  */
 @Configuration
-@ConditionalOnProperty(prefix = VARIABLE_PREFIX , name = ".enabled", havingValue = "true", matchIfMissing = false)
 public class McpConfig {
 
     @Conditional(Conditions.IsInterfaceCondition.class)
@@ -275,4 +275,8 @@ public class McpConfig {
 
     }
 
+    @Bean
+    public ToolDefinitionBuilder toolDefinitionBuilder(List<AbstractDesParser> desParserList, List<AbstractParamParser> paramParserList, AbstractStarter starter) {
+        return new ToolDefinitionBuilder(desParserList, paramParserList, starter);
+    }
 }

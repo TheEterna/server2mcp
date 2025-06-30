@@ -3,9 +3,9 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>com.ai.plug</groupId>
-        <artifactId>server2mcp-parent</artifactId>
-        <version>${project.version}</version>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>3.4.4</version>
     </parent>
 
     <artifactId>server2mcp-test</artifactId>
@@ -43,8 +43,8 @@
 
         <dependency>
             <groupId>com.ai.plug</groupId>
-            <artifactId>server2mcp-common</artifactId>
-            <version>${project.version}</version>
+            <artifactId>server2mcp-starter-webmvc</artifactId>
+            <version>1.0.0</version>
         </dependency>
 
         <dependency>

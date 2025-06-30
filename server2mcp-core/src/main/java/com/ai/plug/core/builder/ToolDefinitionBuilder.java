@@ -13,6 +13,7 @@ import com.github.victools.jsonschema.module.jackson.JacksonModule;
 import com.github.victools.jsonschema.module.jackson.JacksonOption;
 import com.github.victools.jsonschema.module.swagger15.SwaggerModule;
 import com.github.victools.jsonschema.module.swagger2.Swagger2Module;
+import com.logaritex.mcp.annotation.McpTool;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.model.ToolContext;
 import org.springframework.ai.tool.annotation.Tool;
@@ -21,6 +22,7 @@ import org.springframework.ai.tool.definition.ToolDefinition;
 import org.springframework.ai.util.json.JsonParser;
 import org.springframework.ai.util.json.schema.JsonSchemaGenerator;
 import org.springframework.ai.util.json.schema.SpringAiSchemaModule;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
@@ -41,14 +43,21 @@ import java.util.stream.Stream;
  */
 
 @Slf4j
-@Component
 public class ToolDefinitionBuilder {
 
-    private static AbstractStarter starter;
+    private List<AbstractDesParser> desParserList;
+    private List<AbstractParamParser> paramParserList;
+    private AbstractStarter starter;
 
+    @Autowired
+    public ToolDefinitionBuilder(List<AbstractDesParser> desParserList, List<AbstractParamParser> paramParserList, AbstractStarter starter) {
+        this.desParserList = desParserList;
+        this.paramParserList = paramParserList;
+        this.starter = starter;
+    }
 
-    private static final SchemaGenerator SUBTYPE_SCHEMA_GENERATOR;
-    static {
+    private final SchemaGenerator SUBTYPE_SCHEMA_GENERATOR;
+    {
         Module springAiSchemaModule = new SpringAiSchemaModule();
         Module jacksonModule = new JacksonModule(JacksonOption.RESPECT_JSONPROPERTY_REQUIRED);
         Module swagger3Module = new Swagger2Module();
@@ -70,59 +79,56 @@ public class ToolDefinitionBuilder {
 
     /**
      * 构造Tool定义数据对象
-     * @param toolMethod
-     * @param desParserList
-     * @return
      */
-    public static ToolDefinition buildToolDefinition(Method toolMethod
-            , List<AbstractDesParser> desParserList
-            , List<AbstractParamParser> paramParserList
-            , AbstractStarter starter) {
+    public ToolDefinition buildToolDefinition(Method toolMethod) {
         Assert.notNull(toolMethod, "方法不能为空");
-        ToolDefinitionBuilder.starter = starter;
+      
 
         return DefaultToolDefinition.builder()
-                .name(ToolDefinitionBuilder.getToolName(toolMethod))
-                .description(ToolDefinitionBuilder.getToolDescription(toolMethod, desParserList))
-                .inputSchema(ToolDefinitionBuilder.getInputSchema(paramParserList, toolMethod)).build();
+                .name(this.getToolName(toolMethod))
+                .description(this.getToolDescription(toolMethod, this.desParserList))
+                .inputSchema(this.getInputSchema(this.paramParserList, toolMethod)).build();
 
     }
 
-    public static String getToolName(Method method) {
+    public String getToolName(Method method) {
 
         String className = method.getDeclaringClass().getSimpleName();
 
         String presentToolName;
         // 把本来的操作作为备选
         Assert.notNull(method, "方法不能为空");
+        McpTool mcpTool = method.getAnnotation(McpTool.class);
         Tool tool = method.getAnnotation(Tool.class);
         // 为了保证0侵入, 由于toolName是唯一的所以, 每次注册tool, 都要验证一下有没有相同的toolName, 然后修改
-        if (tool == null) {
-            presentToolName = className + "_" + method.getName();
+        if (mcpTool != null && StringUtils.hasText(mcpTool.name())) {
+            presentToolName = mcpTool.name();
+        } else if (tool != null && StringUtils.hasText(tool.name())) {
+            presentToolName = tool.name();
         } else {
-            presentToolName = StringUtils.hasText(tool.name()) ? tool.name() :className + "_" + method.getName();
+            presentToolName = className + "_" + method.getName();
         }
 
         return presentToolName;
     }
 
-    public static String getToolDescription(Method toolMethod, List<AbstractDesParser> desParserList) {
-        return starter.runDesParse(desParserList, toolMethod, toolMethod.getDeclaringClass());
+    public String getToolDescription(Method toolMethod, List<AbstractDesParser> desParserList) {
+        return this.starter.runDesParse(desParserList, toolMethod, toolMethod.getDeclaringClass());
     }
 
     /**
      * 检查一个参数 是否必须，默认必须
-     * @param method
-     * @param index
+     * @param method 方法
+     * @param index 参数索引
      * @return
      */
-    private static boolean isMethodParameterRequired(List<AbstractParamParser> parserList, Method method, int index) {
+    private boolean isMethodParameterRequired(List<AbstractParamParser> parserList, Method method, int index) {
 
         return starter.runParamRequiredParse(parserList, method, method.getDeclaringClass(), index);
     }
 
 
-    public static String getInputSchema(List<AbstractParamParser> paramParserList, Method method, JsonSchemaGenerator.SchemaOption... schemaOptions) {
+    private String getInputSchema(List<AbstractParamParser> paramParserList, Method method, JsonSchemaGenerator.SchemaOption... schemaOptions) {
         ObjectNode schema = JsonParser.getObjectMapper().createObjectNode();
         schema.put("$schema", SchemaVersion.DRAFT_2020_12.getIdentifier());
         schema.put("type", "object");
@@ -178,7 +184,7 @@ public class ToolDefinitionBuilder {
     }
 
 
-    private static String getMethodParameterDescription(List<AbstractParamParser> parserList, Method method, int index) {
+    private String getMethodParameterDescription(List<AbstractParamParser> parserList, Method method, int index) {
         return starter.runParamDesParse(parserList, method, method.getDeclaringClass(), index);
     }
 
@@ -186,7 +192,7 @@ public class ToolDefinitionBuilder {
 
 
 
-    private static void processSchemaOptions(JsonSchemaGenerator.SchemaOption[] schemaOptions, ObjectNode schema) {
+    private void processSchemaOptions(JsonSchemaGenerator.SchemaOption[] schemaOptions, ObjectNode schema) {
         if (Stream.of(schemaOptions).noneMatch((option) -> {
             return option == JsonSchemaGenerator.SchemaOption.ALLOW_ADDITIONAL_PROPERTIES_BY_DEFAULT;
         })) {
@@ -202,7 +208,7 @@ public class ToolDefinitionBuilder {
     }
 
 
-    public static void convertTypeValuesToUpperCase(ObjectNode node) {
+    public void convertTypeValuesToUpperCase(ObjectNode node) {
         if (node.isObject()) {
             node.fields().forEachRemaining((entry) -> {
                 JsonNode value = entry.getValue();
