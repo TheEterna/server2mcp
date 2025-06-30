@@ -1,4 +1,4 @@
-# Server2MCP Spring Boot Starter
+# Server2MCP
 
 [简体中文](README_zh.md)
 
@@ -10,9 +10,16 @@
 
 * Automatic configuration of MCP service, similar to the relationship between mybatis plus and mybatis, non-invasive, purely enhanced
 * Supports all native functions of MCP in JavaSdk, providing tool registration and callback mechanisms, etc
-* Support custom tool registration, annotated through @ ToolScan
+* Support custom tool registration through `@ToolScan` annotation
+* Supports custom resource registration through the `@ResourceScan` annotation
+* Supports custom prompt registration through the `@PromptScan` annotation
 * Users can customize the Parser without relying on chain of responsibility implementation to complete attribute parsing for unique interface annotations
 * Having Javadoc, Swagger2, Swagger3, SpringMVC (only responsible for partial parsing logic), Jackson, and Springai native tool parsers
+
+# 🌟 Latest features
+- Benchmarking the latest MCP SDK version 0.11 snapshot version, customize annotations to experience the latest features, McpTool
+- McpTool completely isolates Springai's Tool environment, implementing a tool system unique to Mcp. The method is automatically injected into Exchange, making it easy to complete MCP client interaction
+- The configuration class mineType for springai is currently not supported and is integrated into the annotation properties of McpTool
 
 # 👀Unfinished points
 

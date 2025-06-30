@@ -1,4 +1,4 @@
-# Server2MCP Spring Boot Starter
+# Server2MCP
 
 [English](README.md)
 
@@ -15,11 +15,17 @@
 - 自动配置 MCP 服务，类似mybatis-plus于mybatis的关系，无侵入，纯增强
 - 支持一切mcp的javaSdk原生功能，提供工具注册和回调机制等等
 - 支持自定义 工具注册，通过@ToolScan注解
+- 支持自定义 资源注册，通过@ResourceScan注解
+- 支持自定义 提示词注册，通过@PromptScan注解
 - 用户可自定义Parser，而无关责任链实现，完成独特接口注解的属性解析
 - 拥有javadoc，swagger2，swagger3，springmvc（只负责部分解析逻辑），jackson 以及springai原生的tool 解析器
 
-# 👀未完善点
+# ️🌟最新特性
+- 对标最新mcp-sdk版本 0.11的快照版本, 自定义注解来体验最新特性, McpTool
+- McpTool 完全隔离springai的Tool环境, 实现独属于Mcp的Tool体系, 方法自动注入exchange, 轻松完成mcp客户端交互
+- 暂未支持springai的配置类mineType, 融合在McpTool的注解属性中
 
+# 👀未完善点
 已经具有较为成熟的解析逻辑，目前主流解析逻辑已经较为完善，如果有我没考虑到的，欢迎踊跃交流，后续将会提供强有力的自定义扩展功能，用户可以通过简单的配置类等方式，来完成自定义注释注解的解析。
 
 # 🎯快速开始
