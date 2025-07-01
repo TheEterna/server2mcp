@@ -6,13 +6,14 @@ import com.ai.plug.core.context.CompleteContext;
 import com.ai.plug.core.context.ResourceContext;
 import com.ai.plug.core.context.ToolContext;
 import com.ai.plug.core.springai.provider.AsyncMcpAnnotationProvider;
+import com.logaritex.mcp.utils.McpLogger;
+import com.logaritex.mcp.utils.McpLoggerFactory;
+import io.modelcontextprotocol.server.McpAsyncServer;
+import io.modelcontextprotocol.server.McpAsyncServerExchange;
 import io.modelcontextprotocol.server.McpServerFeatures;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Conditional;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
+import org.springframework.context.annotation.*;
 
 import java.util.List;
 import java.util.Map;
@@ -30,6 +31,8 @@ import static com.ai.plug.common.constants.ConfigConstants.*;
 @Conditional(Conditions.IsAsyncCondition.class)
 public class AsyncSpecMcpConfig {
 
+
+
     /**
      * 创建异步 Tool
      * Creates asynchronous Tool specifications
@@ -38,6 +41,7 @@ public class AsyncSpecMcpConfig {
      */
     @Bean
     @Primary
+    @Scope
     @ConditionalOnProperty(prefix = VARIABLE_PREFIX + '.' + VARIABLE_TOOL, name = ".enabled", havingValue = "true", matchIfMissing = true)
     public List<McpServerFeatures.AsyncToolSpecification> asyncToolSpecifications(ApplicationContext applicationContext, ToolDefinitionBuilder builder){
         Map<Object, ToolContext.ToolRegisterDefinition> toolAndDefinitions = ToolContext.getRawTools().entrySet().stream().collect(Collectors.toMap(

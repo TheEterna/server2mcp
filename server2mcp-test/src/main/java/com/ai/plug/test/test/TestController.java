@@ -4,12 +4,14 @@ import com.logaritex.mcp.annotation.McpArg;
 import com.logaritex.mcp.annotation.McpComplete;
 import com.logaritex.mcp.annotation.McpPrompt;
 import com.logaritex.mcp.annotation.McpResource;
-import com.logaritex.mcp.utils.McpLogger;
-import com.logaritex.mcp.utils.McpLoggerFactory;
+import io.modelcontextprotocol.server.McpAsyncServerExchange;
 import io.modelcontextprotocol.server.McpSyncServer;
+import io.modelcontextprotocol.server.McpSyncServerExchange;
 import io.modelcontextprotocol.spec.McpSchema;
 import io.swagger.annotations.*;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.ai.tool.annotation.Tool;
+import org.springframework.ai.tool.annotation.ToolParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -170,7 +172,7 @@ public class TestController {
 
     @GetMapping("/api/poi")
     @ApiOperation("获取超市中奥利奥销售数据,没有参数,获取的是所有超市的奥利奥销售数据, 可能需要进一步处理")
-    public List<PoiData> getPoiData() {
+    public List<PoiData> getPoiData(String query, @ApiParam(value = "realInput") String input) {
         return Arrays.asList(
                 new PoiData("新雅(上海站店)", 121.455415, 31.249743, "日杂店", 128),
                 new PoiData("临泰超市(上海站)", 121.455777, 31.25046, "超市", 215),
@@ -185,9 +187,7 @@ public class TestController {
 
 
     @GetMapping("/test")
-    public Mono<String> test() {
-        McpLogger logger = McpLoggerFactory.getSyncLogger(mcpSyncServer, null, this.getClass());
-        logger.emergency("Hello, world!", true);
+    public Mono<String> test(@ToolParam(description = "这是一个dto") Dto dto) {
 
         return Mono.just("OK");
     }

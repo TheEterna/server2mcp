@@ -67,7 +67,7 @@ public class ToolScanConfig {
     @Bean
     @ConditionalOnParser(value = "MCPTOOL", type = AbstractParamParser.class)
     @Order(0)
-    public McpToolParamParser McpToolParamParser() {
+    public McpToolParamParser mcpToolParamParser() {
         return new McpToolParamParser();
     }
 

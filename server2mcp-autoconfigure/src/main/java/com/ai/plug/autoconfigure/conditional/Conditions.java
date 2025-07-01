@@ -68,12 +68,12 @@ public class Conditions {
 
             if (ClassUtils.isAssignable(parserType, AbstractParamParser.class)) {
                 types = env.getProperty(VARIABLE_PREFIX +'.' + PARSER_PREFIX + '.' + VARIABLE_PARAM, String[].class, new String[0]);
-                types = types.length == 0 ? new String[]{"TOOL", "JACKSON", "SPRINGMVC", "JAVADOC", "SWAGGER2", "SWAGGER3"} : types;
+                types = types.length == 0 ? new String[]{"MCPTOOL", "TOOL", "JACKSON", "SPRINGMVC", "JAVADOC", "SWAGGER2", "SWAGGER3"} : types;
 
             }
             else if (ClassUtils.isAssignable(parserType, AbstractDesParser.class)) {
                 types = env.getProperty(VARIABLE_PREFIX +'.' + PARSER_PREFIX + '.' + VARIABLE_DES, String[].class, new String[0]);
-                types = types.length == 0 ? new String[]{"TOOL", "JACKSON", "JAVADOC", "SWAGGER2", "SWAGGER3"} : types;
+                types = types.length == 0 ? new String[]{"MCPTOOL", "TOOL", "JACKSON", "JAVADOC", "SWAGGER2", "SWAGGER3"} : types;
             } else {
                 log.warn("not have the parserType");
                 return false;

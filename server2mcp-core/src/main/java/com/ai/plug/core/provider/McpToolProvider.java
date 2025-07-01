@@ -124,6 +124,7 @@ public class McpToolProvider {
                                         .toolAnnotation(toolAnnotation)
                                         .build();
 
+
                                 return new McpServerFeatures.SyncToolSpecification(mcpTool, methodCallback);
                             })
                             .toList();
