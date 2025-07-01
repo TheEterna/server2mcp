@@ -21,9 +21,14 @@ public final class SingleStarter extends AbstractStarter {
     @Override
     public String runDesParse(List<AbstractDesParser> parserList, Method method, Class<?> toolClass) {
 
-        String result = parserList.stream().map((parser) -> {
-            return parser.doDesParse(method, toolClass);
-        }).filter(Objects::nonNull).findFirst().orElse(null);
+        // 找到 tool 的描述就不在解析了
+        String result = "";
+        for (AbstractDesParser parser : parserList) {
+            result = parser.doDesParse(method, toolClass);
+            if (StringUtils.hasText(result)) {
+                break;
+            }
+        }
 
         if (!StringUtils.hasText(result)) {
             log.warn("Please note that the parsing module you specified resulted in the {} tool not parsing the tool description", toolClass.getName() + "-" + method.getName());
