@@ -1,12 +1,7 @@
 package com.ai.plug.test;
 
-import com.logaritex.mcp.annotation.McpArg;
-import com.logaritex.mcp.annotation.McpPrompt;
-import io.modelcontextprotocol.spec.McpSchema;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-
-import java.util.List;
 
 /**
  * @author 韩

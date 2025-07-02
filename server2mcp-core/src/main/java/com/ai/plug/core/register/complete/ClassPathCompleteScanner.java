@@ -1,7 +1,6 @@
 package com.ai.plug.core.register.complete;
 
 import com.ai.plug.core.context.CompleteContext;
-import com.ai.plug.core.register.complete.ClassPathCompleteScanner;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.context.annotation.AnnotationBeanNameGenerator;

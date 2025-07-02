@@ -3,26 +3,21 @@ package com.ai.plug.core.provider;
 import com.ai.plug.core.annotation.ToolScan;
 import com.ai.plug.core.builder.ToolDefinitionBuilder;
 import com.ai.plug.core.context.ToolContext;
-import com.ai.plug.core.utils.CustomToolUtil;
+import com.ai.plug.core.spec.callback.tool.AsyncMcpToolMethodCallback;
+import com.ai.plug.core.spec.callback.tool.DefaultMcpCallToolResultConverter;
+import com.ai.plug.core.spec.callback.tool.McpCallToolResultConverter;
+import com.ai.plug.core.spec.callback.tool.SyncMcpToolMethodCallback;
 import com.logaritex.mcp.annotation.McpTool;
-import com.logaritex.mcp.method.tool.AsyncMcpToolMethodCallback;
-import com.logaritex.mcp.method.tool.DefaultMcpCallToolResultConverter;
-import com.logaritex.mcp.method.tool.McpCallToolResultConverter;
-import com.logaritex.mcp.method.tool.SyncMcpToolMethodCallback;
 import io.modelcontextprotocol.server.McpServerFeatures;
 import io.modelcontextprotocol.spec.McpSchema;
 import io.modelcontextprotocol.util.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ai.tool.definition.ToolDefinition;
-import org.springframework.ai.tool.method.MethodToolCallback;
-import org.springframework.ai.util.json.schema.JsonSchemaGenerator;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.util.CollectionUtils;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -157,7 +152,7 @@ public class McpToolProvider {
             return new DefaultMcpCallToolResultConverter();
         }
 
-        Class<? extends McpCallToolResultConverter> converterClass = toolAnnotation.converter();
+        Class<? extends McpCallToolResultConverter> converterClass = (Class<? extends McpCallToolResultConverter>) toolAnnotation.converter();
         McpCallToolResultConverter converter = null;
         try {
             converter = converterClass.getDeclaredConstructor().newInstance();

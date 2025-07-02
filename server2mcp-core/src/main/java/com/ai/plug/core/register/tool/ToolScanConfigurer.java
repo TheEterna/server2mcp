@@ -12,7 +12,6 @@ import org.springframework.context.annotation.ClassPathBeanDefinitionScanner;
 import org.springframework.core.annotation.AnnotationAttributes;
 import org.springframework.core.type.filter.AnnotationTypeFilter;
 import org.springframework.util.CollectionUtils;
-import org.yaml.snakeyaml.util.ArrayUtils;
 
 import java.lang.annotation.Annotation;
 import java.util.List;

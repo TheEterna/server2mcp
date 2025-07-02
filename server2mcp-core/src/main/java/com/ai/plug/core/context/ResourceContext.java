@@ -1,12 +1,8 @@
 package com.ai.plug.core.context;
 
-import com.ai.plug.core.annotation.McpResourceScan;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
 
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 /**

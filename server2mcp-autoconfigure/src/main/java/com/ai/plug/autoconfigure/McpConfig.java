@@ -29,10 +29,8 @@ import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.function.Consumer;
 
 import static com.ai.plug.common.constants.ConfigConstants.*;
 import static com.ai.plug.core.annotation.ToolScan.FilterType.ANNOTATION;
