@@ -1,7 +1,6 @@
 package com.ai.plug.core.register.resource;
 
 import com.ai.plug.core.context.ResourceContext;
-import com.ai.plug.core.context.ToolContext;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.context.annotation.AnnotationBeanNameGenerator;

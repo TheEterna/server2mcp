@@ -1,8 +1,6 @@
 package com.ai.plug.core.register.prompt;
 
 import com.ai.plug.core.annotation.McpPromptScan;
-import com.ai.plug.core.annotation.McpResourceScan;
-import com.ai.plug.core.annotation.McpResourceScans;
 import com.ai.plug.core.utils.CustomToolUtil;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;

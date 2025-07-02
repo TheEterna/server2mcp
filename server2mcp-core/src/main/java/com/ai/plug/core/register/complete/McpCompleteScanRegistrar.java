@@ -1,8 +1,6 @@
 package com.ai.plug.core.register.complete;
 
 import com.ai.plug.core.annotation.McpCompleteScan;
-import com.ai.plug.core.register.complete.McpCompleteScanConfigurer;
-import com.ai.plug.core.register.complete.McpCompleteScanRegistrar;
 import com.ai.plug.core.utils.CustomToolUtil;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;

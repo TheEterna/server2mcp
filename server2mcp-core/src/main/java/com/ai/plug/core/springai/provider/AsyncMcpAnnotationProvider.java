@@ -18,17 +18,15 @@ package com.ai.plug.core.springai.provider;
 import com.ai.plug.core.builder.ToolDefinitionBuilder;
 import com.ai.plug.core.context.ToolContext;
 import com.ai.plug.core.provider.McpToolProvider;
-import com.logaritex.mcp.provider.*;
-import io.modelcontextprotocol.server.McpServerFeatures;
+import com.ai.plug.core.provider.*;
 import io.modelcontextprotocol.server.McpServerFeatures.AsyncCompletionSpecification;
 import io.modelcontextprotocol.server.McpServerFeatures.AsyncPromptSpecification;
-import io.modelcontextprotocol.server.McpServerFeatures.AsyncToolSpecification;
 import io.modelcontextprotocol.server.McpServerFeatures.AsyncResourceSpecification;
+import io.modelcontextprotocol.server.McpServerFeatures.AsyncToolSpecification;
 import io.modelcontextprotocol.spec.McpSchema.CreateMessageRequest;
 import io.modelcontextprotocol.spec.McpSchema.CreateMessageResult;
 import io.modelcontextprotocol.spec.McpSchema.LoggingMessageNotification;
 import org.springframework.aop.support.AopUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.ReflectionUtils;
 import reactor.core.publisher.Mono;
 
@@ -44,33 +42,33 @@ import java.util.function.Function;
  */
 public class AsyncMcpAnnotationProvider {
 
-	private static class SpringAiAsyncMcpLoggingConsumerProvider extends AsyncMcpLoggingConsumerProvider {
-
-		public SpringAiAsyncMcpLoggingConsumerProvider(List<Object> loggingObjects) {
-			super(loggingObjects);
-		}
-
-		@Override
-		protected Method[] doGetClassMethods(Object bean) {
-			return ReflectionUtils
-				.getDeclaredMethods(AopUtils.isAopProxy(bean) ? AopUtils.getTargetClass(bean) : bean.getClass());
-		}
-
-	}
-
-	private static class SpringAiAsyncMcpSamplingProvider extends AsyncMcpSamplingProvider {
-
-		public SpringAiAsyncMcpSamplingProvider(List<Object> samplingObjects) {
-			super(samplingObjects);
-		}
-
-		@Override
-		protected Method[] doGetClassMethods(Object bean) {
-			return ReflectionUtils
-					.getDeclaredMethods(AopUtils.isAopProxy(bean) ? AopUtils.getTargetClass(bean) : bean.getClass());
-		}
-
-	}
+//	private static class SpringAiAsyncMcpLoggingConsumerProvider extends AsyncMcpLoggingConsumerProvider {
+//
+//		public SpringAiAsyncMcpLoggingConsumerProvider(List<Object> loggingObjects) {
+//			super(loggingObjects);
+//		}
+//
+//		@Override
+//		protected Method[] doGetClassMethods(Object bean) {
+//			return ReflectionUtils
+//				.getDeclaredMethods(AopUtils.isAopProxy(bean) ? AopUtils.getTargetClass(bean) : bean.getClass());
+//		}
+//
+//	}
+//
+//	private static class SpringAiAsyncMcpSamplingProvider extends AsyncMcpSamplingProvider {
+//
+//		public SpringAiAsyncMcpSamplingProvider(List<Object> samplingObjects) {
+//			super(samplingObjects);
+//		}
+//
+//		@Override
+//		protected Method[] doGetClassMethods(Object bean) {
+//			return ReflectionUtils
+//					.getDeclaredMethods(AopUtils.isAopProxy(bean) ? AopUtils.getTargetClass(bean) : bean.getClass());
+//		}
+//
+//	}
 	private static class SpringAiAsyncMcpToolProvider extends McpToolProvider {
 		public SpringAiAsyncMcpToolProvider(Map<Object, ToolContext.ToolRegisterDefinition> toolAndDefinitions, ToolDefinitionBuilder toolDefinitionBuilder) {
 			super(toolAndDefinitions, toolDefinitionBuilder);
@@ -143,26 +141,26 @@ public class AsyncMcpAnnotationProvider {
 
 	}
 
-	/**
-	 * fixme 未更新, 存在问题, 同步提供器无法解析Mono
-	 * @param loggingObjects
-	 * @return
-	 */
-	public static List<Function<LoggingMessageNotification, Mono<Void>>> createAsyncLoggingConsumers(
-			List<Object> loggingObjects) {
-		return new SpringAiAsyncMcpLoggingConsumerProvider(loggingObjects).getLoggingConsumers();
-	}
-
-	/**
-	 * fixme 未更新, 存在问题, 同步提供器无法解析Mono
-	 * @param samplingObjects
-	 * @return
-	 */
-
-	public static Function<CreateMessageRequest, Mono<CreateMessageResult>> createAsyncSamplingHandler(
-			List<Object> samplingObjects) {
-		return new SpringAiAsyncMcpSamplingProvider(samplingObjects).getSamplingHandler();
-	}
+//	/**
+//	 * fixme 未更新, 存在问题, 同步提供器无法解析Mono
+//	 * @param loggingObjects
+//	 * @return
+//	 */
+//	public static List<Function<LoggingMessageNotification, Mono<Void>>> createAsyncLoggingConsumers(
+//			List<Object> loggingObjects) {
+//		return new SpringAiAsyncMcpLoggingConsumerProvider(loggingObjects).getLoggingConsumers();
+//	}
+//
+//	/**
+//	 * fixme 未更新, 存在问题, 同步提供器无法解析Mono
+//	 * @param samplingObjects
+//	 * @return
+//	 */
+//
+//	public static Function<CreateMessageRequest, Mono<CreateMessageResult>> createAsyncSamplingHandler(
+//			List<Object> samplingObjects) {
+//		return new SpringAiAsyncMcpSamplingProvider(samplingObjects).getSamplingHandler();
+//	}
 
 
 	public static List<AsyncResourceSpecification> createAsyncResourceSpecifications(List<Object> resourceObjects) {

@@ -4,13 +4,10 @@ import com.logaritex.mcp.annotation.McpArg;
 import com.logaritex.mcp.annotation.McpComplete;
 import com.logaritex.mcp.annotation.McpPrompt;
 import com.logaritex.mcp.annotation.McpResource;
-import io.modelcontextprotocol.server.McpAsyncServerExchange;
 import io.modelcontextprotocol.server.McpSyncServer;
-import io.modelcontextprotocol.server.McpSyncServerExchange;
 import io.modelcontextprotocol.spec.McpSchema;
 import io.swagger.annotations.*;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.ai.tool.annotation.ToolParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -23,7 +20,10 @@ import javax.imageio.ImageIO;
 import java.awt.image.RenderedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -112,6 +112,7 @@ public class TestController {
     public McpSchema.GetPromptResult personalizedMessage(
             @McpArg(name = "name", description = "The user's name", required = true) String name,
             @McpArg(name = "age", description = "The user's age", required = true) Integer age,
+            @McpArg(name = "dto", description = "The user's DTO", required = true) Dto dto,
             @McpArg(name = "interests", description = "The user's interests", required = true) String interests) {
 
 

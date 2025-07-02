@@ -1,10 +1,11 @@
-package com.ai.plug.core.utils.logging;
+package com.ai.plug.core.spec.utils.logging;
 
 import io.modelcontextprotocol.server.McpSyncServer;
 import io.modelcontextprotocol.server.McpSyncServerExchange;
 import io.modelcontextprotocol.spec.McpSchema;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.lang.Nullable;
 
 /**
  * @author han
@@ -20,7 +21,7 @@ public class McpSyncLogger extends McpLogger {
 
     private final Class<?> clazz;
 
-    public McpSyncLogger(McpSyncServer syncServer, McpSyncServerExchange exchange, Class<?> clazz) {
+    public McpSyncLogger(McpSyncServer syncServer, McpSyncServerExchange exchange, @Nullable Class<?> clazz) {
         this.syncServer = syncServer;
         this.exchange = exchange;
         this.clazz = clazz;
@@ -45,7 +46,7 @@ public class McpSyncLogger extends McpLogger {
         exchange.loggingNotification(
                 McpSchema.LoggingMessageNotification.builder()
                         .level(McpSchema.LoggingLevel.DEBUG)
-                        .logger(clazz.getName())
+                        .logger(syncServer.toString() + (clazz == null ? null : clazz.getName()))
                         .data(msg)
                         .build());
     }
@@ -64,7 +65,7 @@ public class McpSyncLogger extends McpLogger {
         exchange.loggingNotification(
                 McpSchema.LoggingMessageNotification.builder()
                         .level(McpSchema.LoggingLevel.INFO)
-                        .logger(clazz.getName())
+                        .logger(syncServer.toString() + (clazz == null ? null : clazz.getName()))
                         .data(msg)
                         .build());
     }
@@ -86,7 +87,7 @@ public class McpSyncLogger extends McpLogger {
         exchange.loggingNotification(
                 McpSchema.LoggingMessageNotification.builder()
                         .level(McpSchema.LoggingLevel.NOTICE)
-                        .logger(clazz.getName())
+                        .logger(syncServer.toString() + (clazz == null ? null : clazz.getName()))
                         .data(msg)
                         .build());
     }
@@ -105,7 +106,7 @@ public class McpSyncLogger extends McpLogger {
         exchange.loggingNotification(
                 McpSchema.LoggingMessageNotification.builder()
                         .level(McpSchema.LoggingLevel.WARNING)
-                        .logger(clazz.getName())
+                        .logger(syncServer.toString() + (clazz == null ? null : clazz.getName()))
                         .data(msg)
                         .build());
     }
@@ -123,7 +124,7 @@ public class McpSyncLogger extends McpLogger {
         exchange.loggingNotification(
                 McpSchema.LoggingMessageNotification.builder()
                         .level(McpSchema.LoggingLevel.ERROR)
-                        .logger(clazz.getName())
+                        .logger(syncServer.toString() + (clazz == null ? null : clazz.getName()))
                         .data(msg)
                         .build());
     }
@@ -142,7 +143,7 @@ public class McpSyncLogger extends McpLogger {
         exchange.loggingNotification(
                 McpSchema.LoggingMessageNotification.builder()
                         .level(McpSchema.LoggingLevel.CRITICAL)
-                        .logger(clazz.getName())
+                        .logger(syncServer.toString() + (clazz == null ? null : clazz.getName()))
                         .data(msg)
                         .build());
     }
@@ -161,7 +162,7 @@ public class McpSyncLogger extends McpLogger {
         exchange.loggingNotification(
                 McpSchema.LoggingMessageNotification.builder()
                         .level(McpSchema.LoggingLevel.ALERT)
-                        .logger(clazz.getName())
+                        .logger(syncServer.toString() + (clazz == null ? null : clazz.getName()))
                         .data(msg)
                         .build());
     }
@@ -181,7 +182,7 @@ public class McpSyncLogger extends McpLogger {
         exchange.loggingNotification(
                 McpSchema.LoggingMessageNotification.builder()
                         .level(McpSchema.LoggingLevel.EMERGENCY)
-                        .logger(clazz.getName())
+                        .logger(syncServer.toString() + (clazz == null ? null : clazz.getName()))
                         .data(msg)
                         .build());
     }

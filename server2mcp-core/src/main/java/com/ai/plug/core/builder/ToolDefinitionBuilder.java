@@ -4,16 +4,20 @@ import com.ai.plug.common.utils.CommonUtil;
 import com.ai.plug.core.parser.des.AbstractDesParser;
 import com.ai.plug.core.parser.param.AbstractParamParser;
 import com.ai.plug.core.parser.starter.AbstractStarter;
+import com.ai.plug.core.spec.utils.logging.McpLogger;
+import com.ai.plug.core.spec.utils.logging.McpLoggerFactory;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.github.victools.jsonschema.generator.*;
 import com.github.victools.jsonschema.generator.Module;
+import com.github.victools.jsonschema.generator.*;
 import com.github.victools.jsonschema.module.jackson.JacksonModule;
 import com.github.victools.jsonschema.module.jackson.JacksonOption;
 import com.github.victools.jsonschema.module.swagger15.SwaggerModule;
 import com.github.victools.jsonschema.module.swagger2.Swagger2Module;
 import com.logaritex.mcp.annotation.McpTool;
+import io.modelcontextprotocol.server.McpAsyncServerExchange;
+import io.modelcontextprotocol.server.McpSyncServerExchange;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.model.ToolContext;
 import org.springframework.ai.tool.annotation.Tool;
@@ -23,7 +27,6 @@ import org.springframework.ai.util.json.JsonParser;
 import org.springframework.ai.util.json.schema.JsonSchemaGenerator;
 import org.springframework.ai.util.json.schema.SpringAiSchemaModule;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.StringUtils;
@@ -140,10 +143,24 @@ public class ToolDefinitionBuilder {
             Type parameterType = method.getGenericParameterTypes()[i];
 
 
+            // 因为需要做自动注入，所以需要排除掉这几个类型
             if (parameterType instanceof Class<?> parameterClass) {
+                // 这个保留, 兼容springai
                 if (ClassUtils.isAssignable(parameterClass, ToolContext.class)) {
                     continue;
+                } else if (ClassUtils.isAssignable(McpAsyncServerExchange.class, parameterClass)) {
+                    continue;
+                } else if (ClassUtils.isAssignable(parameterClass, McpSyncServerExchange.class)) {
+                    continue;
+                } else if (ClassUtils.isAssignable(parameterClass, McpLogger.class)) {
+                    continue;
+                } else if (ClassUtils.isAssignable(parameterClass, McpLoggerFactory.class)) {
+                    continue;
                 }
+
+
+
+
             }
 
             // 这个应该是取交集 什么意思 举个例子 比如swagger3注解 解析出来 id和name都是不必须的 但是mvc解析出来都是必须的

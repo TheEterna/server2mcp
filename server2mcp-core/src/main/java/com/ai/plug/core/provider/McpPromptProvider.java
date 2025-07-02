@@ -16,10 +16,10 @@
 
 package com.ai.plug.core.provider;
 
+import com.ai.plug.core.spec.callback.prompt.AsyncMcpPromptMethodCallback;
+import com.ai.plug.core.spec.callback.prompt.SyncMcpPromptMethodCallback;
 import com.logaritex.mcp.annotation.McpPrompt;
 import com.logaritex.mcp.annotation.PromptAdaptor;
-import com.logaritex.mcp.method.prompt.AsyncMcpPromptMethodCallback;
-import com.logaritex.mcp.method.prompt.SyncMcpPromptMethodCallback;
 import io.modelcontextprotocol.server.McpServerFeatures.AsyncPromptSpecification;
 import io.modelcontextprotocol.server.McpServerFeatures.SyncPromptSpecification;
 import io.modelcontextprotocol.util.Assert;

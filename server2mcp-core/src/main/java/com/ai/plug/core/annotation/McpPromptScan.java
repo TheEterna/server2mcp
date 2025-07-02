@@ -1,7 +1,6 @@
 package com.ai.plug.core.annotation;
 
 import com.ai.plug.core.register.prompt.McpPromptScanRegistrar;
-import com.ai.plug.core.register.resource.McpResourceScanRegistrar;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.annotation.AliasFor;
 

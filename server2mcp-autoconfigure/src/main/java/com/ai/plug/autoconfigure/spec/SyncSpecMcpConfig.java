@@ -5,7 +5,6 @@ import com.ai.plug.core.builder.ToolDefinitionBuilder;
 import com.ai.plug.core.context.CompleteContext;
 import com.ai.plug.core.context.ResourceContext;
 import com.ai.plug.core.context.ToolContext;
-import com.ai.plug.core.springai.provider.AsyncMcpAnnotationProvider;
 import com.ai.plug.core.springai.provider.SyncMcpAnnotationProvider;
 import io.modelcontextprotocol.server.McpServerFeatures;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;

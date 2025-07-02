@@ -1,8 +1,8 @@
 package com.ai.plug.core.provider;
 
+import com.ai.plug.core.spec.callback.resource.AsyncMcpResourceMethodCallback;
+import com.ai.plug.core.spec.callback.resource.SyncMcpResourceMethodCallback;
 import com.logaritex.mcp.annotation.McpResource;
-import com.logaritex.mcp.method.resource.AsyncMcpResourceMethodCallback;
-import com.logaritex.mcp.method.resource.SyncMcpResourceMethodCallback;
 import io.modelcontextprotocol.server.McpServerFeatures;
 import io.modelcontextprotocol.spec.McpSchema;
 import io.modelcontextprotocol.util.Assert;
