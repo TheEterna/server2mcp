@@ -21,9 +21,12 @@ public final class SingleStarter extends AbstractStarter {
     @Override
     public String runDesParse(List<AbstractDesParser> parserList, Method method, Class<?> toolClass) {
 
-        String result = parserList.stream().map((parser) -> {
-            return parser.doDesParse(method, toolClass);
-        }).filter(Objects::nonNull).findFirst().orElse(null);
+        String result = parserList
+                .stream()
+                .map((parser) -> parser.doDesParse(method, toolClass))
+                .filter(StringUtils::hasText)
+                .findFirst()
+                .orElse(null);
 
         if (!StringUtils.hasText(result)) {
             log.warn("Please note that the parsing module you specified resulted in the {} tool not parsing the tool description", toolClass.getName() + "-" + method.getName());
@@ -36,9 +39,12 @@ public final class SingleStarter extends AbstractStarter {
     @Override
     public Boolean runParamRequiredParse(List<AbstractParamParser> parserList, Method method, Class<?> toolClass, int index) {
 
-        Boolean result = parserList.stream().map((parser) -> {
-            return parser.doParamRequiredParse(method, toolClass, index);
-        }).filter(Objects::nonNull).findFirst().orElse(null);
+        Boolean result = parserList
+                .stream()
+                .map((parser) -> parser.doParamRequiredParse(method, toolClass, index))
+                .filter(Objects::nonNull)
+                .findFirst()
+                .orElse(null);
 
         if (result == null) {
             log.warn("Please note that the parsing module you specified resulted in the {} tool not parsing the param required", toolClass.getName() + "-" + method.getName());
@@ -49,9 +55,12 @@ public final class SingleStarter extends AbstractStarter {
 
     @Override
     public String runParamDesParse(List<AbstractParamParser> parserList, Method method, Class<?> toolClass, int index) {
-        String result = parserList.stream().map((parser) -> {
-            return parser.doParamDesParse(method, toolClass, index);
-        }).filter(Objects::nonNull).findFirst().orElse(null);
+        String result = parserList
+                .stream()
+                .map((parser) -> parser.doParamDesParse(method, toolClass, index))
+                .filter(StringUtils::hasText)
+                .findFirst()
+                .orElse(null);
 
         if (result == null) {
             log.warn("Please note that the parsing module you specified resulted in the {} tool not parsing the param required", toolClass.getName() + "-" + method.getName());
