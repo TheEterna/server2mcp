@@ -71,6 +71,7 @@ public class SyncMcpToolMethodCallback extends AbstractMcpToolMethodCallback
             return this.converter.convertToCallToolResult(result, returnType, this);
         }
         catch (Exception e) {
+            logger.error("Error invoking prompt method: {}", this.method.getName(), e);
             throw new McpToolMethodException("Error invoking prompt method: " + this.method.getName(), e);
         }
     }

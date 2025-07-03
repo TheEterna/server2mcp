@@ -31,9 +31,9 @@ plugin:
 
 logging:
   level:
-    logging.level.org.springframework.ai: DEBUG
-    logging.level.io.modelcontextprotocol: DEBUG
-    logging.level.com.ai.plug: DEBUG
+    org.springframework.ai: DEBUG
+    io.modelcontextprotocol: DEBUG
+    com.ai.plug: DEBUG
 
 
 
