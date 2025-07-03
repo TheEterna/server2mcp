@@ -69,6 +69,7 @@ public class AsyncMcpToolMethodCallback extends AbstractMcpToolMethodCallback
 
 
             } catch (Exception e) {
+                logger.error("Error invoking prompt method: {}", this.method.getName(), e);
                 return Mono.error(
                         new McpToolMethodException("Error invoking prompt method: " + this.method.getName(), e));
             }

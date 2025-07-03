@@ -94,9 +94,9 @@ public class McpConfig {
 
 
             HashMap<String, Object> excludeToolMap = new HashMap<>();
-            excludeToolMap.put("classes", Deprecated.class);
+            excludeToolMap.put("classes", new Class[]{Deprecated.class, ToolNotScanForAuto.class});
             excludeToolMap.put("type", META_ANNOTATION);
-            excludeToolMap.put("value", Deprecated.class);
+            excludeToolMap.put("value", new Class[]{Deprecated.class, ToolNotScanForAuto.class});
             ToolScan.ToolFilter[] excludeToolFilters= convertToToolFilters(new AnnotationAttributes[]{new AnnotationAttributes(excludeToolMap)});
             builder.addPropertyValue("excludeToolFilters", excludeToolFilters);
 
