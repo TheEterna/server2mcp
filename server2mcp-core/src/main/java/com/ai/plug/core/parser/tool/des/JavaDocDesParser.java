@@ -1,4 +1,4 @@
-package com.ai.plug.core.parser.des;
+package com.ai.plug.core.parser.tool.des;
 
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;

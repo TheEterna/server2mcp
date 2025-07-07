@@ -1,4 +1,4 @@
-package com.ai.plug.core.parser.param;
+package com.ai.plug.core.parser.tool.param;
 
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;

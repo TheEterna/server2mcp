@@ -1,9 +1,11 @@
 package com.ai.plug.core.builder;
 
 import com.ai.plug.common.utils.CommonUtil;
-import com.ai.plug.core.parser.des.AbstractDesParser;
-import com.ai.plug.core.parser.param.AbstractParamParser;
-import com.ai.plug.core.parser.starter.AbstractStarter;
+import com.ai.plug.core.parser.tool.des.AbstractDesParser;
+import com.ai.plug.core.parser.tool.param.AbstractParamParser;
+import com.ai.plug.core.parser.tool.starter.AbstractStarter;
+import com.ai.plug.core.spec.utils.elicitation.McpElicitation;
+import com.ai.plug.core.spec.utils.elicitation.McpElicitationFactory;
 import com.ai.plug.core.spec.utils.logging.McpLogger;
 import com.ai.plug.core.spec.utils.logging.McpLoggerFactory;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -38,6 +40,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;
 
+import static com.ai.plug.core.utils.GenSchemaUtils.TOOL_SCHEMA_GENERATOR;
+
 
 /**
  * @author: han
@@ -59,26 +63,7 @@ public class ToolDefinitionBuilder {
         this.starter = starter;
     }
 
-    private final SchemaGenerator SUBTYPE_SCHEMA_GENERATOR;
-    {
-        Module springAiSchemaModule = new SpringAiSchemaModule();
-        Module jacksonModule = new JacksonModule(JacksonOption.RESPECT_JSONPROPERTY_REQUIRED);
-        Module swagger3Module = new Swagger2Module();
-        Module swagger2Module = new SwaggerModule();
 
-        // 基本就很少用了，因为一般都是接口作为工具
-        SchemaGeneratorConfigBuilder schemaGeneratorConfigBuilder =
-                (new SchemaGeneratorConfigBuilder(SchemaVersion.DRAFT_2020_12, OptionPreset.PLAIN_JSON))
-                        .with(springAiSchemaModule)
-                        .with(jacksonModule)
-                        .with(swagger2Module)
-                        .with(swagger3Module)
-                        .with(Option.EXTRA_OPEN_API_FORMAT_VALUES)
-                        .with(Option.PLAIN_DEFINITION_KEYS);
-
-        SchemaGeneratorConfig subtypeSchemaGeneratorConfig = schemaGeneratorConfigBuilder.without(Option.SCHEMA_VERSION_INDICATOR).build();
-        SUBTYPE_SCHEMA_GENERATOR = new SchemaGenerator(subtypeSchemaGeneratorConfig);
-    }
 
     /**
      * 构造Tool定义数据对象
@@ -148,17 +133,21 @@ public class ToolDefinitionBuilder {
                 // 这个保留, 兼容springai
                 if (ClassUtils.isAssignable(parameterClass, ToolContext.class)) {
                     continue;
-                } else if (ClassUtils.isAssignable(McpAsyncServerExchange.class, parameterClass)) {
+                } else if (ClassUtils.isAssignable(parameterClass, McpAsyncServerExchange.class)) {
                     continue;
                 } else if (ClassUtils.isAssignable(parameterClass, McpSyncServerExchange.class)) {
                     continue;
-                } else if (ClassUtils.isAssignable(parameterClass, McpLogger.class)) {
+                }
+
+                else if (ClassUtils.isAssignable(parameterClass, McpLogger.class)) {
                     continue;
                 } else if (ClassUtils.isAssignable(parameterClass, McpLoggerFactory.class)) {
                     continue;
+                } else if (ClassUtils.isAssignable(parameterClass, McpElicitationFactory.class)) {
+                    continue;
+                } else if (ClassUtils.isAssignable(parameterClass, McpElicitation.class)) {
+                    continue;
                 }
-
-
 
 
             }
@@ -173,7 +162,7 @@ public class ToolDefinitionBuilder {
             }
 
             // 构造参数对象 节点
-            ObjectNode parameterNode = SUBTYPE_SCHEMA_GENERATOR.generateSchema(parameterType);
+            ObjectNode parameterNode = TOOL_SCHEMA_GENERATOR.generateSchema(parameterType);
 
 
             String parameterDescription = getMethodParameterDescription(paramParserList, method, i);

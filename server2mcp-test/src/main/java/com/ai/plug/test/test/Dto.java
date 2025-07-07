@@ -12,7 +12,7 @@ import org.springframework.ai.tool.annotation.ToolParam;
 public class Dto {
     @ToolParam(description = "这个是id")
     private Integer id;
-    @Schema(title = "666", description = "牛逼")
+    @Schema(title = "666", description = "牛")
     private String score;
 
     public Dto(Integer id, String score) {

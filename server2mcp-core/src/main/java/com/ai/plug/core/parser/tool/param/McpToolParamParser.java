@@ -1,21 +1,22 @@
-package com.ai.plug.core.parser.param;
+package com.ai.plug.core.parser.tool.param;
 
-import org.springframework.ai.tool.annotation.ToolParam;
+import com.logaritex.mcp.annotation.McpArg;
 import org.springframework.util.StringUtils;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 
 /**
- * @author 韩
- * time: 2025/4/30 2:56
+ * @author han
+ * @time 2025/6/30 3:49
  */
-public class ToolParamParser extends AbstractParamParser {
+
+public class McpToolParamParser extends AbstractParamParser {
     @Override
     public Boolean doParamRequiredParse(Method method, Class<?> toolClass, int index) {
 
         Parameter parameter = method.getParameters()[index];
-        ToolParam toolParamAnnotation = parameter.getAnnotation(ToolParam.class);
+        McpArg toolParamAnnotation = parameter.getAnnotation(McpArg.class);
         if (toolParamAnnotation != null) {
             return toolParamAnnotation.required();
         }
@@ -28,7 +29,7 @@ public class ToolParamParser extends AbstractParamParser {
 
         Parameter parameter = method.getParameters()[index];
 
-        ToolParam toolParamAnnotation = parameter.getAnnotation(ToolParam.class);
+        McpArg toolParamAnnotation = parameter.getAnnotation(McpArg.class);
         if (toolParamAnnotation != null && StringUtils.hasText(toolParamAnnotation.description())) {
             return toolParamAnnotation.description();
         }

@@ -12,7 +12,7 @@ import org.springframework.lang.Nullable;
  * @time 2025/6/24 3:05
  */
 
-public class McpAsyncLogger extends McpLogger{
+public class McpAsyncLogger implements McpLogger{
 
     private final static Logger logger = LoggerFactory.getLogger(McpAsyncLogger.class);
 

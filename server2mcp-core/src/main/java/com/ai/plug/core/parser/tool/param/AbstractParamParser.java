@@ -1,6 +1,5 @@
-package com.ai.plug.core.parser.param;
+package com.ai.plug.core.parser.tool.param;
 
-import com.ai.plug.core.parser.AbstractParser;
 import org.springframework.lang.Nullable;
 
 import java.lang.reflect.Method;
@@ -14,7 +13,7 @@ import static com.ai.plug.common.constants.PromptConstants.DEFAULT_PARAM_DES;
  * time: 2025/04/2025/4/1 23:18
  * des:
  */
-public abstract class AbstractParamParser extends AbstractParser {
+public abstract class AbstractParamParser {
 
     /**
      * Tool 的 工具的参数 是否必须 (Required) 的 解析逻辑

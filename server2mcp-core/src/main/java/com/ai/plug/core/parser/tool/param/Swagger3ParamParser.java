@@ -1,4 +1,4 @@
-package com.ai.plug.core.parser.param;
+package com.ai.plug.core.parser.tool.param;
 
 import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.media.Schema;

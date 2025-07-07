@@ -11,7 +11,7 @@ import org.springframework.lang.Nullable;
  * @author han
  * @time 2025/6/24 16:16
  */
-public class McpSyncLogger extends McpLogger {
+public class McpSyncLogger implements McpLogger {
 
 
     private final Logger logger = LoggerFactory.getLogger(McpSyncLogger.class);

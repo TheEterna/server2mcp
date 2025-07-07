@@ -1,10 +1,13 @@
 package com.ai.plug.autoconfigure;
 
 import com.ai.plug.autoconfigure.conditional.ConditionalOnParser;
-import com.ai.plug.core.parser.des.*;
-import com.ai.plug.core.parser.param.*;
-import com.ai.plug.core.parser.starter.AbstractStarter;
-import com.ai.plug.core.parser.starter.SingleStarter;
+import com.ai.plug.core.parser.tool.des.*;
+import com.ai.plug.core.parser.tool.param.AbstractParamParser;
+import com.ai.plug.core.parser.tool.param.McpToolParamParser;
+import com.ai.plug.core.parser.tool.param.*;
+import com.ai.plug.core.parser.tool.param.ToolParamParser;
+import com.ai.plug.core.parser.tool.starter.AbstractStarter;
+import com.ai.plug.core.parser.tool.starter.SingleStarter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.annotation.Order;

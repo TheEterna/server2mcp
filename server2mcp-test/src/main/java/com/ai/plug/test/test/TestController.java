@@ -1,5 +1,6 @@
 package com.ai.plug.test.test;
 
+import com.ai.plug.core.spec.utils.elicitation.McpElicitation;
 import com.logaritex.mcp.annotation.McpArg;
 import com.logaritex.mcp.annotation.McpComplete;
 import com.logaritex.mcp.annotation.McpPrompt;
@@ -12,6 +13,7 @@ import org.springframework.ai.tool.annotation.ToolParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
@@ -88,6 +90,16 @@ public class TestController {
         return "OK";
     }
 
+
+
+
+    @PostMapping("/test/elicitation")
+    @ApiOperation(value = "测试 elicit")
+    public String testElicitation(McpElicitation elicitation) {
+
+        elicitation.elicit("我是一条Elicitation测试消息", String.class);
+        return "我是一条Elicitation测试消息";
+    }
 
 
 

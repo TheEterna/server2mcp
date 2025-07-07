@@ -43,8 +43,8 @@ public class CustomToolUtil {
             }
             try {
                 return type.getDeclaredConstructor().newInstance();
-            } catch (Exception var4) {
-                throw new IllegalArgumentException("Failed to instantiate ToolCallResultConverter: " + String.valueOf(type), var4);
+            } catch (Exception ex) {
+                throw new IllegalArgumentException("Failed to instantiate ToolCallResultConverter: " + String.valueOf(type), ex);
             }
         }
     }

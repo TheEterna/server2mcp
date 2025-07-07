@@ -1,4 +1,4 @@
-package com.ai.plug.core.parser.des;
+package com.ai.plug.core.parser.tool.des;
 
 import io.swagger.annotations.ApiOperation;
 import org.springframework.util.StringUtils;

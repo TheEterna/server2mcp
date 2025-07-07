@@ -1,6 +1,5 @@
-package com.ai.plug.core.parser.des;
+package com.ai.plug.core.parser.tool.des;
 
-import com.ai.plug.core.parser.AbstractParser;
 import org.springframework.ai.util.ParsingUtils;
 
 import java.lang.reflect.Method;
@@ -9,7 +8,7 @@ import java.lang.reflect.Method;
  * @author 韩
  * 需要重新getName
  */
-public abstract class AbstractDesParser extends AbstractParser {
+public abstract class AbstractDesParser {
 
     /**
      * 默认Tool 的 工具描述(description)解析逻辑

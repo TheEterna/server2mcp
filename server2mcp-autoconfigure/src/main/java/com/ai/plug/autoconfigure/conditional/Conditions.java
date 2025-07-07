@@ -1,8 +1,8 @@
 package com.ai.plug.autoconfigure.conditional;
 
 import com.ai.plug.autoconfigure.PluginProperties;
-import com.ai.plug.core.parser.des.AbstractDesParser;
-import com.ai.plug.core.parser.param.AbstractParamParser;
+import com.ai.plug.core.parser.tool.des.AbstractDesParser;
+import com.ai.plug.core.parser.tool.param.AbstractParamParser;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.mcp.server.autoconfigure.McpServerProperties;
 import org.springframework.context.annotation.Condition;
