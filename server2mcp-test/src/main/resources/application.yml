@@ -12,7 +12,11 @@ spring:
         tool-response-mime-type:
           readJPEGImage: image/jpg
 
-
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/yizi?serverTimezone=UTC&useUnicode=true&characterEncoding=utf-8
+    username: root
+    password: hfy
 plugin:
   mcp:
     enabled: true

@@ -1,5 +1,7 @@
 package com.ai.plug.core.spec.callback.tool;
 
+import com.ai.plug.core.spec.utils.elicitation.McpElicitation;
+import com.ai.plug.core.spec.utils.elicitation.McpElicitationFactory;
 import com.ai.plug.core.spec.utils.logging.McpLogger;
 import com.ai.plug.core.spec.utils.logging.McpLoggerFactory;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -188,6 +190,8 @@ public abstract class AbstractMcpToolMethodCallback {
                 args[i] = exchange;
             } else if (isLoggerType(paramType)) {
                 args[i] = McpLoggerFactory.getLogger(null, exchange, method.getDeclaringClass());
+            } else if (isElicitationType(paramType)) {
+                args[i] = McpElicitationFactory.getElicitation(exchange);
             }
 
 
@@ -221,6 +225,9 @@ public abstract class AbstractMcpToolMethodCallback {
 
     protected boolean isLoggerType(Class<?> paramType) {
         return McpLogger.class.isAssignableFrom(paramType);
+    }
+    protected boolean isElicitationType(Class<?> paramType) {
+        return McpElicitation.class.isAssignableFrom(paramType);
     }
 
 

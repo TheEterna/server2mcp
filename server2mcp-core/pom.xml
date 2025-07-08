@@ -41,11 +41,40 @@
         </dependency>
 
         <dependency>
+            <groupId>com.github.victools</groupId>
+            <artifactId>jsonschema-module-jakarta-validation</artifactId>
+            <version>${victools.module.swagger1-5.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.github.victools</groupId>
+            <artifactId>jsonschema-module-javax-validation</artifactId>
+            <version>${victools.module.swagger1-5.version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>io.swagger</groupId>
             <artifactId>swagger-annotations</artifactId>
             <version>${swagger1-5.annotations.version}</version>
             <scope>compile</scope>
         </dependency>
+
+        <!-- javax 的校验注解 -->
+        <dependency>
+            <groupId>javax.validation</groupId>
+            <artifactId>validation-api</artifactId>
+            <scope>compile</scope>
+            <version>${javax.validation-api.version}</version>
+        </dependency>
+
+        <!-- jakarta 的校验注解 -->
+        <dependency>
+            <groupId>jakarta.validation</groupId>
+            <artifactId>jakarta.validation-api</artifactId>
+            <scope>compile</scope>
+            <version>${jakarta.validation-api.version}</version>
+        </dependency>
+
 
         <dependency>
             <groupId>com.ai.plug</groupId>
@@ -57,6 +86,20 @@
         <dependency>
             <groupId>com.logaritex.mcp</groupId>
             <artifactId>mcp-annotations</artifactId>
+        </dependency>
+
+        <!-- 测试 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>io.modelcontextprotocol.sdk</groupId>
+            <artifactId>mcp-test</artifactId>
+            <version>0.11.0-SNAPSHOT</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 

@@ -26,9 +26,11 @@ public class McpLoggerFactory {
 
         if (exchange instanceof McpSyncServerExchange) {
             return new McpSyncLogger(null, (McpSyncServerExchange) exchange, clazz);
-        } else {
+        } else if (exchange instanceof McpAsyncServerExchange) {
             return new McpAsyncLogger(null, (McpAsyncServerExchange) exchange, clazz);
         }
-
+        // 不可能的情况
+        // Impossible situation
+        throw new IllegalArgumentException("exchange must be McpSyncServerExchange or McpAsyncServerExchange");
     }
 }

@@ -1,4 +1,4 @@
-package com.ai.plug.core.parser.param;
+package com.ai.plug.core.parser.tool.param;
 
 import org.springframework.web.bind.annotation.*;
 

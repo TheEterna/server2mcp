@@ -19,4 +19,6 @@ public class AutoNotScanController {
                 new PoiData("tool不扫描", 121.455415, 31.249743, "日杂店", 128)
         );
     }
+
+
 }

@@ -1,6 +1,7 @@
 package com.ai.plug.test.test;
 
 import com.ai.plug.autoconfigure.annotation.ToolNotScanForAuto;
+import com.ai.plug.core.spec.utils.elicitation.McpElicitation;
 import com.logaritex.mcp.annotation.McpArg;
 import com.logaritex.mcp.annotation.McpComplete;
 import com.logaritex.mcp.annotation.McpPrompt;
@@ -92,6 +93,16 @@ public class TestController {
         return "OK";
     }
 
+
+
+
+    @PostMapping("/test/elicitation")
+    @ApiOperation(value = "测试 elicit")
+    public String testElicitation(McpElicitation elicitation) {
+
+        elicitation.elicit("我是一条Elicitation测试消息", String.class);
+        return "我是一条Elicitation测试消息";
+    }
 
 
 

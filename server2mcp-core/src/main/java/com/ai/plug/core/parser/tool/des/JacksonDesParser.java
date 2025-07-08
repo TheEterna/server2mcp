@@ -1,4 +1,4 @@
-package com.ai.plug.core.parser.des;
+package com.ai.plug.core.parser.tool.des;
 
 import com.fasterxml.jackson.annotation.JsonPropertyDescription;
 import org.springframework.util.StringUtils;

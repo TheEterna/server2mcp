@@ -1,18 +1,19 @@
 package com.ai.plug.core.spec.utils.logging;
 
 /**
- * 日志类
+ * 通过 exchange 向客户端发送日志消息
+ * Sends log messages to the client via exchange
  * @author han
  * @time 2025/6/24 16:12
  */
 
-public abstract class McpLogger {
+public interface McpLogger {
 
 
-    public abstract Object getServer();
+    Object getServer();
 
 
-
+    // 把这条进行注释其实是有考虑的, 官方已经不再推荐使用server直接通知所有客户端, 而且在回调函数中也不能拿到server, 只能
 //    /**
 //     * 发送 debug 级别的日志消息
 //     * @param msg 日志字符串
@@ -108,55 +109,53 @@ public abstract class McpLogger {
 //
 //    }
 //
-
-    
     /**
      * 发送 debug 级别的日志消息
      * @param msg 日志字符串
      */
-    public abstract void debug(String msg);
+    void debug(String msg);
 
     /**
      * 发送 info 级别的日志消息
      * @param msg 日志字符串
      */
-    public abstract void info(String msg);
+    void info(String msg);
 
     /**
      * 发送 notice 级别的日志消息
      * @param msg 日志字符串
      */
-    public abstract void notice(String msg);
+    void notice(String msg);
 
     /**
      * 发送 warning 级别的日志消息
      * @param msg 日志字符串
      */
-    public abstract void warning(String msg);
+    void warning(String msg);
 
     /**
      * 发送 error 级别的日志消息
      * @param msg 日志字符串
      */
-    public abstract void error(String msg);
+    void error(String msg);
 
     /**
      * 发送 critical 级别的日志消息
      * @param msg 日志字符串
      */
-    public abstract void critical(String msg);
+    void critical(String msg);
 
     /**
      * 发送 alert 级别的日志消息
      * @param msg 日志字符串
      */
-    public abstract void alert(String msg);
+    void alert(String msg);
 
     /**
      * 发送 emergency 级别的日志消息
      * @param msg 日志字符串
      */
-    public abstract void emergency(String msg);
+    void emergency(String msg);
 
 
 }

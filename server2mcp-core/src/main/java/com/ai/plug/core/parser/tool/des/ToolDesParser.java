@@ -1,19 +1,19 @@
-package com.ai.plug.core.parser.des;
+package com.ai.plug.core.parser.tool.des;
 
-import com.logaritex.mcp.annotation.McpTool;
+import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.util.StringUtils;
 
 import java.lang.reflect.Method;
 
-/**
- * @author han
- * @time 2025/6/30 3:44
- */
 
-public class McpToolDesParser extends AbstractDesParser{
+/**
+ * @author 韩
+ * time: 2025/4/29 23:18
+ */
+public class ToolDesParser extends AbstractDesParser{
     @Override
     public String doDesParse(Method method, Class<?> toolClass) {
-        McpTool toolAnnotation = method.getAnnotation(McpTool.class);
+        Tool toolAnnotation = method.getAnnotation(Tool.class);
 
         if (toolAnnotation == null) {
             return null;
