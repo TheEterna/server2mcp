@@ -50,7 +50,6 @@
         <module>server2mcp-core</module>
         <module>server2mcp-autoconfigure</module>
         <module>server2mcp-spring-boot-starters/server2mcp-starter-webmvc</module>
-        <module>server2mcp-test</module>
 
     </modules>
 
