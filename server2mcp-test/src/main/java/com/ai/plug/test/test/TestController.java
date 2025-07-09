@@ -1,5 +1,6 @@
 package com.ai.plug.test.test;
 
+import com.ai.plug.autoconfigure.annotation.ToolNotScanForAuto;
 import com.ai.plug.core.spec.utils.elicitation.McpElicitation;
 import com.logaritex.mcp.annotation.McpArg;
 import com.logaritex.mcp.annotation.McpComplete;
@@ -8,12 +9,14 @@ import com.logaritex.mcp.annotation.McpResource;
 import io.modelcontextprotocol.server.McpSyncServer;
 import io.modelcontextprotocol.spec.McpSchema;
 import io.swagger.annotations.*;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.tool.annotation.ToolParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
@@ -203,6 +206,12 @@ public class TestController {
     public Mono<String> test(@ToolParam(description = "这是一个dto") Dto dto) {
 
         return Mono.just("OK");
+    }
+
+    @ToolNotScanForAuto
+    @PostMapping("/paramWithHttpServlet")
+    public List<String> paramWithHttpServlet(@RequestBody List<Dto> list, HttpServletRequest httpServletRequest) {
+        return List.of("1","2","3");
     }
 
     // 预定义的真实上海超市数据（名称、地址、经纬度）

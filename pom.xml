@@ -51,7 +51,6 @@
         <module>server2mcp-autoconfigure</module>
         <module>server2mcp-spring-boot-starters/server2mcp-starter-webmvc</module>
 
-
     </modules>
 
     <dependencyManagement>
