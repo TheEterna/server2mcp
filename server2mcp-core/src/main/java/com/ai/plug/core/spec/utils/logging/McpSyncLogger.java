@@ -6,6 +6,7 @@ import io.modelcontextprotocol.spec.McpSchema;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.lang.Nullable;
+import reactor.core.publisher.Mono;
 
 /**
  * @author han
@@ -27,10 +28,10 @@ public class McpSyncLogger implements McpLogger {
         this.clazz = clazz;
     }
 
-    @Override
-    public Object getServer() {
-        return this.syncServer;
-    }
+//    @Override
+//    public Object getServer() {
+//        return this.syncServer;
+//    }
 
     /**
      * 发送 debug 级别的日志消息
@@ -185,5 +186,45 @@ public class McpSyncLogger implements McpLogger {
                         .logger(syncServer.toString() + (clazz == null ? null : clazz.getName()))
                         .data(msg)
                         .build());
+    }
+
+    @Override
+    public Mono<Void> debugAsync(String msg) {
+        return Mono.fromRunnable(() -> debug(msg));
+    }
+
+    @Override
+    public Mono<Void> infoAsync(String msg) {
+        return Mono.fromRunnable(() -> info(msg));
+    }
+
+    @Override
+    public Mono<Void> noticeAsync(String msg) {
+        return Mono.fromRunnable(() -> notice(msg));
+    }
+
+    @Override
+    public Mono<Void> warningAsync(String msg) {
+        return Mono.fromRunnable(() -> warning(msg));
+    }
+
+    @Override
+    public Mono<Void> errorAsync(String msg) {
+        return Mono.fromRunnable(() -> error(msg));
+    }
+
+    @Override
+    public Mono<Void> criticalAsync(String msg) {
+        return Mono.fromRunnable(() -> critical(msg));
+    }
+
+    @Override
+    public Mono<Void> alertAsync(String msg) {
+        return Mono.fromRunnable(() -> alert(msg));
+    }
+
+    @Override
+    public Mono<Void> emergencyAsync(String msg) {
+        return Mono.fromRunnable(() -> emergency(msg));
     }
 }

@@ -36,24 +36,8 @@ public class McpSyncElicitation implements McpElicitation{
      */
     @Override
     public McpSchema.ElicitResult elicit(String message, Class<?> schema) {
-        // 0. 完成组装 ElicitRequest 即可
-        // 0 Complete the assembly of elicitrequest
-        McpSchema.ElicitRequest.Builder builder =  McpSchema.ElicitRequest.builder();
-        // 1.0 组装messgae部分
-        // 1.0 assembling mesgae part
-        builder.message(message);
-        // 2.0. 首先需要理清一下逻辑, 不能简单的把一个类的字段直接转成schema, 需要考虑一下上面有没有 需要忽略的字段
-        // 2.0. First, clarify the logic. It's not possible to directly convert a class's fields into a schema without considering whether there are any fields that need to be ignored.
-        // 2.1. 然后, 使用victools 生成 JSONSchema
-        // 2.1. Then use victools generate JSONSchema
-        ObjectNode jsonSchema = MCP_SCHEMA_GENERATOR.generateSchema(schema);
-        // 2.2 convert ObjectNode to map
-        // 2.2 进行转换
-        Map<String, Object> mapSchema = GenSchemaUtils.objectNodeToMap(jsonSchema);
-        builder.requestedSchema(mapSchema);
-        // 3.0 进行构建获取 ElicitRequest
-        // 3.0 Build to Obtain ElicitRequest
-        McpSchema.ElicitRequest elicitRequest = builder.build();
+        // build request
+        McpSchema.ElicitRequest elicitRequest = buildElicitationRequest(message, schema);
         // 4.0 进行请求
         // 4.0 request
         return exchange.createElicitation(elicitRequest);
@@ -67,27 +51,9 @@ public class McpSyncElicitation implements McpElicitation{
      */
     @Override
     public Mono<McpSchema.ElicitResult> elicitAsync(String message, Class<?> schema) {
-        // 0. 完成组装 ElicitRequest 即可
-        // 0 Complete the assembly of elicitrequest
-        McpSchema.ElicitRequest.Builder builder =  McpSchema.ElicitRequest.builder();
-        // 1.0 组装messgae部分
-        // 1.0 assembling mesgae part
-        builder.message(message);
-        // 2.0. 首先需要理清一下逻辑, 不能简单的把一个类的字段直接转成schema, 需要考虑一下上面有没有 需要忽略的字段
-        // 2.0. First, clarify the logic. It's not possible to directly convert a class's fields into a schema without considering whether there are any fields that need to be ignored.
-        // 2.1. 然后, 使用victools 生成 JSONSchema
-        // 2.1. Then use victools generate JSONSchema
-        ObjectNode jsonSchema = MCP_SCHEMA_GENERATOR.generateSchema(schema);
-        // 2.2 convert ObjectNode to map
-        // 2.2 进行转换
-        Map<String, Object> mapSchema = GenSchemaUtils.objectNodeToMap(jsonSchema);
-        builder.requestedSchema(mapSchema);
-        // 3.0 进行构建获取 ElicitRequest
-        // 3.0 Build to Obtain ElicitRequest
-        McpSchema.ElicitRequest elicitRequest = builder.build();
-        // 4.0 进行请求
-        // 4.0 request
-        return Mono.just(exchange.createElicitation(elicitRequest));
+
+        // return as Mono
+        return Mono.just(this.elicit(message, schema));
     }
 
 

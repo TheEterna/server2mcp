@@ -4,6 +4,8 @@ import com.ai.plug.core.spec.utils.elicitation.McpElicitation;
 import com.ai.plug.core.spec.utils.elicitation.McpElicitationFactory;
 import com.ai.plug.core.spec.utils.logging.McpLogger;
 import com.ai.plug.core.spec.utils.logging.McpLoggerFactory;
+import com.ai.plug.core.spec.utils.sampling.McpSampling;
+import com.ai.plug.core.spec.utils.sampling.McpSamplingFactory;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.logaritex.mcp.annotation.McpArg;
 import com.logaritex.mcp.annotation.McpTool;
@@ -192,6 +194,8 @@ public abstract class AbstractMcpToolMethodCallback {
                 args[i] = McpLoggerFactory.getLogger(null, exchange, method.getDeclaringClass());
             } else if (isElicitationType(paramType)) {
                 args[i] = McpElicitationFactory.getElicitation(exchange);
+            } else if (isSamplingType(paramType)) {
+                args[i] = McpSamplingFactory.getSampling(exchange);
             }
 
 
@@ -230,7 +234,9 @@ public abstract class AbstractMcpToolMethodCallback {
         return McpElicitation.class.isAssignableFrom(paramType);
     }
 
-
+    protected boolean isSamplingType(Class<?> paramType) {
+        return McpSampling.class.isAssignableFrom(paramType);
+    }
     /**
      * Abstract builder for creating McpToolMethodCallback instances.
      * <p>

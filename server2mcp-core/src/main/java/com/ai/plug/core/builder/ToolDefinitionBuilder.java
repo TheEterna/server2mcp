@@ -8,6 +8,8 @@ import com.ai.plug.core.spec.utils.elicitation.McpElicitation;
 import com.ai.plug.core.spec.utils.elicitation.McpElicitationFactory;
 import com.ai.plug.core.spec.utils.logging.McpLogger;
 import com.ai.plug.core.spec.utils.logging.McpLoggerFactory;
+import com.ai.plug.core.spec.utils.sampling.McpSampling;
+import com.ai.plug.core.spec.utils.sampling.McpSamplingFactory;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -143,9 +145,13 @@ public class ToolDefinitionBuilder {
                     continue;
                 } else if (ClassUtils.isAssignable(parameterClass, McpLoggerFactory.class)) {
                     continue;
+                } else if (ClassUtils.isAssignable(parameterClass, McpElicitation.class)) {
+                    continue;
                 } else if (ClassUtils.isAssignable(parameterClass, McpElicitationFactory.class)) {
                     continue;
-                } else if (ClassUtils.isAssignable(parameterClass, McpElicitation.class)) {
+                }  else if (ClassUtils.isAssignable(parameterClass, McpSampling.class)) {
+                    continue;
+                } else if (ClassUtils.isAssignable(parameterClass, McpSamplingFactory.class)) {
                     continue;
                 }
 
