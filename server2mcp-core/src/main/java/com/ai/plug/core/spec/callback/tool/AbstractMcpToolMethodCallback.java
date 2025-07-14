@@ -1,11 +1,15 @@
 package com.ai.plug.core.spec.callback.tool;
 
+import com.ai.plug.core.context.root.IRootContext;
 import com.ai.plug.core.spec.utils.elicitation.McpElicitation;
 import com.ai.plug.core.spec.utils.elicitation.McpElicitationFactory;
 import com.ai.plug.core.spec.utils.logging.McpLogger;
 import com.ai.plug.core.spec.utils.logging.McpLoggerFactory;
+import com.ai.plug.core.spec.utils.root.McpRoot;
+import com.ai.plug.core.spec.utils.root.McpRootFactory;
 import com.ai.plug.core.spec.utils.sampling.McpSampling;
 import com.ai.plug.core.spec.utils.sampling.McpSamplingFactory;
+import com.ai.plug.core.utils.CustomToolUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.logaritex.mcp.annotation.McpArg;
 import com.logaritex.mcp.annotation.McpTool;
@@ -67,6 +71,7 @@ public abstract class AbstractMcpToolMethodCallback {
      */
     protected final com.ai.plug.core.spec.callback.tool.McpCallToolResultConverter converter;
 
+    protected IRootContext rootContext;
 
     /**
      * Constructor for AbstractMcpToolMethodCallback.
@@ -82,7 +87,8 @@ public abstract class AbstractMcpToolMethodCallback {
             @Nullable String outputSchema,
             @Nullable String mineType,
             @Nullable McpSchema.ToolAnnotations annotations,
-            com.ai.plug.core.spec.callback.tool.McpCallToolResultConverter converter
+            com.ai.plug.core.spec.callback.tool.McpCallToolResultConverter converter,
+            IRootContext rootContext
     ) {
         Assert.notNull(method, "Method can't be null!");
         Assert.notNull(bean, "Bean can't be null!");
@@ -96,6 +102,7 @@ public abstract class AbstractMcpToolMethodCallback {
         this.annotations = annotations;
         this.mineType = mineType;
         this.converter = converter;
+        this.rootContext = rootContext;
 
         this.validateMethod(this.method);
     }
@@ -196,6 +203,8 @@ public abstract class AbstractMcpToolMethodCallback {
                 args[i] = McpElicitationFactory.getElicitation(exchange);
             } else if (isSamplingType(paramType)) {
                 args[i] = McpSamplingFactory.getSampling(exchange);
+            } else if (isRootType(paramType)) {
+                args[i] = McpRootFactory.getRoot(exchange);
             }
 
 
@@ -213,6 +222,8 @@ public abstract class AbstractMcpToolMethodCallback {
             }
         }
 
+        // Root Injection Point
+        CustomToolUtil.mcpInjection(exchange, this.rootContext);
         return args;
     }
 
@@ -237,6 +248,9 @@ public abstract class AbstractMcpToolMethodCallback {
     protected boolean isSamplingType(Class<?> paramType) {
         return McpSampling.class.isAssignableFrom(paramType);
     }
+    protected boolean isRootType(Class<?> paramType) {
+        return McpRoot.class.isAssignableFrom(paramType);
+    }
     /**
      * Abstract builder for creating McpToolMethodCallback instances.
      * <p>
@@ -260,6 +274,8 @@ public abstract class AbstractMcpToolMethodCallback {
         protected String outputSchema;
         protected McpSchema.ToolAnnotations annotations;
         protected com.ai.plug.core.spec.callback.tool.McpCallToolResultConverter converter;
+
+        protected IRootContext rootContext;
         /**
          * Set the method to create a callback for.
          * @param method The method to create a callback for
@@ -294,6 +310,11 @@ public abstract class AbstractMcpToolMethodCallback {
             return (T) this;
         }
 
+        public T rootContext(IRootContext rootContext) {
+            this.rootContext = rootContext;
+            return (T) this;
+        }
+
         public T converter(McpCallToolResultConverter converter) {
             this.converter = converter;
             return (T) this;
@@ -323,6 +344,8 @@ public abstract class AbstractMcpToolMethodCallback {
             if (tool == null) {
                 return (T) this;
             }
+            this.mineType = tool.mineType();
+            this.name = tool.name();
             this.annotations = new McpSchema.ToolAnnotations(tool.title(),
                     tool.readOnlyHint(),
                     tool.destructiveHint(),

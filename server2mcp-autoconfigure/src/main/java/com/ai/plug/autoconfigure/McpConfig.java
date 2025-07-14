@@ -7,6 +7,8 @@ import com.ai.plug.core.annotation.McpPromptScan;
 import com.ai.plug.core.annotation.McpResourceScan;
 import com.ai.plug.core.annotation.ToolScan;
 import com.ai.plug.core.builder.ToolDefinitionBuilder;
+import com.ai.plug.core.context.root.IRootContext;
+import com.ai.plug.core.context.root.RootContextFactory;
 import com.ai.plug.core.parser.tool.des.AbstractDesParser;
 import com.ai.plug.core.parser.tool.param.AbstractParamParser;
 import com.ai.plug.core.parser.tool.starter.AbstractStarter;
@@ -14,6 +16,8 @@ import com.ai.plug.core.register.complete.McpCompleteScanConfigurer;
 import com.ai.plug.core.register.prompt.McpPromptScanConfigurer;
 import com.ai.plug.core.register.resource.McpResourceScanConfigurer;
 import com.ai.plug.core.register.tool.ToolScanConfigurer;
+import io.modelcontextprotocol.server.McpSyncServerExchange;
+import io.modelcontextprotocol.spec.McpSchema;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
@@ -31,6 +35,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.function.BiConsumer;
 
 import static com.ai.plug.common.constants.ConfigConstants.*;
 import static com.ai.plug.core.annotation.ToolScan.FilterType.ANNOTATION;
@@ -42,6 +47,10 @@ import static com.ai.plug.core.annotation.ToolScan.ToolFilterType.META_ANNOTATIO
 @Configuration
 public class McpConfig {
 
+
+    /**
+     * 自动配置Tool 类扫描器
+     */
     @Conditional(Conditions.IsInterfaceCondition.class)
     @ConditionalOnProperty(prefix = VARIABLE_PREFIX + '.' + VARIABLE_TOOL, name = ".enabled", havingValue = "true", matchIfMissing = true)
     public static class AutoConfiguredToolScannerRegistrar implements ImportBeanDefinitionRegistrar, BeanFactoryAware {
@@ -147,6 +156,9 @@ public class McpConfig {
 
     }
 
+    /**
+     * 自动配置Resource 类扫描器
+     */
     @ConditionalOnProperty(prefix = VARIABLE_PREFIX + '.' + VARIABLE_RESOURCE, name = ".enabled", havingValue = "true", matchIfMissing = true)
     public static class AutoConfiguredResourceScannerRegistrar implements ImportBeanDefinitionRegistrar, BeanFactoryAware {
         private BeanFactory beanFactory;
@@ -191,6 +203,9 @@ public class McpConfig {
 
     }
 
+    /**
+     * 自动配置Prompt 类扫描器
+     */
     @ConditionalOnProperty(prefix = VARIABLE_PREFIX + '.' + VARIABLE_PROMPT, name = ".enabled", havingValue = "true", matchIfMissing = true)
     public static class AutoConfiguredPromptScannerRegistrar implements ImportBeanDefinitionRegistrar, BeanFactoryAware {
         private BeanFactory beanFactory;
@@ -232,6 +247,9 @@ public class McpConfig {
 
     }
 
+    /**
+     * 自动配置Complete 类扫描器
+     */
     @ConditionalOnProperty(prefix = VARIABLE_PREFIX + '.' + VARIABLE_COMPLETE, name = ".enabled", havingValue = "true", matchIfMissing = true)
     public static class AutoConfiguredCompleteScannerRegistrar implements ImportBeanDefinitionRegistrar, BeanFactoryAware {
         private BeanFactory beanFactory;
@@ -273,8 +291,35 @@ public class McpConfig {
 
     }
 
+    /**
+     * 工具定义构建器 ToolDefinitionBuilder
+     * @param desParserList 描述解析器 des parser
+     * @param paramParserList 参数解析器 param parser
+     * @param starter 启动器
+     * @return 工具定义构建器 ToolDefinitionBuilder
+     */
     @Bean
     public ToolDefinitionBuilder toolDefinitionBuilder(List<AbstractDesParser> desParserList, List<AbstractParamParser> paramParserList, AbstractStarter starter) {
         return new ToolDefinitionBuilder(desParserList, paramParserList, starter);
     }
+
+
+
+    /**
+     * root 容器
+     */
+    @Bean
+    public IRootContext rootContext() {
+        return RootContextFactory.getRootContext();
+    }
+
+    @Bean
+    public BiConsumer<McpSyncServerExchange, List<McpSchema.Root>> rootChangeConsumer(IRootContext rootContext) {
+        return (exchange, roots) -> {
+            rootContext.updateRoots(exchange, roots);
+        };
+    }
+
+
+
 }

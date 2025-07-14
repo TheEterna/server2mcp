@@ -5,6 +5,7 @@ import com.ai.plug.core.builder.ToolDefinitionBuilder;
 import com.ai.plug.core.context.CompleteContext;
 import com.ai.plug.core.context.ResourceContext;
 import com.ai.plug.core.context.ToolContext;
+import com.ai.plug.core.context.root.IRootContext;
 import com.ai.plug.core.springai.provider.SyncMcpAnnotationProvider;
 import io.modelcontextprotocol.server.McpServerFeatures;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -37,12 +38,16 @@ public class SyncSpecMcpConfig {
     @Bean
     @Primary
     @ConditionalOnProperty(prefix = VARIABLE_PREFIX + '.' + VARIABLE_TOOL, name = ".enabled", havingValue = "true", matchIfMissing = true)
-    public List<McpServerFeatures.SyncToolSpecification> asyncToolSpecifications(ApplicationContext applicationContext, ToolDefinitionBuilder builder){
+    public List<McpServerFeatures.SyncToolSpecification> asyncToolSpecifications(
+            ApplicationContext applicationContext,
+            ToolDefinitionBuilder builder,
+            IRootContext rootContext) {
+
         Map<Object, ToolContext.ToolRegisterDefinition> toolAndDefinitions = ToolContext.getRawTools().entrySet().stream().collect(Collectors.toMap(
                 entry -> applicationContext.getBean(entry.getKey()),
                 Map.Entry::getValue
         ));
-        return SyncMcpAnnotationProvider.createSyncToolSpecifications(toolAndDefinitions, builder);
+        return SyncMcpAnnotationProvider.createSyncToolSpecifications(toolAndDefinitions, builder, rootContext);
     }
 
 

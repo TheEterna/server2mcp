@@ -17,6 +17,7 @@ package com.ai.plug.core.springai.provider;
 
 import com.ai.plug.core.builder.ToolDefinitionBuilder;
 import com.ai.plug.core.context.ToolContext;
+import com.ai.plug.core.context.root.IRootContext;
 import com.ai.plug.core.provider.McpToolProvider;
 import com.ai.plug.core.provider.*;
 import io.modelcontextprotocol.server.McpServerFeatures.AsyncCompletionSpecification;
@@ -70,8 +71,8 @@ public class AsyncMcpAnnotationProvider {
 //
 //	}
 	private static class SpringAiAsyncMcpToolProvider extends McpToolProvider {
-		public SpringAiAsyncMcpToolProvider(Map<Object, ToolContext.ToolRegisterDefinition> toolAndDefinitions, ToolDefinitionBuilder toolDefinitionBuilder) {
-			super(toolAndDefinitions, toolDefinitionBuilder);
+		public SpringAiAsyncMcpToolProvider(Map<Object, ToolContext.ToolRegisterDefinition> toolAndDefinitions, ToolDefinitionBuilder toolDefinitionBuilder, IRootContext rootContext) {
+			super(toolAndDefinitions, toolDefinitionBuilder, rootContext);
 		}
 
 		@Override
@@ -175,8 +176,8 @@ public class AsyncMcpAnnotationProvider {
 		return new SpringAiAsyncMcpPromptProvider(promptObjects).getAsyncPromptSpecifications();
 	}
 
-	public static List<AsyncToolSpecification> createAsyncToolSpecifications(Map<Object, ToolContext.ToolRegisterDefinition> toolAndDefinitions, ToolDefinitionBuilder builder) {
-		return new SpringAiAsyncMcpToolProvider(toolAndDefinitions, builder).getAsyncToolSpecifications();
+	public static List<AsyncToolSpecification> createAsyncToolSpecifications(Map<Object, ToolContext.ToolRegisterDefinition> toolAndDefinitions, ToolDefinitionBuilder builder, IRootContext rootContext) {
+		return new SpringAiAsyncMcpToolProvider(toolAndDefinitions, builder, rootContext).getAsyncToolSpecifications();
 	}
 
 

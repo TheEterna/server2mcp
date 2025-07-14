@@ -4,6 +4,8 @@
 
 package com.ai.plug.core.spec.callback.complete;
 
+import com.ai.plug.core.context.root.IRootContext;
+import com.ai.plug.core.utils.CustomToolUtil;
 import com.logaritex.mcp.annotation.CompleteAdapter;
 import com.logaritex.mcp.annotation.McpComplete;
 import io.modelcontextprotocol.spec.McpSchema;
@@ -44,6 +46,7 @@ public abstract class AbstractMcpCompleteMethodCallback {
 	protected final List<String> uriVariables;
 
 	protected final McpUriTemplateManager uriTemplateManager;
+
 
 	/**
 	 * Constructor for AbstractMcpCompleteMethodCallback.
@@ -89,6 +92,7 @@ public abstract class AbstractMcpCompleteMethodCallback {
 			this.uriTemplateManager = null;
 			this.uriVariables = new ArrayList<>();
 		}
+
 	}
 
 	/**

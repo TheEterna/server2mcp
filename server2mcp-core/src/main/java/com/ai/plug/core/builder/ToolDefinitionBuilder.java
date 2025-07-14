@@ -8,6 +8,8 @@ import com.ai.plug.core.spec.utils.elicitation.McpElicitation;
 import com.ai.plug.core.spec.utils.elicitation.McpElicitationFactory;
 import com.ai.plug.core.spec.utils.logging.McpLogger;
 import com.ai.plug.core.spec.utils.logging.McpLoggerFactory;
+import com.ai.plug.core.spec.utils.root.McpRoot;
+import com.ai.plug.core.spec.utils.root.McpRootFactory;
 import com.ai.plug.core.spec.utils.sampling.McpSampling;
 import com.ai.plug.core.spec.utils.sampling.McpSamplingFactory;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -129,7 +131,6 @@ public class ToolDefinitionBuilder {
             String parameterName = method.getParameters()[i].getName();
             Type parameterType = method.getGenericParameterTypes()[i];
 
-
             // 因为需要做自动注入，所以需要排除掉这几个类型
             if (parameterType instanceof Class<?> parameterClass) {
                 // 这个保留, 兼容springai
@@ -152,6 +153,10 @@ public class ToolDefinitionBuilder {
                 }  else if (ClassUtils.isAssignable(parameterClass, McpSampling.class)) {
                     continue;
                 } else if (ClassUtils.isAssignable(parameterClass, McpSamplingFactory.class)) {
+                    continue;
+                } else if (ClassUtils.isAssignable(parameterClass, McpRoot.class)) {
+                    continue;
+                } else if (ClassUtils.isAssignable(parameterClass, McpRootFactory.class)) {
                     continue;
                 }
 

@@ -3,8 +3,10 @@ package com.ai.plug.core.context;
 import com.ai.plug.core.annotation.ToolScan;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author: han
@@ -14,13 +16,13 @@ import java.util.Map;
 @Slf4j
 public class ToolContext {
 
-    private static Map<String, ToolRegisterDefinition> rawTools = new HashMap<>();
+    private static Map<String, ToolRegisterDefinition> rawTools = new ConcurrentHashMap<>();
 
-    public ToolContext() {
+    private ToolContext() {
     }
 
     public static Map<String, ToolRegisterDefinition> getRawTools() {
-        return rawTools;
+        return Collections.unmodifiableMap(rawTools);
     }
 
     public static void addTool(String name, ToolRegisterDefinition tool) {

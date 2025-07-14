@@ -25,7 +25,7 @@ public class AsyncMcpToolMethodCallback extends AbstractMcpToolMethodCallback
 
     private AsyncMcpToolMethodCallback(Builder builder) {
         super(builder.method, builder.bean, builder.name, builder.description, builder.inputSchema,
-                builder.outputSchema, builder.mineType, builder.annotations, builder.converter);
+                builder.outputSchema, builder.mineType, builder.annotations, builder.converter, builder.rootContext);
         this.validateMethod(this.method);
     }
 
@@ -54,7 +54,7 @@ public class AsyncMcpToolMethodCallback extends AbstractMcpToolMethodCallback
         return Mono.defer(() -> {
             try {
                 // Build arguments for the method call
-                Object[] args = this.buildArgs(this.method, exchange, arguments);
+                Object[] args = super.buildArgs(this.method, exchange, arguments);
 
                 // Invoke the method
                 Object result = this.callMethod(args);

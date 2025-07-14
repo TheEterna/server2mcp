@@ -1,8 +1,10 @@
 package com.ai.plug.test.test.controller;
 
+import com.ai.plug.core.context.ToolContext;
 import com.ai.plug.test.test.mapper.Yizi;
 import com.ai.plug.test.test.mapper.YiziMapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import io.modelcontextprotocol.spec.McpSchema;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
@@ -20,6 +22,9 @@ import java.util.Map;
 public class YiziController {
     @Autowired
     private YiziMapper yiziMapper;
+
+
+
 
     @GetMapping("/count/county")
     public List<Map<String, Object>> listCountryBySupplier(@RequestParam(value = "supplier", required = false) String supplier) {

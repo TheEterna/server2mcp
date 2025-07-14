@@ -3,6 +3,7 @@ package com.ai.plug.core.provider;
 import com.ai.plug.core.annotation.ToolScan;
 import com.ai.plug.core.builder.ToolDefinitionBuilder;
 import com.ai.plug.core.context.ToolContext;
+import com.ai.plug.core.context.root.IRootContext;
 import com.ai.plug.core.spec.callback.tool.AsyncMcpToolMethodCallback;
 import com.ai.plug.core.spec.callback.tool.DefaultMcpCallToolResultConverter;
 import com.ai.plug.core.spec.callback.tool.McpCallToolResultConverter;
@@ -38,13 +39,15 @@ public class McpToolProvider {
 
     private final Map<Object, ToolContext.ToolRegisterDefinition> toolAndDefinitions;
 
-
     private ToolDefinitionBuilder toolDefinitionBuilder;
 
-    public McpToolProvider(Map<Object, ToolContext.ToolRegisterDefinition> toolAndDefinitions, ToolDefinitionBuilder toolDefinitionBuilder) {
+    private IRootContext rootContext;
+
+    public McpToolProvider(Map<Object, ToolContext.ToolRegisterDefinition> toolAndDefinitions, ToolDefinitionBuilder toolDefinitionBuilder, IRootContext rootContext) {
         Assert.notNull(toolAndDefinitions, "toolAndDefinitions cannot be null");
         this.toolAndDefinitions = toolAndDefinitions;
         this.toolDefinitionBuilder = toolDefinitionBuilder;
+        this.rootContext = rootContext;
     }
 
     /**
@@ -74,7 +77,9 @@ public class McpToolProvider {
                                 AsyncMcpToolMethodCallback methodCallback = AsyncMcpToolMethodCallback.builder()
                                         .method(mcpToolMethod)
                                         .bean(toolObject)
+                                        .converter(getConverter(toolAnnotation))
                                         .toolAnnotation(toolAnnotation)
+                                        .rootContext(this.rootContext)
                                         .build();
 
                                 return new McpServerFeatures.AsyncToolSpecification(mcpTool, methodCallback);
@@ -117,6 +122,7 @@ public class McpToolProvider {
                                         .bean(toolObject)
                                         .converter(getConverter(toolAnnotation))
                                         .toolAnnotation(toolAnnotation)
+                                        .rootContext(this.rootContext)
                                         .build();
 
 

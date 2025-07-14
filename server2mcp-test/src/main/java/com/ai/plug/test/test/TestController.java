@@ -1,12 +1,16 @@
 package com.ai.plug.test.test;
 
 import com.ai.plug.autoconfigure.annotation.ToolNotScanForAuto;
+import com.ai.plug.core.context.root.IRootContext;
+import com.ai.plug.core.context.root.RootContext;
 import com.ai.plug.core.spec.utils.elicitation.McpElicitation;
 import com.logaritex.mcp.annotation.McpArg;
 import com.logaritex.mcp.annotation.McpComplete;
 import com.logaritex.mcp.annotation.McpPrompt;
 import com.logaritex.mcp.annotation.McpResource;
+import io.modelcontextprotocol.server.McpAsyncServerExchange;
 import io.modelcontextprotocol.server.McpSyncServer;
+import io.modelcontextprotocol.server.McpSyncServerExchange;
 import io.modelcontextprotocol.spec.McpSchema;
 import io.swagger.annotations.*;
 import jakarta.servlet.http.HttpServletRequest;
@@ -42,11 +46,11 @@ import java.util.Map;
 
 public class TestController {
 
-    private McpSyncServer mcpSyncServer;
+    private IRootContext rootContext;
 
     @Autowired
-    public TestController(@Lazy McpSyncServer mcpSyncServer) {
-        this.mcpSyncServer = mcpSyncServer;
+    public TestController(IRootContext rootContext) {
+        this.rootContext = rootContext;
     }
 
     private final Map<String, List<String>> cityDatabase = new HashMap<>();
@@ -55,37 +59,6 @@ public class TestController {
 
     private final Map<String, List<String>> languageDatabase = new HashMap<>();
 
-    public TestController() {
-        // Initialize with some sample data
-        cityDatabase.put("a", List.of("Amsterdam", "Athens", "Atlanta", "Austin"));
-        cityDatabase.put("b", List.of("Barcelona", "Berlin", "Boston", "Brussels"));
-        cityDatabase.put("c", List.of("Cairo", "Calgary", "Cape Town", "Chicago"));
-        cityDatabase.put("l", List.of("Lagos", "Lima", "Lisbon", "London", "Los Angeles"));
-        cityDatabase.put("n", List.of("Nairobi", "Nashville", "New Delhi", "New York"));
-        cityDatabase.put("p", List.of("Paris", "Perth", "Phoenix", "Prague"));
-        cityDatabase.put("s",
-                List.of("San Francisco", "Santiago", "Seattle", "Seoul", "Shanghai", "Singapore", "Sydney"));
-        cityDatabase.put("t", List.of("Taipei", "Tokyo", "Toronto"));
-
-        countryDatabase.put("a", List.of("Afghanistan", "Albania", "Algeria", "Argentina", "Australia", "Austria"));
-        countryDatabase.put("b", List.of("Bahamas", "Belgium", "Brazil", "Bulgaria"));
-        countryDatabase.put("c", List.of("Canada", "Chile", "China", "Colombia", "Croatia"));
-        countryDatabase.put("f", List.of("Finland", "France"));
-        countryDatabase.put("g", List.of("Germany", "Greece"));
-        countryDatabase.put("i", List.of("Iceland", "India", "Indonesia", "Ireland", "Italy"));
-        countryDatabase.put("j", List.of("Japan"));
-        countryDatabase.put("u", List.of("Uganda", "Ukraine", "United Kingdom", "United States"));
-
-        languageDatabase.put("e", List.of("English"));
-        languageDatabase.put("f", List.of("French"));
-        languageDatabase.put(" ", List.of("German"));
-        languageDatabase.put("i", List.of("Italian"));
-        languageDatabase.put("j", List.of("Japanese"));
-        languageDatabase.put("m", List.of("Mandarin"));
-        languageDatabase.put("p", List.of("Portuguese"));
-        languageDatabase.put("r", List.of("Russian"));
-        languageDatabase.put("s", List.of("Spanish", "Swedish"));
-    }
     @McpResource(uri = "user-status://{username}",
             name = "User Status",
             description = "Provides the current status for a specific user")
@@ -102,6 +75,14 @@ public class TestController {
 
         elicitation.elicit("我是一条Elicitation测试消息", String.class);
         return "我是一条Elicitation测试消息";
+    }
+
+    @PostMapping("/test/roots")
+    @ApiOperation(value = "测试 roots")
+    public List<McpSchema.Root> testRoots(McpSyncServerExchange exchange) {
+
+        List<McpSchema.Root> roots = rootContext.getRoots(exchange);
+        return roots;
     }
 
 

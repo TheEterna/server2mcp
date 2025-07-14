@@ -57,6 +57,7 @@ public final class AsyncMcpCompleteMethodCallback extends AbstractMcpCompleteMet
 			// Build arguments for the method call
 			Object[] args = this.buildArgs(this.method, exchange, request);
 
+
 			// Invoke the method
 			this.method.setAccessible(true);
 			Object result = this.method.invoke(this.bean, args);

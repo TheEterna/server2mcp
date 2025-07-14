@@ -4,6 +4,8 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentSkipListSet;
 
 /**
  * @author 韩
@@ -13,9 +15,9 @@ import java.util.Set;
 @Slf4j
 public class PromptContext {
 
-    private static Set<String> rawPrompts = new HashSet<>();
+    private static Set<String> rawPrompts = ConcurrentHashMap.newKeySet();
 
-    public PromptContext() {
+    private  PromptContext() {
     }
 
     public static Set<String> getRawPrompts() {

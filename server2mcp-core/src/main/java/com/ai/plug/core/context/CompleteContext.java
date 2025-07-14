@@ -1,7 +1,10 @@
 package com.ai.plug.core.context;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentSkipListSet;
 
 /**
  * @author han
@@ -10,13 +13,13 @@ import java.util.Set;
 
 public class CompleteContext {
 
-    private static Set<String> rawCompletes = new HashSet<>();
+    private static Set<String> rawCompletes = ConcurrentHashMap.newKeySet();
 
-    public CompleteContext() {
+    private CompleteContext() {
     }
 
     public static Set<String> getRawCompletes() {
-        return rawCompletes;
+        return Collections.unmodifiableSet(rawCompletes);
     }
 
     public static void addComplete(String name) {

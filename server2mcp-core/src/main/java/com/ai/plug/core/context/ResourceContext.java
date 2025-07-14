@@ -2,8 +2,11 @@ package com.ai.plug.core.context;
 
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentSkipListSet;
 
 /**
  * @author 韩
@@ -13,13 +16,13 @@ import java.util.Set;
 @Slf4j
 public class ResourceContext {
 
-    private static Set<String> rawResources = new HashSet<>();
+    private static Set<String> rawResources = ConcurrentHashMap.newKeySet();
 
-    public ResourceContext() {
+    private  ResourceContext() {
     }
 
     public static Set<String> getRawResources() {
-        return rawResources;
+        return  Collections.unmodifiableSet(rawResources);
     }
 
     public static void addResource(String name) {

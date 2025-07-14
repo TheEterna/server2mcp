@@ -25,7 +25,7 @@ public class SyncMcpToolMethodCallback extends AbstractMcpToolMethodCallback
 
     private SyncMcpToolMethodCallback(Builder builder) {
         super(builder.method, builder.bean, builder.name, builder.description, builder.inputSchema,
-                builder.outputSchema, builder.mineType, builder.annotations, builder.converter);
+                builder.outputSchema, builder.mineType, builder.annotations, builder.converter, builder.rootContext);
         this.validateMethod(this.method);
     }
     /**

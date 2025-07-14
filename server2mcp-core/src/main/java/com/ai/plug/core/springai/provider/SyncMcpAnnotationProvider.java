@@ -17,6 +17,7 @@ package com.ai.plug.core.springai.provider;
 
 import com.ai.plug.core.builder.ToolDefinitionBuilder;
 import com.ai.plug.core.context.ToolContext;
+import com.ai.plug.core.context.root.IRootContext;
 import com.ai.plug.core.provider.McpToolProvider;
 import com.ai.plug.core.provider.*;
 import io.modelcontextprotocol.server.McpServerFeatures.SyncCompletionSpecification;
@@ -101,8 +102,10 @@ public class SyncMcpAnnotationProvider {
 
 	}
 	private static class SpringAiSyncMcpToolProvider extends McpToolProvider {
-		public SpringAiSyncMcpToolProvider(Map<Object, ToolContext.ToolRegisterDefinition> toolAndDefinitions, ToolDefinitionBuilder toolDefinitionBuilder) {
-			super(toolAndDefinitions, toolDefinitionBuilder);
+		public SpringAiSyncMcpToolProvider(Map<Object, ToolContext.ToolRegisterDefinition> toolAndDefinitions,
+										   ToolDefinitionBuilder toolDefinitionBuilder,
+										   IRootContext rootContext) {
+			super(toolAndDefinitions, toolDefinitionBuilder, rootContext);
 		}
 
 		@Override
@@ -163,8 +166,10 @@ public class SyncMcpAnnotationProvider {
 	public static List<SyncResourceSpecification> createSyncResourceSpecifications(List<Object> resourceObjects) {
 		return new SpringAiSyncMcpResourceProvider(resourceObjects).getSyncResourceSpecifications();
 	}
-	public static List<SyncToolSpecification> createSyncToolSpecifications(Map<Object, ToolContext.ToolRegisterDefinition> toolAndDefinitions, ToolDefinitionBuilder toolDefinitionBuilder) {
-		return new SpringAiSyncMcpToolProvider(toolAndDefinitions, toolDefinitionBuilder).getSyncToolSpecifications();
+	public static List<SyncToolSpecification> createSyncToolSpecifications(Map<Object, ToolContext.ToolRegisterDefinition> toolAndDefinitions,
+																		   ToolDefinitionBuilder toolDefinitionBuilder,
+																		   IRootContext rootContext) {
+		return new SpringAiSyncMcpToolProvider(toolAndDefinitions, toolDefinitionBuilder, rootContext).getSyncToolSpecifications();
 	}
 
 //	/**

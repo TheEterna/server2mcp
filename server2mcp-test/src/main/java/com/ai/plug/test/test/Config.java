@@ -1,5 +1,6 @@
 package com.ai.plug.test.test;
 
+import io.modelcontextprotocol.spec.McpSchema;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -8,6 +9,9 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author 韩
@@ -18,6 +22,13 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 public class Config implements WebMvcConfigurer {
     @Autowired
     private Interceptor interceptor;
+
+
+
+    @Bean
+    public McpSchema.Root getRoot() {
+        return new McpSchema.Root("file://C:/Users/han/Desktop/Test", "文件系统");
+    }
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
