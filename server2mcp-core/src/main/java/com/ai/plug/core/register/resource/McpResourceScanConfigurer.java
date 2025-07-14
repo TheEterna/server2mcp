@@ -1,6 +1,7 @@
 package com.ai.plug.core.register.resource;
 
 import com.ai.plug.core.annotation.McpResourceScan;
+import com.ai.plug.core.context.resource.IResourceContext;
 import com.ai.plug.core.spring.filter.DeclaredClassExcludeFilter;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
@@ -25,6 +26,7 @@ public class McpResourceScanConfigurer implements BeanDefinitionRegistryPostProc
     private String[] basePackages;
     private AnnotationAttributes[] excludeFilters;
     private AnnotationAttributes[] includeFilters;
+    private IResourceContext resourceContext;
 
     public String[] getBasePackages() {
         return basePackages;
@@ -50,13 +52,19 @@ public class McpResourceScanConfigurer implements BeanDefinitionRegistryPostProc
         this.includeFilters = includeFilters;
     }
 
+    public IResourceContext getResourceContext() {
+        return resourceContext;
+    }
 
+    public void setResourceContext(IResourceContext resourceContext) {
+        this.resourceContext = resourceContext;
+    }
 
     @Override
     public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
 
         // 创建类路径扫描器
-        ClassPathBeanDefinitionScanner scanner = new ClassPathResourceScanner(registry);
+        ClassPathBeanDefinitionScanner scanner = new ClassPathResourceScanner(registry, this.resourceContext);
 
         // 排除过滤器
         if (excludeFilters != null && excludeFilters.length != 0 && !CollectionUtils.isEmpty(List.of(excludeFilters))) {

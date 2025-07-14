@@ -1,6 +1,7 @@
 package com.ai.plug.core.register.prompt;
 
 import com.ai.plug.core.annotation.McpPromptScan;
+import com.ai.plug.core.context.prompt.IPromptContext;
 import com.ai.plug.core.spring.filter.DeclaredClassExcludeFilter;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
@@ -20,11 +21,13 @@ import java.util.List;
  * time: 2025/6/13 11:02
  */
 
-public class McpPromptScanConfigurer implements BeanDefinitionRegistryPostProcessor, BeanFactoryPostProcessor {
+public class McpPromptScanConfigurer implements BeanDefinitionRegistryPostProcessor {
 
     private String[] basePackages;
     private AnnotationAttributes[] excludeFilters;
     private AnnotationAttributes[] includeFilters;
+
+    private IPromptContext promptContext;
 
     public String[] getBasePackages() {
         return basePackages;
@@ -50,13 +53,19 @@ public class McpPromptScanConfigurer implements BeanDefinitionRegistryPostProces
         this.includeFilters = includeFilters;
     }
 
+    public IPromptContext getPromptContext() {
+        return promptContext;
+    }
 
+    public void setPromptContext(IPromptContext promptContext) {
+        this.promptContext = promptContext;
+    }
 
     @Override
     public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
 
         // 创建类路径扫描器
-        ClassPathBeanDefinitionScanner scanner = new ClassPathPromptScanner(registry);
+        ClassPathBeanDefinitionScanner scanner = new ClassPathPromptScanner(registry, promptContext);
 
         // 排除过滤器
         if (excludeFilters != null && excludeFilters.length != 0 && !CollectionUtils.isEmpty(List.of(excludeFilters))) {
@@ -114,14 +123,6 @@ public class McpPromptScanConfigurer implements BeanDefinitionRegistryPostProces
         scanner.scan(this.basePackages);
     }
 
-    @Override
-    public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) {
-
-
-
-
-
-    }
 
 
 }

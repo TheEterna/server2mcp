@@ -1,6 +1,6 @@
 package com.ai.plug.core.annotation;
 
-import com.ai.plug.core.register.tool.ToolScanRegistrar;
+import com.ai.plug.core.register.tool.McpToolScanRegistrar;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.annotation.AliasFor;
 
@@ -17,7 +17,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Repeatable(ToolScans.class)
-@Import(ToolScanRegistrar.class)
+@Import(McpToolScanRegistrar.class)
 public @interface ToolScan {
 
     @AliasFor("basePackages")

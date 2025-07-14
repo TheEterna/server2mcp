@@ -2,9 +2,13 @@ package com.ai.plug.autoconfigure.spec;
 
 import com.ai.plug.autoconfigure.conditional.Conditions;
 import com.ai.plug.core.builder.ToolDefinitionBuilder;
-import com.ai.plug.core.context.CompleteContext;
-import com.ai.plug.core.context.ResourceContext;
-import com.ai.plug.core.context.ToolContext;
+import com.ai.plug.core.context.complete.CompleteContext;
+import com.ai.plug.core.context.complete.ICompleteContext;
+import com.ai.plug.core.context.prompt.IPromptContext;
+import com.ai.plug.core.context.resource.IResourceContext;
+import com.ai.plug.core.context.resource.ResourceContext;
+import com.ai.plug.core.context.tool.IToolContext;
+import com.ai.plug.core.context.tool.ToolContext;
 import com.ai.plug.core.context.root.IRootContext;
 import com.ai.plug.core.springai.provider.AsyncMcpAnnotationProvider;
 import io.modelcontextprotocol.server.McpServerFeatures;
@@ -43,9 +47,10 @@ public class AsyncSpecMcpConfig {
     public List<McpServerFeatures.AsyncToolSpecification> asyncToolSpecifications(
             ApplicationContext applicationContext,
             ToolDefinitionBuilder builder,
-            IRootContext rootContext) {
+            IRootContext rootContext,
+            IToolContext toolContext) {
 
-        Map<Object, ToolContext.ToolRegisterDefinition> toolAndDefinitions = ToolContext.getRawTools().entrySet().stream().collect(Collectors.toMap(
+        Map<Object, ToolContext.ToolRegisterDefinition> toolAndDefinitions = toolContext.getRawTools().entrySet().stream().collect(Collectors.toMap(
                 entry -> applicationContext.getBean(entry.getKey()),
                 Map.Entry::getValue
         ));
@@ -62,8 +67,11 @@ public class AsyncSpecMcpConfig {
     @Bean
     @Primary
     @ConditionalOnProperty(prefix = VARIABLE_PREFIX + '.' + VARIABLE_RESOURCE, name = ".enabled", havingValue = "true", matchIfMissing = true)
-    public List<McpServerFeatures.AsyncResourceSpecification> asyncResourceSpecifications(ApplicationContext applicationContext){
-        List<Object> resources = ResourceContext.getRawResources().stream().map(applicationContext::getBean).collect(Collectors.toList());
+    public List<McpServerFeatures.AsyncResourceSpecification> asyncResourceSpecifications(
+            ApplicationContext applicationContext,
+            IResourceContext resourceContext
+    ){
+        List<Object> resources = resourceContext.getRawResources().stream().map(applicationContext::getBean).collect(Collectors.toList());
         // 通过sync转换成的async资源, 无需关注异步和同步的区别, 系统会自动转换
         return AsyncMcpAnnotationProvider.createAsyncResourceSpecifications(resources);
 
@@ -79,8 +87,10 @@ public class AsyncSpecMcpConfig {
     @Bean
     @Primary
     @ConditionalOnProperty(prefix = VARIABLE_PREFIX + '.' + VARIABLE_PROMPT, name = ".enabled", havingValue = "true", matchIfMissing = true)
-    public List<McpServerFeatures.AsyncPromptSpecification> asyncPromptSpecification(ApplicationContext applicationContext){
-        List<Object> prompts = CompleteContext.getRawCompletes().stream().map(applicationContext::getBean).toList();
+    public List<McpServerFeatures.AsyncPromptSpecification> asyncPromptSpecification(
+            ApplicationContext applicationContext,
+            IPromptContext promptContext){
+        List<Object> prompts = promptContext.getRawPrompts().stream().map(applicationContext::getBean).toList();
         return AsyncMcpAnnotationProvider.createAsyncPromptSpecifications(prompts);
     }
 
@@ -93,8 +103,10 @@ public class AsyncSpecMcpConfig {
     @Bean
     @Primary
     @ConditionalOnProperty(prefix = VARIABLE_PREFIX + '.' + VARIABLE_COMPLETE, name = ".enabled", havingValue = "true", matchIfMissing = true)
-    public List<McpServerFeatures.AsyncCompletionSpecification> asyncCompletionSpecification(ApplicationContext applicationContext){
-        List<Object> completions = CompleteContext.getRawCompletes().stream().map(applicationContext::getBean).toList();
+    public List<McpServerFeatures.AsyncCompletionSpecification> asyncCompletionSpecification(
+            ApplicationContext applicationContext,
+            ICompleteContext completeContext){
+        List<Object> completions = completeContext.getRawCompletes().stream().map(applicationContext::getBean).toList();
         return AsyncMcpAnnotationProvider.createAsyncCompletionSpecifications(completions);
     }
 

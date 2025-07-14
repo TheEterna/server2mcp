@@ -1,4 +1,4 @@
-package com.ai.plug.core.context;
+package com.ai.plug.core.context.complete;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -11,18 +11,20 @@ import java.util.concurrent.ConcurrentSkipListSet;
  * @time 2025/6/17 0:53
  */
 
-public class CompleteContext {
+public class CompleteContext implements ICompleteContext{
 
     private static Set<String> rawCompletes = ConcurrentHashMap.newKeySet();
 
-    private CompleteContext() {
+    CompleteContext() {
     }
 
-    public static Set<String> getRawCompletes() {
+    @Override
+    public Set<String> getRawCompletes() {
         return Collections.unmodifiableSet(rawCompletes);
     }
 
-    public static void addComplete(String name) {
+    @Override
+    public void addComplete(String name) {
         rawCompletes.add(name);
     }
 

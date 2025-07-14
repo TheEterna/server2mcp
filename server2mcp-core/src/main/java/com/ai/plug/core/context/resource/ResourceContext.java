@@ -1,4 +1,4 @@
-package com.ai.plug.core.context;
+package com.ai.plug.core.context.resource;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -13,24 +13,28 @@ import java.util.concurrent.ConcurrentSkipListSet;
  * time: 2025/6/4 15:14
  */
 
-@Slf4j
-public class ResourceContext {
+public class ResourceContext implements IResourceContext{
 
     private static Set<String> rawResources = ConcurrentHashMap.newKeySet();
 
-    private  ResourceContext() {
+    ResourceContext() {
     }
-
-    public static Set<String> getRawResources() {
+    /**
+     * 获取 未处理的Resources
+     */
+    @Override
+    public Set<String> getRawResources() {
         return  Collections.unmodifiableSet(rawResources);
     }
 
-    public static void addResource(String name) {
+    /**
+     * 添加 Resource
+     * add Resource
+     */
+    @Override
+    public void addResource(String name) {
         rawResources.add(name);
     }
-
-
-
 
 
 

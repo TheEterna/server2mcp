@@ -7,15 +7,23 @@ import com.ai.plug.core.annotation.McpPromptScan;
 import com.ai.plug.core.annotation.McpResourceScan;
 import com.ai.plug.core.annotation.ToolScan;
 import com.ai.plug.core.builder.ToolDefinitionBuilder;
+import com.ai.plug.core.context.complete.CompleteContextFactory;
+import com.ai.plug.core.context.complete.ICompleteContext;
+import com.ai.plug.core.context.prompt.IPromptContext;
+import com.ai.plug.core.context.prompt.PromptContextFactory;
+import com.ai.plug.core.context.resource.IResourceContext;
+import com.ai.plug.core.context.resource.ResourceContextFactory;
 import com.ai.plug.core.context.root.IRootContext;
 import com.ai.plug.core.context.root.RootContextFactory;
+import com.ai.plug.core.context.tool.IToolContext;
+import com.ai.plug.core.context.tool.ToolContextFactory;
 import com.ai.plug.core.parser.tool.des.AbstractDesParser;
 import com.ai.plug.core.parser.tool.param.AbstractParamParser;
 import com.ai.plug.core.parser.tool.starter.AbstractStarter;
 import com.ai.plug.core.register.complete.McpCompleteScanConfigurer;
 import com.ai.plug.core.register.prompt.McpPromptScanConfigurer;
 import com.ai.plug.core.register.resource.McpResourceScanConfigurer;
-import com.ai.plug.core.register.tool.ToolScanConfigurer;
+import com.ai.plug.core.register.tool.McpToolScanConfigurer;
 import io.modelcontextprotocol.server.McpSyncServerExchange;
 import io.modelcontextprotocol.spec.McpSchema;
 import org.springframework.beans.factory.BeanFactory;
@@ -33,6 +41,7 @@ import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import java.lang.annotation.Annotation;
 import java.util.HashMap;
 import java.util.List;
 import java.util.function.BiConsumer;
@@ -49,6 +58,53 @@ public class McpConfig {
 
 
     /**
+     * root 容器
+     */
+    @Bean
+    public IToolContext toolContext() {
+        return ToolContextFactory.createToolContext();
+    }
+
+    /**
+     * root 容器
+     */
+    @Bean
+    public IRootContext rootContext() {
+        return RootContextFactory.createRootContext();
+    }
+
+    /**
+     * prompt 容器
+     */
+    @Bean
+    public IPromptContext promptContext() {
+        return PromptContextFactory.createPromptContext();
+    }
+
+    /**
+     * resource 容器
+     */
+    @Bean
+    public IResourceContext resourceContext() {
+        return ResourceContextFactory.createResourceContext();
+    }
+
+    /**
+     * complete 容器
+     */
+    @Bean
+    public ICompleteContext completeContext() {
+        return CompleteContextFactory.createCompleteContext();
+    }
+
+    @Bean
+    public BiConsumer<McpSyncServerExchange, List<McpSchema.Root>> rootChangeConsumer(IRootContext rootContext) {
+        return (exchange, roots) -> {
+            rootContext.updateRoots(exchange, roots);
+        };
+    }
+
+    /**
      * 自动配置Tool 类扫描器
      */
     @Conditional(Conditions.IsInterfaceCondition.class)
@@ -56,6 +112,7 @@ public class McpConfig {
     public static class AutoConfiguredToolScannerRegistrar implements ImportBeanDefinitionRegistrar, BeanFactoryAware {
         private BeanFactory beanFactory;
 
+        private IToolContext toolContext;
         // 无参构造器
         public AutoConfiguredToolScannerRegistrar() {
         }
@@ -74,9 +131,11 @@ public class McpConfig {
                 Server2McpAutoConfiguration.logger.debug("Could not determine auto-configuration package, automatic mapper scanning disabled.");
                 return;
             }
+            this.toolContext = this.beanFactory.getBean(IToolContext.class);
             Server2McpAutoConfiguration.logger.debug("Searching for tools of interfaces");
 
-            BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(ToolScanConfigurer.class);
+
+            BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(McpToolScanConfigurer.class);
 
             String[] basePackages = AutoConfigurationPackages.get(this.beanFactory).toArray(new String[0]);
             builder.addPropertyValue("basePackages", basePackages);
@@ -115,10 +174,11 @@ public class McpConfig {
             includeToolMap.put("value", RequestMapping.class);
             ToolScan.ToolFilter[] includeToolFilters = convertToToolFilters(new AnnotationAttributes[]{new AnnotationAttributes(includeToolMap)});
             builder.addPropertyValue("includeToolFilters", includeToolFilters);
+            builder.addPropertyValue("toolContext", toolContext);
 
 
             builder.setRole(2);
-            registry.registerBeanDefinition(ToolScanConfigurer.class.getName(), builder.getBeanDefinition());
+            registry.registerBeanDefinition(McpToolScanConfigurer.class.getName(), builder.getBeanDefinition());
 
         }
         private ToolScan.ToolFilter[] convertToToolFilters(AnnotationAttributes[] attributesArray) {
@@ -145,7 +205,7 @@ public class McpConfig {
                     }
 
                     @Override
-                    public Class<? extends java.lang.annotation.Annotation> annotationType() {
+                    public Class<? extends Annotation> annotationType() {
                         return ToolScan.ToolFilter.class;
                     }
                 };
@@ -162,9 +222,9 @@ public class McpConfig {
     @ConditionalOnProperty(prefix = VARIABLE_PREFIX + '.' + VARIABLE_RESOURCE, name = ".enabled", havingValue = "true", matchIfMissing = true)
     public static class AutoConfiguredResourceScannerRegistrar implements ImportBeanDefinitionRegistrar, BeanFactoryAware {
         private BeanFactory beanFactory;
-
-        // 无参构造器
+        private IResourceContext resourceContext;
         public AutoConfiguredResourceScannerRegistrar() {
+
         }
 
         public BeanFactory getBeanFactory() {
@@ -182,6 +242,7 @@ public class McpConfig {
                 Server2McpAutoConfiguration.logger.debug("Could not determine auto-configuration package, automatic mapper scanning disabled.");
                 return;
             }
+            this.resourceContext = this.beanFactory.getBean(IResourceContext.class);
 
             BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(McpResourceScanConfigurer.class);
 
@@ -194,6 +255,7 @@ public class McpConfig {
             excludeMap.put("value", Deprecated.class);
             AnnotationAttributes[] excludeFilters = new AnnotationAttributes[]{new AnnotationAttributes(excludeMap)};
             builder.addPropertyValue("excludeFilters", excludeFilters);
+            builder.addPropertyValue("resourceContext", this.resourceContext);
 
             builder.setRole(2);
             registry.registerBeanDefinition(McpResourceScanConfigurer.class.getName(), builder.getBeanDefinition());
@@ -210,10 +272,10 @@ public class McpConfig {
     public static class AutoConfiguredPromptScannerRegistrar implements ImportBeanDefinitionRegistrar, BeanFactoryAware {
         private BeanFactory beanFactory;
 
-        // 无参构造器
+        private IPromptContext promptContext;
+
         public AutoConfiguredPromptScannerRegistrar() {
         }
-
 
         public void setBeanFactory(BeanFactory beanFactory) {
             this.beanFactory = beanFactory;
@@ -226,6 +288,7 @@ public class McpConfig {
                 Server2McpAutoConfiguration.logger.debug("Could not determine auto-configuration package, automatic mapper scanning disabled.");
                 return;
             }
+            this.promptContext = this.beanFactory.getBean(IPromptContext.class);
 
             BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(McpPromptScanConfigurer.class);
 
@@ -238,6 +301,7 @@ public class McpConfig {
             excludeMap.put("value", Deprecated.class);
             AnnotationAttributes[] excludeFilters = new AnnotationAttributes[]{new AnnotationAttributes(excludeMap)};
             builder.addPropertyValue("excludeFilters", excludeFilters);
+            builder.addPropertyValue("promptContext", promptContext);
 
             builder.setRole(2);
             registry.registerBeanDefinition(McpPromptScanConfigurer.class.getName(), builder.getBeanDefinition());
@@ -254,7 +318,8 @@ public class McpConfig {
     public static class AutoConfiguredCompleteScannerRegistrar implements ImportBeanDefinitionRegistrar, BeanFactoryAware {
         private BeanFactory beanFactory;
 
-        // 无参构造器
+        private ICompleteContext completeContext;
+
         public AutoConfiguredCompleteScannerRegistrar() {
         }
 
@@ -270,6 +335,7 @@ public class McpConfig {
                 Server2McpAutoConfiguration.logger.debug("Could not determine auto-configuration package, automatic mapper scanning disabled.");
                 return;
             }
+            this.completeContext = this.beanFactory.getBean(ICompleteContext.class);
 
             BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(McpCompleteScanConfigurer.class);
 
@@ -282,6 +348,7 @@ public class McpConfig {
             excludeMap.put("value", Deprecated.class);
             AnnotationAttributes[] excludeFilters = new AnnotationAttributes[]{new AnnotationAttributes(excludeMap)};
             builder.addPropertyValue("excludeFilters", excludeFilters);
+            builder.addPropertyValue("completeContext", this.completeContext);
 
             builder.setRole(2);
             registry.registerBeanDefinition(McpCompleteScanConfigurer.class.getName(), builder.getBeanDefinition());
@@ -305,20 +372,7 @@ public class McpConfig {
 
 
 
-    /**
-     * root 容器
-     */
-    @Bean
-    public IRootContext rootContext() {
-        return RootContextFactory.getRootContext();
-    }
 
-    @Bean
-    public BiConsumer<McpSyncServerExchange, List<McpSchema.Root>> rootChangeConsumer(IRootContext rootContext) {
-        return (exchange, roots) -> {
-            rootContext.updateRoots(exchange, roots);
-        };
-    }
 
 
 

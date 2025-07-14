@@ -1,6 +1,7 @@
 package com.ai.plug.core.register.tool;
 
-import com.ai.plug.core.context.ToolContext;
+import com.ai.plug.core.context.tool.IToolContext;
+import com.ai.plug.core.context.tool.ToolContext;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.context.annotation.AnnotationBeanNameGenerator;
@@ -17,22 +18,27 @@ public class ClassPathToolScanner extends ClassPathBeanDefinitionScanner {
 
     private final ToolContext.ToolRegisterDefinition toolRegisterDefinition;
 
-    public ClassPathToolScanner(BeanDefinitionRegistry registry, ToolContext.ToolRegisterDefinition toolRegisterDefinition) {
+
+    public ClassPathToolScanner(BeanDefinitionRegistry registry,
+                                ToolContext.ToolRegisterDefinition toolRegisterDefinition,
+                                IToolContext toolContext) {
         super(registry, false);
         this.toolRegisterDefinition = toolRegisterDefinition;
-        super.setBeanNameGenerator(new ToolBeanNameGenerator());
+        super.setBeanNameGenerator(new ToolBeanNameGenerator(toolContext));
     }
 
 
     public class ToolBeanNameGenerator extends AnnotationBeanNameGenerator {
-        public ToolBeanNameGenerator() {
+        private final IToolContext toolContext;
+        public ToolBeanNameGenerator(IToolContext toolContext) {
+            this.toolContext = toolContext;
         }
 
         @Override
         public String generateBeanName(BeanDefinition definition, BeanDefinitionRegistry registry) {
             String beanName = super.generateBeanName(definition, registry);
 
-            ToolContext.addTool(beanName, toolRegisterDefinition);
+            this.toolContext.addTool(beanName, toolRegisterDefinition);
 
             return beanName;
         }

@@ -1,4 +1,4 @@
-package com.ai.plug.core.context;
+package com.ai.plug.core.context.tool;
 
 import com.ai.plug.core.annotation.ToolScan;
 import lombok.extern.slf4j.Slf4j;
@@ -14,23 +14,22 @@ import java.util.concurrent.ConcurrentHashMap;
  * des:
  */
 @Slf4j
-public class ToolContext {
+public class ToolContext implements IToolContext{
 
     private static Map<String, ToolRegisterDefinition> rawTools = new ConcurrentHashMap<>();
 
-    private ToolContext() {
+    ToolContext() {
     }
 
-    public static Map<String, ToolRegisterDefinition> getRawTools() {
+    @Override
+    public Map<String, ToolRegisterDefinition> getRawTools() {
         return Collections.unmodifiableMap(rawTools);
     }
 
-    public static void addTool(String name, ToolRegisterDefinition tool) {
+    @Override
+    public void addTool(String name, ToolRegisterDefinition tool) {
         rawTools.put(name, tool);
     }
-
-
-
 
     public static class ToolRegisterDefinition {
         ToolScan.ToolFilter[] includeFilters;

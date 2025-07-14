@@ -1,6 +1,7 @@
 package com.ai.plug.core.register.complete;
 
 import com.ai.plug.core.annotation.McpCompleteScan;
+import com.ai.plug.core.context.complete.ICompleteContext;
 import com.ai.plug.core.spring.filter.DeclaredClassExcludeFilter;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
@@ -23,6 +24,8 @@ public class McpCompleteScanConfigurer implements BeanDefinitionRegistryPostProc
     private String[] basePackages;
     private AnnotationAttributes[] excludeFilters;
     private AnnotationAttributes[] includeFilters;
+
+    private ICompleteContext completeContext;
 
     public String[] getBasePackages() {
         return basePackages;
@@ -48,13 +51,19 @@ public class McpCompleteScanConfigurer implements BeanDefinitionRegistryPostProc
         this.includeFilters = includeFilters;
     }
 
+    public ICompleteContext getCompleteContext() {
+        return completeContext;
+    }
 
+    public void setCompleteContext(ICompleteContext completeContext) {
+        this.completeContext = completeContext;
+    }
 
     @Override
     public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
 
         // 创建类路径扫描器
-        ClassPathBeanDefinitionScanner scanner = new ClassPathCompleteScanner(registry);
+        ClassPathBeanDefinitionScanner scanner = new ClassPathCompleteScanner(registry, this.completeContext);
 
         // 排除过滤器
         if (excludeFilters != null && excludeFilters.length != 0 && !CollectionUtils.isEmpty(List.of(excludeFilters))) {

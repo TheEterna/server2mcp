@@ -2,7 +2,7 @@ package com.ai.plug.core.provider;
 
 import com.ai.plug.core.annotation.ToolScan;
 import com.ai.plug.core.builder.ToolDefinitionBuilder;
-import com.ai.plug.core.context.ToolContext;
+import com.ai.plug.core.context.tool.ToolContext;
 import com.ai.plug.core.utils.CustomToolUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.tool.ToolCallback;

@@ -1,9 +1,14 @@
 package com.ai.plug.core.register.prompt;
 
 import com.ai.plug.core.annotation.McpPromptScan;
+import com.ai.plug.core.context.prompt.IPromptContext;
 import com.ai.plug.core.utils.CustomToolUtil;
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
+import org.springframework.beans.factory.support.BeanNameGenerator;
 import org.springframework.context.annotation.ImportBeanDefinitionRegistrar;
 import org.springframework.core.annotation.AnnotationAttributes;
 import org.springframework.core.type.AnnotationMetadata;
@@ -17,9 +22,18 @@ import java.util.List;
  * time: 2025/6/13 11:02
  */
 
-public class McpPromptScanRegistrar implements ImportBeanDefinitionRegistrar {
+public class McpPromptScanRegistrar implements ImportBeanDefinitionRegistrar, BeanFactoryAware {
     private static int index = 0;
+    private BeanFactory beanFactory;
+    private IPromptContext promptContext;
 
+    public McpPromptScanRegistrar() {
+    }
+
+    @Override
+    public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
+        this.beanFactory = beanFactory;
+    }
     @Override
     public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
         // 获取 @McpResourceScan 注解的属性值
@@ -31,9 +45,8 @@ public class McpPromptScanRegistrar implements ImportBeanDefinitionRegistrar {
     }
     public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, AnnotationAttributes attributes, BeanDefinitionRegistry registry) {
 
+        this.promptContext = beanFactory.getBean(IPromptContext.class);
         BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(McpPromptScanConfigurer.class);
-
-
         AnnotationAttributes[] basePackages = attributes.getAnnotationArray("basePackages");
         if (!CollectionUtils.isEmpty(List.of(basePackages))) {
             builder.addPropertyValue("basePackages", basePackages);
@@ -50,6 +63,7 @@ public class McpPromptScanRegistrar implements ImportBeanDefinitionRegistrar {
         if (!CollectionUtils.isEmpty(List.of(includeFilters))) {
             builder.addPropertyValue("includeFilters", includeFilters);
         }
+        builder.addPropertyValue("promptContext", this.promptContext);
 
         builder.setRole(2);
         registry.registerBeanDefinition(generateBaseBeanName(importingClassMetadata, index++), builder.getBeanDefinition());
@@ -64,10 +78,12 @@ public class McpPromptScanRegistrar implements ImportBeanDefinitionRegistrar {
 
 
 
+
     /**
      * 给McpPromptScans用
      */
     public static class RepeatingRegistrar extends McpPromptScanRegistrar {
+
         public RepeatingRegistrar() {
         }
 

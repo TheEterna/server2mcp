@@ -2,7 +2,10 @@ package com.ai.plug.core.register.resource;
 
 import com.ai.plug.core.annotation.McpResourceScan;
 import com.ai.plug.core.annotation.McpResourceScans;
+import com.ai.plug.core.context.resource.IResourceContext;
 import com.ai.plug.core.utils.CustomToolUtil;
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.context.annotation.ImportBeanDefinitionRegistrar;
@@ -18,8 +21,18 @@ import java.util.List;
  * time: 2025/6/3 8:38
  */
 
-public class McpResourceScanRegistrar implements ImportBeanDefinitionRegistrar {
+public class McpResourceScanRegistrar implements ImportBeanDefinitionRegistrar, BeanFactoryAware {
     private static int index = 0;
+    private IResourceContext resourceContext;
+    private BeanFactory beanFactory;
+
+    public McpResourceScanRegistrar() {
+    }
+
+    @Override
+    public void setBeanFactory(BeanFactory beanFactory) {
+        this.beanFactory = beanFactory;
+    }
 
     @Override
     public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
@@ -32,8 +45,8 @@ public class McpResourceScanRegistrar implements ImportBeanDefinitionRegistrar {
     }
     public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, AnnotationAttributes attributes, BeanDefinitionRegistry registry) {
 
+        this.resourceContext = beanFactory.getBean(IResourceContext.class);
         BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(McpResourceScanConfigurer.class);
-
 
         AnnotationAttributes[] basePackages = attributes.getAnnotationArray("basePackages");
         if (!CollectionUtils.isEmpty(List.of(basePackages))) {
@@ -51,6 +64,7 @@ public class McpResourceScanRegistrar implements ImportBeanDefinitionRegistrar {
         if (!CollectionUtils.isEmpty(List.of(includeFilters))) {
             builder.addPropertyValue("includeFilters", includeFilters);
         }
+        builder.addPropertyValue("resourceContext", this.resourceContext);
 
         builder.setRole(2);
         registry.registerBeanDefinition(generateBaseBeanName(importingClassMetadata, index++), builder.getBeanDefinition());
@@ -69,6 +83,8 @@ public class McpResourceScanRegistrar implements ImportBeanDefinitionRegistrar {
      * 给McpResourceScans用
      */
     public static class RepeatingRegistrar extends McpResourceScanRegistrar {
+
+
         public RepeatingRegistrar() {
         }
 

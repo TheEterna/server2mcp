@@ -1,7 +1,8 @@
 package com.ai.plug.core.register.tool;
 
 import com.ai.plug.core.annotation.ToolScan;
-import com.ai.plug.core.context.ToolContext;
+import com.ai.plug.core.context.tool.IToolContext;
+import com.ai.plug.core.context.tool.ToolContext;
 import com.ai.plug.core.spring.filter.DeclaredClassExcludeFilter;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
@@ -21,7 +22,7 @@ import java.util.List;
  * time: 2025/04/2025/4/15 00:35
  * des: 这个是提取出来的一层, 专门实现Tool 扫描操作, 扫描的参数 即为对象上的参数, 通过scanRegistrar里注册 以及 在AutoRegistrar里注册
  */
-public class ToolScanConfigurer implements BeanDefinitionRegistryPostProcessor, BeanFactoryPostProcessor {
+public class McpToolScanConfigurer implements BeanDefinitionRegistryPostProcessor, BeanFactoryPostProcessor {
 
 
     private String[] basePackages;
@@ -29,7 +30,7 @@ public class ToolScanConfigurer implements BeanDefinitionRegistryPostProcessor, 
     private AnnotationAttributes[] includeFilters;
     private ToolScan.ToolFilter[] excludeToolFilters;
     private ToolScan.ToolFilter[] includeToolFilters;
-
+    private IToolContext toolContext;
     public String[] getBasePackages() {
         return basePackages;
     }
@@ -70,12 +71,16 @@ public class ToolScanConfigurer implements BeanDefinitionRegistryPostProcessor, 
         this.includeToolFilters = includeToolFilters;
     }
 
+    public void setToolContext(IToolContext toolContext) {
+        this.toolContext = toolContext;
+    }
+
     @Override
     public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
 
         ToolContext.ToolRegisterDefinition toolRegisterDefinition = new ToolContext.ToolRegisterDefinition(includeToolFilters, excludeToolFilters);
         // 创建类路径扫描器
-        ClassPathBeanDefinitionScanner scanner = new ClassPathToolScanner(registry, toolRegisterDefinition);
+        ClassPathBeanDefinitionScanner scanner = new ClassPathToolScanner(registry, toolRegisterDefinition, this.toolContext);
 
         // 排除过滤器
         if (excludeFilters != null && excludeFilters.length != 0 && !CollectionUtils.isEmpty(List.of(excludeFilters))) {

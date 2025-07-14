@@ -1,7 +1,11 @@
 package com.ai.plug.core.register.complete;
 
 import com.ai.plug.core.annotation.McpCompleteScan;
+import com.ai.plug.core.context.complete.ICompleteContext;
 import com.ai.plug.core.utils.CustomToolUtil;
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.context.annotation.ImportBeanDefinitionRegistrar;
@@ -17,9 +21,16 @@ import java.util.List;
  * @time 2025/6/16 17:07
  */
 
-public class McpCompleteScanRegistrar implements ImportBeanDefinitionRegistrar {
+public class McpCompleteScanRegistrar implements ImportBeanDefinitionRegistrar, BeanFactoryAware {
     private static int index = 0;
-
+    private ICompleteContext completeContext;
+    private BeanFactory beanFactory;
+    public McpCompleteScanRegistrar() {
+    }
+    @Override
+    public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
+        this.beanFactory = beanFactory;
+    }
     @Override
     public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
         // 获取 @McpResourceScan 注解的属性值
@@ -31,6 +42,7 @@ public class McpCompleteScanRegistrar implements ImportBeanDefinitionRegistrar {
     }
     public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, AnnotationAttributes attributes, BeanDefinitionRegistry registry) {
 
+        this.completeContext = beanFactory.getBean(ICompleteContext.class);
         BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(McpCompleteScanConfigurer.class);
 
         AnnotationAttributes[] basePackages = attributes.getAnnotationArray("basePackages");
@@ -49,6 +61,7 @@ public class McpCompleteScanRegistrar implements ImportBeanDefinitionRegistrar {
         if (!CollectionUtils.isEmpty(List.of(includeFilters))) {
             builder.addPropertyValue("includeFilters", includeFilters);
         }
+        builder.addPropertyValue("completeContext", this.completeContext);
 
         builder.setRole(2);
         registry.registerBeanDefinition(generateBaseBeanName(importingClassMetadata, index++), builder.getBeanDefinition());
@@ -63,10 +76,12 @@ public class McpCompleteScanRegistrar implements ImportBeanDefinitionRegistrar {
 
 
 
+
     /**
      * 给McpCompleteScans用
      */
     public static class RepeatingRegistrar extends McpCompleteScanRegistrar {
+
         public RepeatingRegistrar() {
         }
 

@@ -1,4 +1,4 @@
-package com.ai.plug.core.context;
+package com.ai.plug.core.context.prompt;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -13,18 +13,20 @@ import java.util.concurrent.ConcurrentSkipListSet;
  */
 
 @Slf4j
-public class PromptContext {
+public class PromptContext implements IPromptContext{
 
-    private static Set<String> rawPrompts = ConcurrentHashMap.newKeySet();
+    private Set<String> rawPrompts = ConcurrentHashMap.newKeySet();
 
-    private  PromptContext() {
+    PromptContext() {
     }
 
-    public static Set<String> getRawPrompts() {
+    @Override
+    public Set<String> getRawPrompts() {
         return rawPrompts;
     }
 
-    public static void addPrompt(String name) {
+    @Override
+    public void addPrompt(String name) {
         rawPrompts.add(name);
     }
 

@@ -1,6 +1,6 @@
 package com.ai.plug.core.annotation;
 
-import com.ai.plug.core.register.tool.ToolScanRegistrar;
+import com.ai.plug.core.register.tool.McpToolScanRegistrar;
 import org.springframework.context.annotation.Import;
 
 import java.lang.annotation.*;
@@ -14,7 +14,7 @@ import java.lang.annotation.*;
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-@Import({ToolScanRegistrar.RepeatingRegistrar.class})
+@Import({McpToolScanRegistrar.RepeatingRegistrar.class})
 public @interface ToolScans {
 
     ToolScan[] value();

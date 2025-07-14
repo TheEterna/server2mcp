@@ -16,7 +16,7 @@
 package com.ai.plug.core.springai.provider;
 
 import com.ai.plug.core.builder.ToolDefinitionBuilder;
-import com.ai.plug.core.context.ToolContext;
+import com.ai.plug.core.context.tool.ToolContext;
 import com.ai.plug.core.context.root.IRootContext;
 import com.ai.plug.core.provider.McpToolProvider;
 import com.ai.plug.core.provider.*;
@@ -24,19 +24,14 @@ import io.modelcontextprotocol.server.McpServerFeatures.AsyncCompletionSpecifica
 import io.modelcontextprotocol.server.McpServerFeatures.AsyncPromptSpecification;
 import io.modelcontextprotocol.server.McpServerFeatures.AsyncResourceSpecification;
 import io.modelcontextprotocol.server.McpServerFeatures.AsyncToolSpecification;
-import io.modelcontextprotocol.spec.McpSchema.CreateMessageRequest;
-import io.modelcontextprotocol.spec.McpSchema.CreateMessageResult;
-import io.modelcontextprotocol.spec.McpSchema.LoggingMessageNotification;
 import org.springframework.aop.support.AopUtils;
 import org.springframework.util.ReflectionUtils;
-import reactor.core.publisher.Mono;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 
 /**
  * @author Christian Tzolov

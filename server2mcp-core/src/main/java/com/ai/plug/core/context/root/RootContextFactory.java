@@ -6,9 +6,10 @@ package com.ai.plug.core.context.root;
  */
 
 public final class RootContextFactory {
-
-
-    public static IRootContext getRootContext() {
+    /**
+     * create RootContext
+     */
+    public static IRootContext createRootContext() {
         return new RootContext();
     }
 }

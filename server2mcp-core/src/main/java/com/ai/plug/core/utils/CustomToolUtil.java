@@ -2,9 +2,7 @@ package com.ai.plug.core.utils;
 
 import com.ai.plug.core.context.root.IRootContext;
 import com.ai.plug.core.provider.CustomToolCallResultConverter;
-import com.ai.plug.core.register.tool.ToolScanRegistrar;
-import com.ai.plug.core.spec.utils.logging.McpAsyncLogger;
-import com.ai.plug.core.spec.utils.logging.McpSyncLogger;
+import com.ai.plug.core.register.tool.McpToolScanRegistrar;
 import io.modelcontextprotocol.server.McpAsyncServerExchange;
 import io.modelcontextprotocol.server.McpSyncServerExchange;
 import io.modelcontextprotocol.spec.McpSchema;
@@ -86,14 +84,14 @@ public class CustomToolUtil {
 
 
     /**
-     * 生成的bean名字函数, 生成的名字是: 类名 + ToolScanRegistrar.class的名字 + index ,中间 # 分t
+     * 生成的bean名字函数, 生成的名字是: 类名 + McpToolScanRegistrar.class的名字 + index ,中间 # 分t
      * @param importingClassMetadata
      * @param index
      * @return
      */
     public static String generateBaseBeanName(AnnotationMetadata importingClassMetadata, int index) {
         String className = importingClassMetadata.getClassName();
-        return className + "#" + ToolScanRegistrar.class.getSimpleName() + "#" + index;
+        return className + "#" + McpToolScanRegistrar.class.getSimpleName() + "#" + index;
     }
 
     /**
