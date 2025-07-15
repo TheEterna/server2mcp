@@ -3,7 +3,7 @@
  */
 package com.ai.plug.core.spec.callback.resource;
 
-import com.logaritex.mcp.annotation.McpResource;
+import com.ai.plug.core.annotation.McpResource;
 import io.modelcontextprotocol.server.McpAsyncServerExchange;
 import io.modelcontextprotocol.spec.McpSchema.ReadResourceRequest;
 import io.modelcontextprotocol.spec.McpSchema.ReadResourceResult;
@@ -27,7 +27,7 @@ public final class AsyncMcpResourceMethodCallback extends AbstractMcpResourceMet
 		implements BiFunction<McpAsyncServerExchange, ReadResourceRequest, Mono<ReadResourceResult>> {
 
 	private AsyncMcpResourceMethodCallback(Builder builder) {
-		super(builder.method, builder.bean, builder.uri, builder.name, builder.description, builder.mimeType,
+		super(builder.method, builder.bean, builder.uri, builder.name, builder.title, builder.description, builder.mimeType,
 				builder.resultConverter, builder.uriTemplateManagerFactory, builder.contentType);
 		this.validateMethod(this.method);
 	}

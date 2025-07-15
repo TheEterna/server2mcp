@@ -1,10 +1,10 @@
 package com.ai.plug.core.spec.callback.tool;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.logaritex.mcp.common.MineTypeConstants;
-import com.logaritex.mcp.utils.ConvertAudioUtils;
-import com.logaritex.mcp.utils.ConvertImageUtils;
-import com.logaritex.mcp.utils.JsonParser;
+import com.ai.plug.common.constants.MineTypeConstants;
+import com.ai.plug.common.utils.ConvertAudioUtils;
+import com.ai.plug.common.utils.ConvertImageUtils;
+import com.ai.plug.common.utils.JsonParser;
 import io.modelcontextprotocol.spec.McpSchema;
 import org.slf4j.Logger;
 import reactor.core.publisher.Mono;
@@ -16,7 +16,7 @@ import java.lang.reflect.Type;
 import java.nio.file.Path;
 import java.util.List;
 
-import static com.logaritex.mcp.common.MineTypeConstants.*;
+import static com.ai.plug.common.constants.MineTypeConstants.*;
 
 /**
  * Default implementation of McpCallToolResultConverter

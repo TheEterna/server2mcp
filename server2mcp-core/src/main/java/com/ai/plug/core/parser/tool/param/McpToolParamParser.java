@@ -1,6 +1,6 @@
 package com.ai.plug.core.parser.tool.param;
 
-import com.logaritex.mcp.annotation.McpArg;
+import com.ai.plug.core.annotation.McpArg;
 import org.springframework.util.StringUtils;
 
 import java.lang.reflect.Method;

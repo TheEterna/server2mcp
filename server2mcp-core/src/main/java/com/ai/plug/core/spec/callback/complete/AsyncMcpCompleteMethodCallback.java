@@ -4,7 +4,7 @@
 
 package com.ai.plug.core.spec.callback.complete;
 
-import com.logaritex.mcp.annotation.McpComplete;
+import com.ai.plug.core.annotation.McpComplete;
 import io.modelcontextprotocol.server.McpAsyncServerExchange;
 import io.modelcontextprotocol.spec.McpSchema.CompleteRequest;
 import io.modelcontextprotocol.spec.McpSchema.CompleteResult;

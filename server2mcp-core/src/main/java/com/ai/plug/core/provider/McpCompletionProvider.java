@@ -2,8 +2,8 @@ package com.ai.plug.core.provider;
 
 import com.ai.plug.core.spec.callback.complete.AsyncMcpCompleteMethodCallback;
 import com.ai.plug.core.spec.callback.complete.SyncMcpCompleteMethodCallback;
-import com.logaritex.mcp.annotation.CompleteAdapter;
-import com.logaritex.mcp.annotation.McpComplete;
+import com.ai.plug.core.annotation.CompleteAdapter;
+import com.ai.plug.core.annotation.McpComplete;
 import io.modelcontextprotocol.server.McpServerFeatures;
 import io.modelcontextprotocol.util.Assert;
 import reactor.core.publisher.Mono;

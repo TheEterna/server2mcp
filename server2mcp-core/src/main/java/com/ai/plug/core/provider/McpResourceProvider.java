@@ -2,7 +2,7 @@ package com.ai.plug.core.provider;
 
 import com.ai.plug.core.spec.callback.resource.AsyncMcpResourceMethodCallback;
 import com.ai.plug.core.spec.callback.resource.SyncMcpResourceMethodCallback;
-import com.logaritex.mcp.annotation.McpResource;
+import com.ai.plug.core.annotation.McpResource;
 import io.modelcontextprotocol.server.McpServerFeatures;
 import io.modelcontextprotocol.spec.McpSchema;
 import io.modelcontextprotocol.util.Assert;
@@ -40,9 +40,10 @@ public class McpResourceProvider {
 
                             String uri = resourceAnnotation.uri();
                             String name = getName(mcpResourceMethod, resourceAnnotation);
+                            String title = getTitle(mcpResourceMethod, resourceAnnotation);
                             String description = resourceAnnotation.description();
                             String mimeType = resourceAnnotation.mimeType();
-                            var mcpResource = new McpSchema.Resource(uri, name, description, mimeType, null);
+                            var mcpResource = new McpSchema.Resource(uri, name, title, description, mimeType,null, null);
 
                             AsyncMcpResourceMethodCallback methodCallback = AsyncMcpResourceMethodCallback.builder()
                                     .method(mcpResourceMethod)
@@ -73,9 +74,10 @@ public class McpResourceProvider {
 
                             String uri = resourceAnnotation.uri();
                             String name = getName(mcpResourceMethod, resourceAnnotation);
+                            String title = getTitle(mcpResourceMethod, resourceAnnotation);
                             String description = resourceAnnotation.description();
                             String mimeType = resourceAnnotation.mimeType();
-                            var mcpResource = new McpSchema.Resource(uri, name, description, mimeType,null, null);
+                            var mcpResource = new McpSchema.Resource(uri, name, title, description, mimeType,null, null);
 
                             SyncMcpResourceMethodCallback methodCallback = SyncMcpResourceMethodCallback.builder()
                                     .method(mcpResourceMethod)
@@ -112,6 +114,13 @@ public class McpResourceProvider {
         }
         return resource.name();
 	}
+    private static String getTitle(Method method, McpResource resource) {
+        Assert.notNull(method, "method cannot be null");
+        if (resource == null || resource.name() == null || resource.name().isEmpty()) {
+            return method.getName();
+        }
+        return resource.title();
+    }
 
 
 }

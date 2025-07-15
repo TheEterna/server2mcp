@@ -83,10 +83,10 @@
             <optional>true</optional>
         </dependency>
 
-        <dependency>
-            <groupId>com.logaritex.mcp</groupId>
-            <artifactId>mcp-annotations</artifactId>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>com.logaritex.mcp</groupId>-->
+<!--            <artifactId>mcp-annotations</artifactId>-->
+<!--        </dependency>-->
 
         <!-- 测试 -->
         <dependency>

@@ -4,7 +4,7 @@
 
 package com.ai.plug.core.spec.callback.resource;
 
-import com.logaritex.mcp.annotation.McpResource;
+import com.ai.plug.core.annotation.McpResource;
 import io.modelcontextprotocol.server.McpSyncServerExchange;
 import io.modelcontextprotocol.spec.McpSchema.ReadResourceRequest;
 import io.modelcontextprotocol.spec.McpSchema.ReadResourceResult;
@@ -26,7 +26,7 @@ public final class SyncMcpResourceMethodCallback extends AbstractMcpResourceMeth
 		implements BiFunction<McpSyncServerExchange, ReadResourceRequest, ReadResourceResult> {
 
 	private SyncMcpResourceMethodCallback(Builder builder) {
-		super(builder.method, builder.bean, builder.uri, builder.name, builder.description, builder.mimeType,
+		super(builder.method, builder.bean, builder.uri, builder.name, builder.title, builder.description, builder.mimeType,
 				builder.resultConverter, builder.uriTemplateManagerFactory, builder.contentType);
 		this.validateMethod(this.method);
 	}

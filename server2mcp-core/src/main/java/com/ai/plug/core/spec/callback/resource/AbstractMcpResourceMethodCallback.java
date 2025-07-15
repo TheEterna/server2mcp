@@ -51,6 +51,7 @@ public abstract class AbstractMcpResourceMethodCallback {
 	protected final String uri;
 
 	protected final String name;
+	protected final String title;
 
 	protected final String description;
 
@@ -73,7 +74,7 @@ public abstract class AbstractMcpResourceMethodCallback {
 	 * @param uriTemplateMangerFactory The URI template manager factory
 	 * @param contentType The content type
 	 */
-	protected AbstractMcpResourceMethodCallback(Method method, Object bean, String uri, String name, String description,
+	protected AbstractMcpResourceMethodCallback(Method method, Object bean, String uri, String name, String title, String description,
 			String mimeType, McpReadResourceResultConverter resultConverter,
 			McpUriTemplateManagerFactory uriTemplateMangerFactory, ContentType contentType) {
 
@@ -87,6 +88,7 @@ public abstract class AbstractMcpResourceMethodCallback {
 		this.bean = bean;
 		this.uri = uri;
 		this.name = name;
+		this.title = title;
 		this.description = description;
 		this.mimeType = mimeType;
 		this.resultConverter = resultConverter;
@@ -424,7 +426,9 @@ public abstract class AbstractMcpResourceMethodCallback {
 
 		protected ContentType contentType;
 
-		protected String name; // Optional name for the resource
+		protected String name;
+
+		protected String title; // Optional title for the resource
 
 		protected String description; // Optional description for the resource
 
@@ -456,7 +460,7 @@ public abstract class AbstractMcpResourceMethodCallback {
 
 		/**
 		 * Set the URI template manager factory.
-		 * @param uriTemplateManagerFactory The URI template manager factory
+		 * @param uri The URI template manager factory
 		 * @return This builder
 		 */
 		public T uri(String uri) {

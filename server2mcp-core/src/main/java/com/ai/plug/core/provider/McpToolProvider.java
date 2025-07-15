@@ -8,7 +8,7 @@ import com.ai.plug.core.spec.callback.tool.AsyncMcpToolMethodCallback;
 import com.ai.plug.core.spec.callback.tool.DefaultMcpCallToolResultConverter;
 import com.ai.plug.core.spec.callback.tool.McpCallToolResultConverter;
 import com.ai.plug.core.spec.callback.tool.SyncMcpToolMethodCallback;
-import com.logaritex.mcp.annotation.McpTool;
+import com.ai.plug.core.annotation.McpTool;
 import io.modelcontextprotocol.server.McpServerFeatures;
 import io.modelcontextprotocol.spec.McpSchema;
 import io.modelcontextprotocol.util.Assert;

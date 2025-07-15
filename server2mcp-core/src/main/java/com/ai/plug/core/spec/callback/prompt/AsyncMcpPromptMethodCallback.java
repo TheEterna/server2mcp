@@ -4,7 +4,7 @@
 
 package com.ai.plug.core.spec.callback.prompt;
 
-import com.logaritex.mcp.annotation.McpPrompt;
+import com.ai.plug.core.annotation.McpPrompt;
 import io.modelcontextprotocol.server.McpAsyncServerExchange;
 import io.modelcontextprotocol.spec.McpSchema.GetPromptRequest;
 import io.modelcontextprotocol.spec.McpSchema.GetPromptResult;

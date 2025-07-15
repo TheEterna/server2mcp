@@ -6,8 +6,8 @@ package com.ai.plug.core.spec.callback.complete;
 
 import com.ai.plug.core.context.root.IRootContext;
 import com.ai.plug.core.utils.CustomToolUtil;
-import com.logaritex.mcp.annotation.CompleteAdapter;
-import com.logaritex.mcp.annotation.McpComplete;
+import com.ai.plug.core.annotation.CompleteAdapter;
+import com.ai.plug.core.annotation.McpComplete;
 import io.modelcontextprotocol.spec.McpSchema;
 import io.modelcontextprotocol.spec.McpSchema.CompleteReference;
 import io.modelcontextprotocol.spec.McpSchema.CompleteRequest;

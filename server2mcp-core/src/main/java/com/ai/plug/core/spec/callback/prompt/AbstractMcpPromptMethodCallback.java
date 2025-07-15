@@ -4,8 +4,8 @@
 
 package com.ai.plug.core.spec.callback.prompt;
 
-import com.logaritex.mcp.annotation.McpArg;
-import com.logaritex.mcp.utils.JsonParser;
+import com.ai.plug.common.utils.JsonParser;
+import com.ai.plug.core.annotation.McpArg;
 import io.modelcontextprotocol.spec.McpSchema;
 import io.modelcontextprotocol.spec.McpSchema.GetPromptRequest;
 import io.modelcontextprotocol.spec.McpSchema.GetPromptResult;
