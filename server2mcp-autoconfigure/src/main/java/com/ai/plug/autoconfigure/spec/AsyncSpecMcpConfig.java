@@ -2,19 +2,20 @@ package com.ai.plug.autoconfigure.spec;
 
 import com.ai.plug.autoconfigure.conditional.Conditions;
 import com.ai.plug.core.builder.ToolDefinitionBuilder;
-import com.ai.plug.core.context.complete.CompleteContext;
 import com.ai.plug.core.context.complete.ICompleteContext;
 import com.ai.plug.core.context.prompt.IPromptContext;
 import com.ai.plug.core.context.resource.IResourceContext;
-import com.ai.plug.core.context.resource.ResourceContext;
+import com.ai.plug.core.context.root.IRootContext;
 import com.ai.plug.core.context.tool.IToolContext;
 import com.ai.plug.core.context.tool.ToolContext;
-import com.ai.plug.core.context.root.IRootContext;
 import com.ai.plug.core.springai.provider.AsyncMcpAnnotationProvider;
 import io.modelcontextprotocol.server.McpServerFeatures;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.*;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Conditional;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 
 import java.util.List;
 import java.util.Map;

@@ -1,6 +1,5 @@
 package com.ai.plug.core.spec.utils.sampling;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import io.modelcontextprotocol.spec.McpSchema;
 import org.springframework.lang.Nullable;
 import reactor.core.publisher.Mono;

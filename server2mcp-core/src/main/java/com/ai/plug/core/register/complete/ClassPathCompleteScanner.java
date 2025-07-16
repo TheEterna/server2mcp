@@ -1,6 +1,5 @@
 package com.ai.plug.core.register.complete;
 
-import com.ai.plug.core.context.complete.CompleteContext;
 import com.ai.plug.core.context.complete.ICompleteContext;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;

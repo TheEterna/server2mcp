@@ -1,5 +1,8 @@
 package com.ai.plug.core.spec.callback.tool;
 
+import com.ai.plug.common.utils.JsonParser;
+import com.ai.plug.core.annotation.McpArg;
+import com.ai.plug.core.annotation.McpTool;
 import com.ai.plug.core.context.root.IRootContext;
 import com.ai.plug.core.spec.utils.elicitation.McpElicitation;
 import com.ai.plug.core.spec.utils.elicitation.McpElicitationFactory;
@@ -11,16 +14,12 @@ import com.ai.plug.core.spec.utils.sampling.McpSampling;
 import com.ai.plug.core.spec.utils.sampling.McpSamplingFactory;
 import com.ai.plug.core.utils.CustomToolUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.ai.plug.core.annotation.McpArg;
-import com.ai.plug.core.annotation.McpTool;
-import com.ai.plug.common.utils.JsonParser;
 import io.modelcontextprotocol.spec.McpSchema;
 import io.modelcontextprotocol.util.Assert;
 import reactor.util.annotation.Nullable;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
-import java.lang.reflect.Type;
 import java.util.Map;
 
 /**

@@ -37,7 +37,7 @@
     <dependency>
         <groupId>com.ai.plug</groupId>
         <artifactId>server2mcp-starter-webmvc</artifactId>
-        <version>1.0.0</version>
+        <version>1.1.0-SNAPSHOT</version>
     </dependency>
 
 然后在配置文件中添加配置：

@@ -1,11 +1,12 @@
 package com.ai.plug.core.utils;
 
+import com.ai.plug.core.annotation.McpArg;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.github.victools.jsonschema.generator.*;
 import com.github.victools.jsonschema.generator.Module;
+import com.github.victools.jsonschema.generator.*;
 import com.github.victools.jsonschema.module.jackson.JacksonModule;
 import com.github.victools.jsonschema.module.jackson.JacksonOption;
 import com.github.victools.jsonschema.module.jakarta.validation.JakartaValidationModule;
@@ -15,7 +16,6 @@ import com.github.victools.jsonschema.module.javax.validation.JavaxValidationOpt
 import com.github.victools.jsonschema.module.swagger15.SwaggerModule;
 import com.github.victools.jsonschema.module.swagger15.SwaggerOption;
 import com.github.victools.jsonschema.module.swagger2.Swagger2Module;
-import com.ai.plug.core.annotation.McpArg;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.springframework.ai.util.json.schema.SpringAiSchemaModule;

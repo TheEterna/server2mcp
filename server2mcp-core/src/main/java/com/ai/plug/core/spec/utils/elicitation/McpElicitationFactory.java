@@ -1,8 +1,5 @@
 package com.ai.plug.core.spec.utils.elicitation;
 
-import com.ai.plug.core.spec.utils.logging.McpAsyncLogger;
-import com.ai.plug.core.spec.utils.logging.McpLogger;
-import com.ai.plug.core.spec.utils.logging.McpSyncLogger;
 import io.modelcontextprotocol.server.McpAsyncServerExchange;
 import io.modelcontextprotocol.server.McpSyncServerExchange;
 

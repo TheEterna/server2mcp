@@ -1,7 +1,6 @@
 package com.ai.plug.core.register.prompt;
 
 import com.ai.plug.core.context.prompt.IPromptContext;
-import com.ai.plug.core.context.prompt.PromptContext;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.context.annotation.AnnotationBeanNameGenerator;

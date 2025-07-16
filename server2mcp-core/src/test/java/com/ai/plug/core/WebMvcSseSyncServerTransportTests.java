@@ -7,7 +7,6 @@ package com.ai.plug.core;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.modelcontextprotocol.server.AbstractMcpSyncServerTests;
 import io.modelcontextprotocol.server.McpServer;
-import io.modelcontextprotocol.server.McpServerFeatures;
 import io.modelcontextprotocol.server.TestUtil;
 import io.modelcontextprotocol.server.transport.WebMvcSseServerTransportProvider;
 import io.modelcontextprotocol.spec.McpSchema;
@@ -23,10 +22,6 @@ import org.springframework.web.servlet.DispatcherServlet;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.function.RouterFunction;
 import org.springframework.web.servlet.function.ServerResponse;
-
-import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThatCode;
 
 @Timeout(15)
 class WebMvcSseSyncServerTransportTests extends AbstractMcpSyncServerTests {

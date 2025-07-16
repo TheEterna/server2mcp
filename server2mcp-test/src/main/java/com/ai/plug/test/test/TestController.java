@@ -1,15 +1,12 @@
 package com.ai.plug.test.test;
 
 import com.ai.plug.autoconfigure.annotation.ToolNotScanForAuto;
-import com.ai.plug.core.context.root.IRootContext;
-import com.ai.plug.core.context.root.RootContext;
-import com.ai.plug.core.spec.utils.elicitation.McpElicitation;
 import com.ai.plug.core.annotation.McpArg;
 import com.ai.plug.core.annotation.McpComplete;
 import com.ai.plug.core.annotation.McpPrompt;
 import com.ai.plug.core.annotation.McpResource;
-import io.modelcontextprotocol.server.McpAsyncServerExchange;
-import io.modelcontextprotocol.server.McpSyncServer;
+import com.ai.plug.core.context.root.IRootContext;
+import com.ai.plug.core.spec.utils.elicitation.McpElicitation;
 import io.modelcontextprotocol.server.McpSyncServerExchange;
 import io.modelcontextprotocol.spec.McpSchema;
 import io.swagger.annotations.*;
@@ -17,12 +14,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.tool.annotation.ToolParam;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
 import javax.imageio.ImageIO;

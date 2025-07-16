@@ -10,7 +10,7 @@
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
-    <artifactId>server2mcp-starter-webmvc</artifactId>
+    <artifactId>server2mcp-starter-webflux</artifactId>
     <packaging>jar</packaging>
     <dependencies>
 
@@ -35,8 +35,9 @@
 
         <dependency>
             <groupId>org.springframework.ai</groupId>
-            <artifactId>spring-ai-starter-mcp-server-webmvc</artifactId>
+            <artifactId>spring-ai-starter-mcp-server-webflux</artifactId>
         </dependency>
+
 
 
     </dependencies>

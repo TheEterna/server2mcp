@@ -1,6 +1,5 @@
 package com.ai.plug.core.context.resource;
 
-import java.util.Collections;
 import java.util.Set;
 
 /**

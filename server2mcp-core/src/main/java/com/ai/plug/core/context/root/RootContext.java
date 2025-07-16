@@ -1,18 +1,13 @@
 package com.ai.plug.core.context.root;
 
 import com.ai.plug.core.utils.CustomToolUtil;
-import io.modelcontextprotocol.server.McpAsyncServerExchange;
-import io.modelcontextprotocol.server.McpSyncServerExchange;
 import io.modelcontextprotocol.spec.McpSchema;
 import io.modelcontextprotocol.spec.McpServerSession;
-import io.modelcontextprotocol.spec.McpSession;
-import org.apache.el.util.ReflectionUtil;
 import org.springframework.util.ConcurrentReferenceHashMap;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 /**
  * TODO 本想要使用服务器存储root的方式来减少 roots/list 请求 , 再配合 roots/list_changed, 完成对root的热更新, 服务端只需要通过简单的bean注入即可使用roots

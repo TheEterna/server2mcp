@@ -34,7 +34,7 @@
     <dependency>
         <groupId>com.ai.plug</groupId>
         <artifactId>server2mcp-starter-webmvc</artifactId>
-        <version>1.0.0</version>
+        <version>1.1.0-SNAPSHOT</version>
     </dependency>
 
 Then add the configuration in the configuration file:

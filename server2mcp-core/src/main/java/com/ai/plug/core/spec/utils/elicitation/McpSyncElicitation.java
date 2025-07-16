@@ -1,17 +1,8 @@
 package com.ai.plug.core.spec.utils.elicitation;
 
-import com.ai.plug.core.utils.GenSchemaUtils;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import io.modelcontextprotocol.server.McpSyncServer;
 import io.modelcontextprotocol.server.McpSyncServerExchange;
 import io.modelcontextprotocol.spec.McpSchema;
-import org.springframework.lang.Nullable;
 import reactor.core.publisher.Mono;
-
-import java.util.HashMap;
-import java.util.Map;
-
-import static com.ai.plug.core.utils.GenSchemaUtils.MCP_SCHEMA_GENERATOR;
 
 /**
  * @author han

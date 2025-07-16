@@ -16,10 +16,10 @@
 
 package com.ai.plug.core.provider;
 
+import com.ai.plug.core.annotation.McpPrompt;
 import com.ai.plug.core.spec.callback.prompt.AsyncMcpPromptMethodCallback;
 import com.ai.plug.core.spec.callback.prompt.SyncMcpPromptMethodCallback;
-import com.ai.plug.core.annotation.McpPrompt;
-import com.ai.plug.core.annotation.PromptAdaptor;
+import com.ai.plug.core.utils.PromptAdaptor;
 import io.modelcontextprotocol.server.McpServerFeatures.AsyncPromptSpecification;
 import io.modelcontextprotocol.server.McpServerFeatures.SyncPromptSpecification;
 import io.modelcontextprotocol.util.Assert;

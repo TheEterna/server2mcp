@@ -61,6 +61,14 @@
             <optional>true</optional>
         </dependency>
 
+        <!-- 覆盖原始低稳定版本mcp -->
+
+        <dependency>
+            <groupId>io.modelcontextprotocol.sdk</groupId>
+            <artifactId>mcp</artifactId>
+            <version>${mcp-sdk.version}</version>
+        </dependency>
+
 
 
 

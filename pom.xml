@@ -10,7 +10,7 @@
 
     <properties>
         <java.version>17</java.version>
-        <project.version>1.0.0</project.version>
+        <project.version>1.1.0-SNAPSHOT</project.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <spring-boot.version>3.4.4</spring-boot.version>
         <spring-ai.version>1.0.0</spring-ai.version>
@@ -51,6 +51,7 @@
         <module>server2mcp-core</module>
         <module>server2mcp-autoconfigure</module>
         <module>server2mcp-spring-boot-starters/server2mcp-starter-webmvc</module>
+        <module>server2mcp-spring-boot-starters/server2mcp-starter-webflux</module>
 
     </modules>
 

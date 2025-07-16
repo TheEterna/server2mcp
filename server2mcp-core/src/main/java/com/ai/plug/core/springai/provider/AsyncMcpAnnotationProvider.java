@@ -16,10 +16,12 @@
 package com.ai.plug.core.springai.provider;
 
 import com.ai.plug.core.builder.ToolDefinitionBuilder;
-import com.ai.plug.core.context.tool.ToolContext;
 import com.ai.plug.core.context.root.IRootContext;
+import com.ai.plug.core.context.tool.ToolContext;
+import com.ai.plug.core.provider.McpCompletionProvider;
+import com.ai.plug.core.provider.McpPromptProvider;
+import com.ai.plug.core.provider.McpResourceProvider;
 import com.ai.plug.core.provider.McpToolProvider;
-import com.ai.plug.core.provider.*;
 import io.modelcontextprotocol.server.McpServerFeatures.AsyncCompletionSpecification;
 import io.modelcontextprotocol.server.McpServerFeatures.AsyncPromptSpecification;
 import io.modelcontextprotocol.server.McpServerFeatures.AsyncResourceSpecification;

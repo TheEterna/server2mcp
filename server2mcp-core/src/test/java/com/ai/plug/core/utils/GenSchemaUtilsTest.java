@@ -1,34 +1,18 @@
 package com.ai.plug.core.utils;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.module.jsonSchema.JsonSchema;
-import com.github.victools.jsonschema.generator.*;
-import com.github.victools.jsonschema.generator.Module;
-import com.github.victools.jsonschema.generator.Option;
-import com.github.victools.jsonschema.module.jackson.JacksonModule;
-import com.github.victools.jsonschema.module.jackson.JacksonOption;
-import com.github.victools.jsonschema.module.swagger15.SwaggerModule;
-import com.github.victools.jsonschema.module.swagger2.Swagger2Module;
 import com.ai.plug.core.annotation.McpArg;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotNull;
-import lombok.Data;
 import org.junit.jupiter.api.Test;
-import org.springframework.ai.tool.annotation.ToolParam;
-import org.springframework.ai.util.json.schema.SpringAiSchemaModule;
-
-import javax.validation.constraints.Min;
-import javax.validation.constraints.Pattern;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
-import java.util.HashMap;
 import java.util.Map;
 
 import static com.ai.plug.core.utils.GenSchemaUtils.MCP_SCHEMA_GENERATOR;
 import static com.ai.plug.core.utils.GenSchemaUtils.TOOL_SCHEMA_GENERATOR;
-import static com.github.javaparser.utils.Utils.assertNotNull;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
 public class GenSchemaUtilsTest {
 
