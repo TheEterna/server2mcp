@@ -366,6 +366,7 @@ public class McpConfig {
      * @return 工具定义构建器 ToolDefinitionBuilder
      */
     @Bean
+    @ConditionalOnProperty(prefix = VARIABLE_PREFIX + '.' + VARIABLE_TOOL, name = ".enabled", havingValue = "true", matchIfMissing = true)
     public ToolDefinitionBuilder toolDefinitionBuilder(List<AbstractDesParser> desParserList, List<AbstractParamParser> paramParserList, AbstractStarter starter) {
         return new ToolDefinitionBuilder(desParserList, paramParserList, starter);
     }
