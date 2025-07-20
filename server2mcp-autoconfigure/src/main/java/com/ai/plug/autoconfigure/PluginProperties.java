@@ -26,6 +26,7 @@ public class PluginProperties {
     private Resource resource;
 
     private Prompt prompt;
+    private Root root;
 
     private Complete complete;
 
@@ -140,6 +141,11 @@ public class PluginProperties {
     }
     @Data
     private static class Complete {
+        private boolean enabled = true;
+    }
+
+    @Data
+    private static class Root {
         private boolean enabled = true;
     }
 

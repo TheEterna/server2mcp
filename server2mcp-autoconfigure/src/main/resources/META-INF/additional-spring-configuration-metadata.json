@@ -19,6 +19,12 @@
       "defaultValue": true
     },
     {
+      "name": "plugin.mcp.rot.enabled",
+      "type": "java.lang.Boolean",
+      "description": "是否启用MCP的Root功能",
+      "defaultValue": true
+    },
+    {
       "name": "plugin.mcp.prompt.enabled",
       "type": "java.lang.Boolean",
       "description": "是否启用MCP的Prompt功能",

@@ -34,76 +34,96 @@ import static com.ai.plug.common.constants.ConfigConstants.*;
 public class SyncSpecMcpConfig {
 
 
-    /**
-     * 创建同步 工具
-     * @param applicationContext spring容器
-     * @return Sync tools
-     */
-    @Bean
-    @Primary
-    @ConditionalOnProperty(prefix = VARIABLE_PREFIX + '.' + VARIABLE_TOOL, name = ".enabled", havingValue = "true", matchIfMissing = true)
-    public List<McpServerFeatures.SyncToolSpecification> asyncToolSpecifications(
-            ApplicationContext applicationContext,
-            ToolDefinitionBuilder builder,
-            IRootContext rootContext,
-            IToolContext toolContext) {
+    @Configuration
+    @Conditional(Conditions.ToolCondition.class)
+    public static class SyncToolSpecificationConfiguration {
+        /**
+         * 创建同步 工具
+         * @param applicationContext spring容器
+         * @return Sync tools
+         */
+        @Bean
+        @Primary
+        public List<McpServerFeatures.SyncToolSpecification> asyncToolSpecifications(
+                ApplicationContext applicationContext,
+                ToolDefinitionBuilder builder,
+                IRootContext rootContext,
+                IToolContext toolContext) {
 
-        Map<Object, ToolContext.ToolRegisterDefinition> toolAndDefinitions = toolContext.getRawTools().entrySet().stream().collect(Collectors.toMap(
-                entry -> applicationContext.getBean(entry.getKey()),
-                Map.Entry::getValue
-        ));
-        return SyncMcpAnnotationProvider.createSyncToolSpecifications(toolAndDefinitions, builder, rootContext);
-    }
+            Map<Object, ToolContext.ToolRegisterDefinition> toolAndDefinitions = toolContext.getRawTools().entrySet().stream().collect(Collectors.toMap(
+                    entry -> applicationContext.getBean(entry.getKey()),
+                    Map.Entry::getValue
+            ));
+            return SyncMcpAnnotationProvider.createSyncToolSpecifications(toolAndDefinitions, builder, rootContext);
+        }
 
 
-    /**
-     * 创建同步 资源(包括资源模板)
-     * Creates synchronous resources (including resource templates)
-     * @param applicationContext spring容器
-     * @return Sync resources
-     */
-    @Bean
-    @Primary
-    @ConditionalOnProperty(prefix = VARIABLE_PREFIX + '.' + VARIABLE_RESOURCE, name = ".enabled", havingValue = "true", matchIfMissing = true)
-    public List<McpServerFeatures.SyncResourceSpecification> syncResourceSpecifications(
-            ApplicationContext applicationContext,
-            IResourceContext resourceContext){
-        List<Object> resources = resourceContext.getRawResources().stream().map(applicationContext::getBean).collect(Collectors.toList());
-        // 通过sync转换成的sync资源, 无需关注同步和同步的区别, 系统会自动转换
-        return SyncMcpAnnotationProvider.createSyncResourceSpecifications(resources);
 
     }
 
 
-    /**
-     * 创建同步 Prompt
-     * Creates synchronous Prompt specifications
-     * @param applicationContext spring容器
-     * @return Sync prompts
-     */
-    @Bean
-    @Primary
-    @ConditionalOnProperty(prefix = VARIABLE_PREFIX + '.' + VARIABLE_PROMPT, name = ".enabled", havingValue = "true", matchIfMissing = true)
-    public List<McpServerFeatures.SyncPromptSpecification> syncPromptSpecification(
-            ApplicationContext applicationContext,
-            IPromptContext promptContext){
-        List<Object> prompts = promptContext.getRawPrompts().stream().map(applicationContext::getBean).toList();
-        return SyncMcpAnnotationProvider.createSyncPromptSpecifications(prompts);
+    @Configuration
+    @Conditional(Conditions.ResourceCondition.class)
+    public static class SyncResourceSpecificationConfiguration {
+        /**
+         * 创建同步 资源(包括资源模板)
+         * Creates synchronous resources (including resource templates)
+         * @param applicationContext spring容器
+         * @return Sync resources
+         */
+        @Bean
+        @Primary
+        @Conditional(Conditions.ResourceCondition.class)
+        public List<McpServerFeatures.SyncResourceSpecification> syncResourceSpecifications(
+                ApplicationContext applicationContext,
+                IResourceContext resourceContext){
+            List<Object> resources = resourceContext.getRawResources().stream().map(applicationContext::getBean).collect(Collectors.toList());
+            // 通过sync转换成的sync资源, 无需关注同步和同步的区别, 系统会自动转换
+            return SyncMcpAnnotationProvider.createSyncResourceSpecifications(resources);
+
+        }
+
     }
 
-    /**
-     * 创建同步 Completion
-     * Creates synchronous Completion specifications
-     * @param applicationContext spring容器
-     * @return Sync completions
-     */
-    @Bean
-    @Primary
-    @ConditionalOnProperty(prefix = VARIABLE_PREFIX + '.' + VARIABLE_COMPLETE, name = ".enabled", havingValue = "true", matchIfMissing = true)
-    public List<McpServerFeatures.SyncCompletionSpecification> syncCompletionSpecification(
-            ApplicationContext applicationContext,
-            ICompleteContext completeContext){
-        List<Object> completions = completeContext.getRawCompletes().stream().map(applicationContext::getBean).toList();
-        return SyncMcpAnnotationProvider.createSyncCompleteSpecifications(completions);
+    @Configuration
+    @Conditional(Conditions.PromptCondition.class)
+    public static class SyncPromptSpecificationConfiguration {
+        /**
+         * 创建同步 Prompt
+         * Creates synchronous Prompt specifications
+         * @param applicationContext spring容器
+         * @return Sync prompts
+         */
+        @Bean
+        @Primary
+        @Conditional(Conditions.PromptCondition.class)
+        public List<McpServerFeatures.SyncPromptSpecification> syncPromptSpecification(
+                ApplicationContext applicationContext,
+                IPromptContext promptContext){
+            List<Object> prompts = promptContext.getRawPrompts().stream().map(applicationContext::getBean).toList();
+            return SyncMcpAnnotationProvider.createSyncPromptSpecifications(prompts);
+        }
     }
+
+
+    @Configuration
+    @Conditional(Conditions.CompleteCondition.class)
+    public static class SyncCompleteSpecificationConfiguration {
+        /**
+         * 创建同步 Completion
+         * Creates synchronous Completion specifications
+         * @param applicationContext spring容器
+         * @return Sync completions
+         */
+        @Bean
+        @Primary
+        @Conditional(Conditions.CompleteCondition.class)
+        public List<McpServerFeatures.SyncCompletionSpecification> syncCompletionSpecification(
+                ApplicationContext applicationContext,
+                ICompleteContext completeContext){
+            List<Object> completions = completeContext.getRawCompletes().stream().map(applicationContext::getBean).toList();
+            return SyncMcpAnnotationProvider.createSyncCompleteSpecifications(completions);
+        }
+    }
+
 }
