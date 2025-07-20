@@ -21,8 +21,10 @@ plugin:
   mcp:
     enabled: true
     parser:
-      param: MCPTOOL, JAVADOC, TOOL,
-      des: MCPTOOL, JAVADOC, TOOL, JACKSON, SWAGGER3, SWAGGER2
+#      param: MCPTOOL, JAVADOC, TOOL,
+#      des: MCPTOOL, JAVADOC, TOOL, JACKSON, SWAGGER3, SWAGGER2:
+      param: JAVADOC
+      des: JAVADOC
     scope: interface
     resource:
       enabled: true
