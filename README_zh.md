@@ -2,6 +2,8 @@
 
 [English](README.md)
 
+[文档链接](https://theeterna.github.io/server2mcp-docs/)
+
 ## 这绝对是一个革命性的想法!!!
 
 这是一个用于自动化集成 MCP (Model Control Protocol) 服务的 Spring Boot Starter。
