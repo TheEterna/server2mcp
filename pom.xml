@@ -10,15 +10,15 @@
 
     <properties>
         <java.version>17</java.version>
-        <project.version>1.1.0-SNAPSHOT</project.version>
+        <project.version>1.0.0</project.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <spring-boot.version>3.4.4</spring-boot.version>
-        <spring-ai.version>1.0.0</spring-ai.version>
+        <spring-ai.version>1.1.0-SNAPSHOT</spring-ai.version>
         <javaparser.version>3.25.5</javaparser.version>
         <victools.module.swagger1-5.version>4.37.0</victools.module.swagger1-5.version>
         <swagger1-5.annotations.version>1.5.20</swagger1-5.annotations.version>
         <mcp-annotations.version>0.2.0-PRIVATE</mcp-annotations.version>
-        <mcp-sdk.version>0.11.0-SNAPSHOT</mcp-sdk.version>
+        <mcp-sdk.version>0.11.0</mcp-sdk.version>
         <jakarta.validation-api.version>3.1.0</jakarta.validation-api.version>
         <javax.validation-api.version>2.0.1.Final</javax.validation-api.version>
     </properties>
