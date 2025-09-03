@@ -1,5 +1,7 @@
 # Server2MCP
 
+特别特别特别感谢你们的star，这是我非常用心写的一个项目，虽然这由我个人发起，但我相信这个项目的架构及实用性都是极高的，目前对标的是2025-6-18版本，等到新版本出现，会统一更新掉这些功能
+
 [English](README.md)
 
 [文档链接](https://theeterna.github.io/server2mcp-docs/)

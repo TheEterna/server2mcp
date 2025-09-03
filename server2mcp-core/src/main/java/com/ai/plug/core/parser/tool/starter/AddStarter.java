@@ -29,7 +29,7 @@ public class AddStarter extends AbstractStarter {
         // 没解析的话，就执行默认操作
         if (!StringUtils.hasText(result.toString())) {
             log.warn("Please note that the parsing module you specified resulted in the {} tool not parsing the tool parameters", toolClass.getName() + "-" + method.getName());
-            AbstractDesParser.doDefaultParse(method, toolClass);
+            return AbstractDesParser.doDefaultParse(method, toolClass);
         }
         return result.toString();
     }
