@@ -16,6 +16,7 @@ import com.ai.plug.core.utils.CustomToolUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import io.modelcontextprotocol.spec.McpSchema;
 import io.modelcontextprotocol.util.Assert;
+import lombok.extern.slf4j.*;
 import reactor.util.annotation.Nullable;
 
 import java.lang.reflect.Method;
@@ -31,6 +32,7 @@ import java.util.Map;
  * @author han
  * @time 2025/6/25 11:39
  */
+@Slf4j
 public abstract class AbstractMcpToolMethodCallback {
     protected final Method method;
 
@@ -222,7 +224,12 @@ public abstract class AbstractMcpToolMethodCallback {
         }
 
         // Root Injection Point
-        CustomToolUtil.mcpInjection(exchange, this.rootContext);
+//        try {
+//            CustomToolUtil.mcpInjection(exchange, this.rootContext);
+//        } catch (Exception e) {
+//            log.error("Error injecting roots into exchange", e);
+//        }
+
         return args;
     }
 

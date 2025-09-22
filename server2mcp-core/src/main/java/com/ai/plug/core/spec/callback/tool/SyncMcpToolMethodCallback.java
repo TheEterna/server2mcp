@@ -58,7 +58,7 @@ public class SyncMcpToolMethodCallback extends AbstractMcpToolMethodCallback
             // Invoke the method
             Object result = this.callMethod(args);
 
-            logger.debug("Successful execution of tool: {}", this.name);
+            logger.info("Successful execution of tool: {}", this.name);
 
             if (result instanceof Mono<?>) {
                 // If the result is already a Mono, map it to a GetPromptResult

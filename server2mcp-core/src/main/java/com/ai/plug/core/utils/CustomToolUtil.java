@@ -37,7 +37,7 @@ public class CustomToolUtil {
 
     }
 
-    public static Object mcpInjection(Object exchange, IRootContext rootContext) {
+    public static Object mcpInjection(Object exchange, IRootContext rootContext) throws Exception{
 
         // 避免重复注入 roots
         // Avoid duplicate injection of roots

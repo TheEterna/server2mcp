@@ -5,7 +5,6 @@ import com.ai.plug.core.parser.tool.des.AbstractDesParser;
 import com.ai.plug.core.parser.tool.param.AbstractParamParser;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.mcp.server.autoconfigure.McpServerProperties;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Condition;
 import org.springframework.context.annotation.ConditionContext;
 import org.springframework.core.env.Environment;

@@ -1,6 +1,10 @@
 # Server2MCP
 
 A huge, huge, huge thank you for your stars! This is a project I put an enormous amount of effort into. Though it’s initiated by me personally, I firmly believe the project boasts an excellent architecture and great practical value. Currently, it aligns with the June 18, 2025 version; once a new version is released, all these features will be updated uniformly.
+# 👀Unfinished points
+
+firstly, I should say a sorry, cuz i forget that the latest release version of server2mcp is based on Spring AI SNAPSHOT version  and the mcp-java-sdk SNAPSHOT version
+So now you cannot directly apply this project, I promise to update it before October 10th
 
 [简体中文](README_zh.md)
 
@@ -25,9 +29,6 @@ A huge, huge, huge thank you for your stars! This is a project I put an enormous
 - McpTool completely isolates Springai's Tool environment, implementing a tool system unique to Mcp. The method is automatically injected into Exchange, making it easy to complete MCP client interaction
 - The configuration class mineType for springai is currently not supported and is integrated into the annotation properties of McpTool
 
-# 👀Unfinished points
-
-  There are still many parsing extension points of Springai that have not been integrated. For example, currently only Javadoc version annotations have been completed, but the parsing architecture uses responsibility chains and templates, which are extremely easy to extend. In the future, various mainstream methods will be integrated to describe annotation parsing
 
 # 🎯Quick start
 
