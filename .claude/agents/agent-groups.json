@@ -1,0 +1,99 @@
+{
+  "$schema": "Agent 分组系统 — 管理 .claude/agents/ 下的 agent 定义文件 · 继承自 ../real-agent · 董事长 2026-06-24 批准方案B（裁剪版·纯 Java 库适配）",
+  "version": "1.0",
+  "updatedAt": "2026-06-24",
+  "project": "api2mcp4j (server2mcp) — Spring Boot Starter，把 Controller 自动暴露为 MCP Tool/Resource/Prompt/Complete",
+  "groups": [
+    {
+      "id": "command",
+      "name": "指挥层",
+      "description": "架构设计与团队编排。出方案、评连锁反应、编排三方制衡、维护基建本身。",
+      "agents": [
+        {
+          "name": "architect-lead",
+          "file": "architect-lead.md",
+          "role": "总架构师",
+          "model": "opus",
+          "capabilities": ["架构方案", "连锁反应评估", "设计模式守护", "三方团队编排", "扩展点裁决"]
+        },
+        {
+          "name": "agent-developer",
+          "file": "agent-developer.md",
+          "role": "Agent 体系开发者",
+          "model": "sonnet",
+          "capabilities": ["agent 定义维护", "注册纪律", "双向一致验证", "语境守护", "基建健康"]
+        }
+      ]
+    },
+    {
+      "id": "execution",
+      "name": "执行层",
+      "description": "代码实现、测试编写、文档同步、Git 提交。三方制衡中的架构师（开发）方及交付配套。",
+      "agents": [
+        {
+          "name": "core-developer",
+          "file": "core-developer.md",
+          "role": "核心开发工程师",
+          "model": "sonnet",
+          "capabilities": ["Java17", "Spring Boot Starter", "MCP SDK", "解析器链", "上下文容器", "回调", "Provider"]
+        },
+        {
+          "name": "test-engineer",
+          "file": "test-engineer.md",
+          "role": "测试工程师",
+          "model": "sonnet",
+          "capabilities": ["JUnit5", "TDD 双 commit", "Schema 测试", "解析器链测试", "扫描器测试", "作用域测试"]
+        },
+        {
+          "name": "doc-writer",
+          "file": "doc-writer.md",
+          "role": "文档专家",
+          "model": "sonnet",
+          "capabilities": ["README", "specs 同步", "Javadoc", "文件头", "配置参考", "工作留痕"]
+        },
+        {
+          "name": "git-commit-assistant",
+          "file": "git-commit-assistant.md",
+          "role": "Git 提交官",
+          "model": "haiku",
+          "capabilities": ["原子提交", "Conventional Commits", "按模块分批", "契约提交顺序"]
+        }
+      ]
+    },
+    {
+      "id": "quality",
+      "name": "质检层",
+      "description": "独立审查、缺陷根因、代码定位。三方制衡中的御史台（测试+审查）方及质检配套。",
+      "agents": [
+        {
+          "name": "imperial-censor",
+          "file": "imperial-censor.md",
+          "role": "御史台",
+          "model": "opus",
+          "capabilities": ["独立测试 RED", "7 维 Code Review", "两阶段审查", "严重度分级", "反罗织", "直达董事长"]
+        },
+        {
+          "name": "code-reviewer",
+          "file": "code-reviewer.md",
+          "role": "代码审查官",
+          "model": "opus",
+          "capabilities": ["严重性分级", "设计模式一致性", "依赖方向", "注解契约", "阿里规范"]
+        },
+        {
+          "name": "debugger",
+          "file": "debugger.md",
+          "role": "调试专家",
+          "model": "opus",
+          "capabilities": ["根因分析", "编译错误", "回归隔离", "Maven 构建故障", "SNAPSHOT 依赖", "反射扫描异常"]
+        },
+        {
+          "name": "code-searcher",
+          "file": "code-searcher.md",
+          "role": "代码搜索员",
+          "model": "haiku",
+          "capabilities": ["符号定位", "search-tool-parity", "结构化搜索优先", "扩展点定位", "用法穷尽"]
+        }
+      ]
+    }
+  ]
+}

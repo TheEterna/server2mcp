@@ -1,0 +1,62 @@
+{
+  "$schema": "api2mcp4j 模块注册表（简化版）· 继承自 ../real-agent · 董事长 2026-06-24 批准方案B",
+  "version": "1.0",
+  "updatedAt": "2026-06-24",
+  "project": "api2mcp4j (server2mcp) — Spring Boot Starter，把 @RestController 自动暴露为 MCP Tool/Resource/Prompt/Complete",
+  "modules": {
+    "common": {
+      "name": "server2mcp-common",
+      "description": "常量、工具类（ConvertUtil / JacksonUtils / GenSchemaUtils）",
+      "status": "active"
+    },
+    "core": {
+      "name": "server2mcp-core",
+      "description": "核心引擎：注解、双层解析器链、扫描器、回调、Provider、上下文容器（测试在此模块）",
+      "status": "active"
+    },
+    "autoconfigure": {
+      "name": "server2mcp-autoconfigure",
+      "description": "Spring Boot 自动配置（Server2McpAutoConfiguration）",
+      "status": "active"
+    },
+    "starter-webmvc": {
+      "name": "server2mcp-starter-webmvc",
+      "description": "Spring MVC 应用的 Starter",
+      "status": "active"
+    },
+    "starter-webflux": {
+      "name": "server2mcp-starter-webflux",
+      "description": "WebFlux 应用的 Starter",
+      "status": "active"
+    },
+    "test": {
+      "name": "server2mcp-test",
+      "description": "演示应用（不在根 pom modules 中，需单独构建）",
+      "status": "active"
+    }
+  },
+  "global_rules": [
+    "docs/rules/global/search-tool-parity.md",
+    "docs/rules/global/destructive-deletion.md",
+    "docs/rules/global/session-continuity.md",
+    "docs/rules/global/refactor-ordering.md",
+    "docs/rules/global/agent-capability-declaration.md",
+    "docs/rules/global/work-log.md"
+  ],
+  "specs": [
+    "docs/specs/FILE_HEADER_SPEC.md",
+    "docs/specs/WORK_LOG_SPEC.md",
+    "docs/specs/REGISTRATION_DISCIPLINE_SPEC.md",
+    "docs/specs/TEST_SPEC.md"
+  ],
+  "authority": {
+    "self_decision": "~/.claude/CLAUDE.md 自决默认协议：非红线场景默认自决",
+    "three_party_check": "全局 Rule #6：> 30 分钟或 ≥ 3 文件任务组建三方制衡团队（架构师/御史台/CEO）",
+    "redlines": [
+      "删 endpoint/枚举值/Repository 方法/注解公开契约 等不可逆操作",
+      "跨系统协议变更（MCP 协议/Provider 桥接/SDK 公开 API）",
+      "全局规范修改（CLAUDE.md / docs/specs/ / docs/rules/global/）",
+      "git push / 发布 / 不可撤销外部行为"
+    ]
+  }
+}

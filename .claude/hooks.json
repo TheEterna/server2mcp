@@ -1,0 +1,16 @@
+{
+  "$comment": "api2mcp4j hooks · 继承自 ../real-agent · 董事长 2026-06-24 批准方案B（裁剪为轻量版，仅保留 SessionStart）",
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/session-start.sh"
+          }
+        ]
+      }
+    ]
+  }
+}
