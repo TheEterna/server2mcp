@@ -1,7 +1,7 @@
 package com.ai.plug.core.utils;
 
 import com.ai.plug.core.annotation.McpArg;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import tools.jackson.databind.node.ObjectNode;
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.junit.jupiter.api.Test;
 

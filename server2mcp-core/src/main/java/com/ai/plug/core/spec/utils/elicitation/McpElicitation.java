@@ -1,7 +1,7 @@
 package com.ai.plug.core.spec.utils.elicitation;
 
 import com.ai.plug.core.utils.GenSchemaUtils;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import tools.jackson.databind.node.ObjectNode;
 import io.modelcontextprotocol.spec.McpSchema;
 import reactor.core.publisher.Mono;
 
@@ -21,7 +21,9 @@ public interface McpElicitation {
     default McpSchema.ElicitRequest buildElicitationRequest(String message, Class<?> schema) {
         // 0. 完成组装 ElicitRequest 即可
         // 0 Complete the assembly of elicitrequest
-        McpSchema.ElicitRequest.Builder builder =  McpSchema.ElicitRequest.builder();
+        // MCP SDK 2.0（协议 2025-11-25）起 ElicitRequest 变为接口，按 form / url 两种模式分裂为
+        // ElicitFormRequest 与 ElicitUrlRequest；ElicitRequest.builder() 返回的即 form 模式 Builder。
+        McpSchema.ElicitFormRequest.Builder builder = McpSchema.ElicitRequest.builder();
         // 1.0 组装messgae部分
         // 1.0 assembling mesgae part
         builder.message(message);

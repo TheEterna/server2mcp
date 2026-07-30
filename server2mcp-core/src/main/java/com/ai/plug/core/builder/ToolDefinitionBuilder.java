@@ -14,12 +14,12 @@ import com.ai.plug.core.spec.utils.root.McpRootFactory;
 import com.ai.plug.core.spec.utils.sampling.McpSampling;
 import com.ai.plug.core.spec.utils.sampling.McpSamplingFactory;
 import com.ai.plug.core.utils.*;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.ArrayNode;
+import tools.jackson.databind.node.ObjectNode;
 import com.github.victools.jsonschema.generator.SchemaVersion;
 import io.modelcontextprotocol.json.*;
-import io.modelcontextprotocol.json.jackson.*;
+import io.modelcontextprotocol.json.jackson3.*;
 import io.modelcontextprotocol.server.McpAsyncServerExchange;
 import io.modelcontextprotocol.server.McpSyncServerExchange;
 import io.modelcontextprotocol.spec.McpSchema.*;
@@ -29,7 +29,8 @@ import org.springframework.ai.model.*;
 import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.ai.tool.definition.DefaultToolDefinition;
 import org.springframework.ai.tool.definition.ToolDefinition;
-import org.springframework.ai.util.json.JsonParser;
+import com.ai.plug.common.utils.JsonParser;
+import tools.jackson.core.type.TypeReference;
 import org.springframework.ai.util.json.schema.JsonSchemaGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
@@ -228,12 +229,14 @@ public class ToolDefinitionBuilder {
 
     public void convertTypeValuesToUpperCase(ObjectNode node) {
         if (node.isObject()) {
-            node.fields().forEachRemaining((entry) -> {
+            // Jackson 3 迁移：fields() → properties()（返回 Set 而非 Iterator）
+            node.properties().forEach((entry) -> {
                 JsonNode value = entry.getValue();
                 if (value.isObject()) {
                     convertTypeValuesToUpperCase((ObjectNode)value);
                 } else if (value.isArray()) {
-                    value.elements().forEachRemaining((element) -> {
+                    // Jackson 3 迁移：elements() → values()
+                    value.values().forEach((element) -> {
                         if (element.isObject() || element.isArray()) {
                             convertTypeValuesToUpperCase((ObjectNode)element);
                         }
@@ -246,7 +249,7 @@ public class ToolDefinitionBuilder {
 
             });
         } else if (node.isArray()) {
-            node.elements().forEachRemaining((element) -> {
+            node.values().forEach((element) -> {
                 if (element.isObject() || element.isArray()) {
                     convertTypeValuesToUpperCase((ObjectNode)element);
                 }
@@ -257,9 +260,20 @@ public class ToolDefinitionBuilder {
     }
 
 
-    // question : why inputSchema and OutputSchema use two data structure
-    public JsonSchema buildToolInputSchema(String inputSchemaString) {
-        return ModelOptionsUtils.jsonToObject(inputSchemaString, JsonSchema.class);
+    /**
+     * 构建 Tool 的 inputSchema。
+     * <p>
+     * 原注释曾质疑「为何 inputSchema 与 outputSchema 使用两种数据结构」——MCP SDK 2.0
+     * 已把 {@code Tool.inputSchema} 由 {@code McpSchema.JsonSchema} 统一为
+     * {@code Map<String, Object>}（对应 2025-11-25 协议放宽 schema 为任意 JSON Schema
+     * 2020-12 关键字），两者数据结构自此一致。
+     * <p>
+     * 同时 Spring AI 2.0 移除了 {@code ModelOptionsUtils} 的 JSON 转换方法，故改用本项目
+     * {@link JsonParser}。
+     */
+    public Map<String, Object> buildToolInputSchema(String inputSchemaString) {
+        return JsonParser.fromJson(inputSchemaString, new TypeReference<Map<String, Object>>() {
+        });
     }
 
     public Map<String, Object> buildToolOutputSchema(Method method) {

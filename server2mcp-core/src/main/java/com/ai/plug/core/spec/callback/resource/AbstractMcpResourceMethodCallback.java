@@ -7,7 +7,7 @@ package com.ai.plug.core.spec.callback.resource;
 import io.modelcontextprotocol.spec.McpSchema;
 import io.modelcontextprotocol.spec.McpSchema.ReadResourceRequest;
 import io.modelcontextprotocol.util.Assert;
-import io.modelcontextprotocol.util.DeafaultMcpUriTemplateManagerFactory;
+import io.modelcontextprotocol.util.DefaultMcpUriTemplateManagerFactory;
 import io.modelcontextprotocol.util.McpUriTemplateManager;
 import io.modelcontextprotocol.util.McpUriTemplateManagerFactory;
 import reactor.core.publisher.Mono;
@@ -571,7 +571,7 @@ public abstract class AbstractMcpResourceMethodCallback {
 				throw new IllegalArgumentException("URI must not be null or empty");
 			}
 			if (this.uriTemplateManagerFactory == null) {
-				this.uriTemplateManagerFactory = new DeafaultMcpUriTemplateManagerFactory();
+				this.uriTemplateManagerFactory = new DefaultMcpUriTemplateManagerFactory();
 			}
 			if (this.mimeType == null) {
 				this.mimeType = "text/plain";

@@ -16,16 +16,21 @@
 
 package com.ai.plug.common.utils;
 
-import com.fasterxml.jackson.databind.Module;
-import org.springframework.beans.BeanUtils;
-import org.springframework.core.KotlinDetector;
-import org.springframework.util.ClassUtils;
+import tools.jackson.databind.JacksonModule;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Utility methods for Jackson.
+ * <p>
+ * 本类原为 Spring AI {@code org.springframework.ai.util.JacksonUtils} 的复制品。自 Spring AI
+ * 2.0（MCP SDK 2.0 / Jackson 3）起，官方实现已适配 Jackson 3 生态——Jackson 3 把
+ * {@code Jdk8Module}、{@code JavaTimeModule}、{@code ParameterNamesModule} 并入核心，原先按
+ * Jackson 2 类名反射加载的逻辑在 Jackson 3 下会全部落空并静默返回空列表（时间/JDK8 类型序列化退化）。
+ * 故此处收口为委托官方实现，既消除重复代码，也随官方跟进 Jackson 生态变化。
+ * <p>
+ * 公开 API 形状保持不变（类名、方法名、静态调用方式），仅元素类型随 Jackson 3 由
+ * {@code com.fasterxml.jackson.databind.Module} 变为 {@link JacksonModule}。
  *
  * @author Sebastien Deleuze
  */
@@ -33,58 +38,10 @@ public abstract class JacksonUtils {
 
 	/**
 	 * Instantiate well-known Jackson modules available in the classpath.
-	 * <p>
-	 * Supports the follow-modules: <code>Jdk8Module</code>, <code>JavaTimeModule</code>,
-	 * <code>ParameterNamesModule</code> and <code>KotlinModule</code>.
 	 * @return The list of instantiated modules.
 	 */
-	@SuppressWarnings("unchecked")
-	public static List<Module> instantiateAvailableModules() {
-		List<Module> modules = new ArrayList<>();
-		try {
-			Class<? extends Module> jdk8ModuleClass = (Class<? extends Module>) ClassUtils
-				.forName("com.fasterxml.jackson.datatype.jdk8.Jdk8Module", null);
-			Module jdk8Module = BeanUtils.instantiateClass(jdk8ModuleClass);
-			modules.add(jdk8Module);
-		}
-		catch (ClassNotFoundException ex) {
-			// jackson-datatype-jdk8 not available
-		}
-
-		try {
-			Class<? extends Module> javaTimeModuleClass = (Class<? extends Module>) ClassUtils
-				.forName("com.fasterxml.jackson.datatype.jsr310.JavaTimeModule", null);
-			Module javaTimeModule = BeanUtils.instantiateClass(javaTimeModuleClass);
-			modules.add(javaTimeModule);
-		}
-		catch (ClassNotFoundException ex) {
-			// jackson-datatype-jsr310 not available
-		}
-
-		try {
-			Class<? extends Module> parameterNamesModuleClass = (Class<? extends Module>) ClassUtils
-				.forName("com.fasterxml.jackson.module.paramnames.ParameterNamesModule", null);
-			Module parameterNamesModule = BeanUtils
-				.instantiateClass(parameterNamesModuleClass);
-			modules.add(parameterNamesModule);
-		}
-		catch (ClassNotFoundException ex) {
-			// jackson-module-parameter-names not available
-		}
-
-		// Kotlin present?
-		if (KotlinDetector.isKotlinPresent()) {
-			try {
-				Class<? extends Module> kotlinModuleClass = (Class<? extends Module>) ClassUtils
-					.forName("com.fasterxml.jackson.module.kotlin.KotlinModule", null);
-				Module kotlinModule = BeanUtils.instantiateClass(kotlinModuleClass);
-				modules.add(kotlinModule);
-			}
-			catch (ClassNotFoundException ex) {
-				// jackson-module-kotlin not available
-			}
-		}
-		return modules;
+	public static List<JacksonModule> instantiateAvailableModules() {
+		return org.springframework.ai.util.JacksonUtils.instantiateAvailableModules();
 	}
 
 }

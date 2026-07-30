@@ -4,7 +4,7 @@
 //
 //package com.ai.plug.core;
 //
-//import com.fasterxml.jackson.databind.ObjectMapper;
+//import tools.jackson.databind.ObjectMapper;
 //import io.modelcontextprotocol.server.AbstractMcpSyncServerTests;
 //import io.modelcontextprotocol.server.McpServer;
 //import io.modelcontextprotocol.server.TestUtil;

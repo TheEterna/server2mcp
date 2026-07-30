@@ -13,7 +13,7 @@ import com.ai.plug.core.spec.utils.root.McpRootFactory;
 import com.ai.plug.core.spec.utils.sampling.McpSampling;
 import com.ai.plug.core.spec.utils.sampling.McpSamplingFactory;
 import com.ai.plug.core.utils.CustomToolUtil;
-import com.fasterxml.jackson.core.JsonProcessingException;
+import tools.jackson.core.JacksonException;
 import io.modelcontextprotocol.spec.McpSchema;
 import io.modelcontextprotocol.util.Assert;
 import lombok.extern.slf4j.*;
@@ -189,7 +189,7 @@ public abstract class AbstractMcpToolMethodCallback {
      * @param arguments The arguments provided by the client
      * @return An array of arguments for the method invocation
      */
-    protected Object[] buildArgs(Method method, Object exchange, Map<String, Object> arguments) throws JsonProcessingException {
+    protected Object[] buildArgs(Method method, Object exchange, Map<String, Object> arguments) throws JacksonException {
         Parameter[] parameters = method.getParameters();
         Object[] args = new Object[parameters.length];
 

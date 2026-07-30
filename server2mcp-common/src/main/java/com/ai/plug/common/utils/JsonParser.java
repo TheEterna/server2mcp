@@ -1,20 +1,26 @@
 package com.ai.plug.common.utils;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.databind.json.JsonMapper;
 import io.modelcontextprotocol.util.Assert;
 import org.springframework.lang.Nullable;
 import org.springframework.util.ClassUtils;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.DeserializationFeature;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.SerializationFeature;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
 
 /**
  * Utilities to perform parsing operations between JSON and Java.
+ * <p>
+ * Jackson 3 迁移说明（2026-07-30）：Spring AI 2.0 / MCP SDK 2.0 要求 Jackson 3，包根由
+ * {@code com.fasterxml.jackson} 变为 {@code tools.jackson}；原 checked 异常
+ * {@code JsonProcessingException} 由 {@link JacksonException} 取代，且后者继承
+ * {@link RuntimeException}（unchecked）。方法签名保留 {@code throws} 声明以维持原有 API 形状，
+ * 但调用方不再被强制捕获。
  */
 public final class JsonParser {
 
@@ -45,7 +51,7 @@ public final class JsonParser {
 		try {
 			return OBJECT_MAPPER.readValue(json, type);
 		}
-		catch (JsonProcessingException ex) {
+		catch (JacksonException ex) {
 			throw new IllegalStateException("Conversion from JSON to %s failed".formatted(type.getName()), ex);
 		}
 	}
@@ -60,7 +66,7 @@ public final class JsonParser {
 		try {
 			return OBJECT_MAPPER.readValue(json, OBJECT_MAPPER.constructType(type));
 		}
-		catch (JsonProcessingException ex) {
+		catch (JacksonException ex) {
 			throw new IllegalStateException("Conversion from JSON to %s failed".formatted(type.getTypeName()), ex);
 		}
 	}
@@ -75,7 +81,7 @@ public final class JsonParser {
 		try {
 			return OBJECT_MAPPER.readValue(json, type);
 		}
-		catch (JsonProcessingException ex) {
+		catch (JacksonException ex) {
 			throw new IllegalStateException("Conversion from JSON to %s failed".formatted(type.getType().getTypeName()),
 					ex);
 		}
@@ -89,7 +95,7 @@ public final class JsonParser {
 			OBJECT_MAPPER.readTree(input);
 			return true;
 		}
-		catch (JsonProcessingException e) {
+		catch (JacksonException e) {
 			return false;
 		}
 	}
@@ -97,7 +103,7 @@ public final class JsonParser {
 	/**
 	 * Converts a Java object to a JSON string if it's not already a valid JSON string.
 	 */
-	public static String toJson(@Nullable Object object) throws JsonProcessingException {
+	public static String toJson(@Nullable Object object) throws JacksonException {
 		if (object == null) {
 			return "[DONE]";
 		}
@@ -113,7 +119,7 @@ public final class JsonParser {
 	 * MethodToolCallback.
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public static Object toTypedObject(Object value, Class<?> type) throws JsonProcessingException {
+	public static Object toTypedObject(Object value, Class<?> type) throws JacksonException {
 		Assert.notNull(value, "value cannot be null");
 		Assert.notNull(type, "type cannot be null");
 

@@ -10,7 +10,7 @@ import io.modelcontextprotocol.spec.McpSchema;
 import io.modelcontextprotocol.spec.McpSchema.CompleteReference;
 import io.modelcontextprotocol.spec.McpSchema.CompleteRequest;
 import io.modelcontextprotocol.util.Assert;
-import io.modelcontextprotocol.util.DeafaultMcpUriTemplateManagerFactory;
+import io.modelcontextprotocol.util.DefaultMcpUriTemplateManagerFactory;
 import io.modelcontextprotocol.util.McpUriTemplateManager;
 import io.modelcontextprotocol.util.McpUriTemplateManagerFactory;
 import reactor.core.publisher.Mono;
@@ -394,7 +394,7 @@ public abstract class AbstractMcpCompleteMethodCallback {
 				throw new IllegalArgumentException("Only one of prompt or uri can be provided");
 			}
 			if (this.uriTemplateManagerFactory == null) {
-				this.uriTemplateManagerFactory = new DeafaultMcpUriTemplateManagerFactory();
+				this.uriTemplateManagerFactory = new DefaultMcpUriTemplateManagerFactory();
 			}
 		}
 

@@ -73,7 +73,8 @@ public class McpToolProvider {
                                 Map<String, Object> outputSchema = this.toolDefinitionBuilder.buildToolOutputSchema(mcpToolMethod);
 
                                 ToolDefinition toolInfo = this.toolDefinitionBuilder.buildToolDefinition(mcpToolMethod);
-                                JsonSchema inputSchema = this.toolDefinitionBuilder.buildToolInputSchema(toolInfo.inputSchema());
+                                // MCP SDK 2.0：Tool.inputSchema 由 McpSchema.JsonSchema 统一为 Map<String, Object>
+                                Map<String, Object> inputSchema = this.toolDefinitionBuilder.buildToolInputSchema(toolInfo.inputSchema());
 
                                 // 机理: default title use value of name
 
@@ -99,7 +100,9 @@ public class McpToolProvider {
                                         .rootContext(this.rootContext)
                                         .build();
 
-                                return new McpServerFeatures.AsyncToolSpecification(mcpTool, null, methodCallback);
+                                // MCP SDK 2.0：AsyncToolSpecification 收敛为 (tool, callHandler) 两参数，
+                                // 原中间的 legacy call 参数已移除
+                                return new McpServerFeatures.AsyncToolSpecification(mcpTool, methodCallback);
                             })
                             .toList();
 
@@ -132,7 +135,8 @@ public class McpToolProvider {
                                 Map<String, Object> outputSchema = this.toolDefinitionBuilder.buildToolOutputSchema(mcpToolMethod);
 
                                 ToolDefinition toolInfo = this.toolDefinitionBuilder.buildToolDefinition(mcpToolMethod);
-                                JsonSchema inputSchema = this.toolDefinitionBuilder.buildToolInputSchema(toolInfo.inputSchema());
+                                // MCP SDK 2.0：Tool.inputSchema 由 McpSchema.JsonSchema 统一为 Map<String, Object>
+                                Map<String, Object> inputSchema = this.toolDefinitionBuilder.buildToolInputSchema(toolInfo.inputSchema());
 
 
                                 // 机理: default title use value of name
@@ -158,7 +162,8 @@ public class McpToolProvider {
                                         .build();
 
 
-                                return new McpServerFeatures.SyncToolSpecification(mcpTool, null, methodCallback);
+                                // MCP SDK 2.0：SyncToolSpecification 收敛为 (tool, callHandler) 两参数
+                                return new McpServerFeatures.SyncToolSpecification(mcpTool, methodCallback);
                             })
                             .toList();
 

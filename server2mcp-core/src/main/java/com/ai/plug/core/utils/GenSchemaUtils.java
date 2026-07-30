@@ -3,9 +3,9 @@ package com.ai.plug.core.utils;
 import com.ai.plug.core.annotation.McpArg;
 import com.fasterxml.classmate.ResolvedType;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.ArrayNode;
+import tools.jackson.databind.node.ObjectNode;
 import com.github.victools.jsonschema.generator.Module;
 import com.github.victools.jsonschema.generator.*;
 import com.github.victools.jsonschema.module.jackson.JacksonModule;
@@ -102,9 +102,8 @@ public class GenSchemaUtils {
     public static Map<String, Object> objectNodeToMap(ObjectNode objectNode) {
         Map<String, Object> resultMap = new HashMap<>();
         // 遍历 ObjectNode 的所有字段（键值对）
-        Iterator<Map.Entry<String, JsonNode>> fields = objectNode.fields();
-        while (fields.hasNext()) {
-            Map.Entry<String, JsonNode> entry = fields.next();
+        // Jackson 3 迁移：fields() 返回 Iterator 已改为 properties() 返回 Set
+        for (Map.Entry<String, JsonNode> entry : objectNode.properties()) {
             String key = entry.getKey();
             JsonNode valueNode = entry.getValue();
             // 递归转换字段值（处理嵌套对象、数组、基本类型等）

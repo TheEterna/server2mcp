@@ -5,7 +5,7 @@ import com.ai.plug.common.utils.ConvertAudioUtils;
 import com.ai.plug.common.utils.ConvertImageUtils;
 import com.ai.plug.common.utils.JsonParser;
 import com.ai.plug.core.utils.GenSchemaUtils.*;
-import com.fasterxml.jackson.core.JsonProcessingException;
+import tools.jackson.core.JacksonException;
 import io.modelcontextprotocol.spec.McpSchema;
 import io.modelcontextprotocol.spec.McpSchema.*;
 import org.slf4j.Logger;
@@ -74,16 +74,16 @@ public class DefaultMcpCallToolResultConverter implements McpCallToolResultConve
             mineType = defaultConvertToCallToolResult(result, returnType);
         }
         if (mineType == null) {
-            return new McpSchema.CallToolResult("Done", false);
+            return McpSchema.CallToolResult.builder().addTextContent("Done").isError(false).build();
         } else if (isJsonMimeType(mineType) || isTextMimeType(mineType)) {
             String json = null;
             try {
                 json = JsonParser.toJson(result);
-            } catch (JsonProcessingException e) {
-                return new McpSchema.CallToolResult("find a incorrect text mineType of a Annotation from " + callback.method.getName(), true);
+            } catch (JacksonException e) {
+                return McpSchema.CallToolResult.builder().addTextContent("find a incorrect text mineType of a Annotation from " + callback.method.getName()).isError(true).build();
             }
             // todo 感觉不太合理 因为文本不只有纯文本, 还有其他的文本类型, 比如markdown, html, xml, json等等
-            return new McpSchema.CallToolResult(json, false);
+            return McpSchema.CallToolResult.builder().addTextContent(json).isError(false).build();
         } else if (isImageMimeType(mineType)) {
             // convert 图片为base64
             try {
@@ -109,11 +109,11 @@ public class DefaultMcpCallToolResultConverter implements McpCallToolResultConve
                             .build();
                 } else {
                     //todo 该不该打破协议, 协议讲图片,音频的data部分都是base64
-                    return new McpSchema.CallToolResult("sorry, 目前mineType为image类型只支持 byte[], Image, InputStream, File, Path(会当作本地路径解析), Url(会当作本地路径解析), String(会当作本地路径解析) ", true);
+                    return McpSchema.CallToolResult.builder().addTextContent("sorry, 目前mineType为image类型只支持 byte[], Image, InputStream, File, Path(会当作本地路径解析), Url(会当作本地路径解析), String(会当作本地路径解析) ").isError(true).build();
                 }
 
             } catch (Exception e){
-                return new McpSchema.CallToolResult("Failed to convert tool result to a base64 image: " + e.getMessage(), true);
+                return McpSchema.CallToolResult.builder().addTextContent("Failed to convert tool result to a base64 image: " + e.getMessage()).isError(true).build();
             }
 
         } else if (isAudioMimeType(mineType)) {
@@ -121,24 +121,21 @@ public class DefaultMcpCallToolResultConverter implements McpCallToolResultConve
                 if (result instanceof byte[] || result instanceof InputStream || result instanceof File || result instanceof String
                     || result instanceof Path) {
                     String audioBase64 =  ConvertAudioUtils.audioToBase64(result);
-                    return new McpSchema.CallToolResult(
-                        List.of(new McpSchema.AudioContent(
+                    return McpSchema.CallToolResult.builder().content(List.of(new McpSchema.AudioContent(
                                 new McpSchema.Annotations(List.of(McpSchema.Role.ASSISTANT), null),
                                 audioBase64,
                                 mineType
-                        )),
-                        false
-                    );
+                        ))).isError(false).build();
                     
                 } else {
                     //todo 该不该打破协议, 协议讲图片,音频的data部分都是base64
-                    return new McpSchema.CallToolResult("sorry, 目前mineType为audio类型只支持 byte[], InputStream, File, Path(会当作本地路径解析), Url(会当作本地路径解析), String(会当作本地路径解析) ", true);
+                    return McpSchema.CallToolResult.builder().addTextContent("sorry, 目前mineType为audio类型只支持 byte[], InputStream, File, Path(会当作本地路径解析), Url(会当作本地路径解析), String(会当作本地路径解析) ").isError(true).build();
                 }
              } catch (Exception e) {
-                 return new McpSchema.CallToolResult("Failed to convert tool result to a base64 image: " + e.getMessage(), true);
+                 return McpSchema.CallToolResult.builder().addTextContent("Failed to convert tool result to a base64 image: " + e.getMessage()).isError(true).build();
              }
         } else {
-            return new McpSchema.CallToolResult("sorry, 目前不支持该mineType的返回类型, 要想返回该mineType, 请自行使用CallToolResult或ResourceLink或EmbeddedResource封装", false);
+            return McpSchema.CallToolResult.builder().addTextContent("sorry, 目前不支持该mineType的返回类型, 要想返回该mineType, 请自行使用CallToolResult或ResourceLink或EmbeddedResource封装").isError(false).build();
         }
 
 

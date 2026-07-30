@@ -9,7 +9,7 @@ import io.modelcontextprotocol.server.McpSyncServerExchange;
 import io.modelcontextprotocol.spec.McpSchema.CompleteRequest;
 import io.modelcontextprotocol.spec.McpSchema.CompleteResult;
 import io.modelcontextprotocol.spec.McpSchema.CompleteResult.CompleteCompletion;
-import io.modelcontextprotocol.util.DeafaultMcpUriTemplateManagerFactory;
+import io.modelcontextprotocol.util.DefaultMcpUriTemplateManagerFactory;
 import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
@@ -124,7 +124,7 @@ public final class SyncMcpCompleteMethodCallback extends AbstractMcpCompleteMeth
 		 * Constructor for Builder.
 		 */
 		public Builder() {
-			this.uriTemplateManagerFactory = new DeafaultMcpUriTemplateManagerFactory();
+			this.uriTemplateManagerFactory = new DefaultMcpUriTemplateManagerFactory();
 		}
 
 		/**
