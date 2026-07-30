@@ -5,45 +5,21 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.4.4</version>
+        <version>4.1.0</version>
     </parent>
 
     <artifactId>server2mcp-test</artifactId>
     <packaging>jar</packaging>
 
-    <repositories>
-        <repository>
-            <id>osgeo</id>
-            <name>OSGeo Release Repository</name>
-            <url>https://repo.osgeo.org/repository/release/</url>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-        </repository>
-    </repositories>
+    <!--
+      已移除 geotools（gt-main / gt-referencing / gt-epsg-hsql 28.3）及其 osgeo 仓库声明：
+      演示应用全部 Java 源码零引用（多源验证：grep import + 类名 均 0 命中），属死依赖；
+      且该仓库声明把 releases 设为 disabled，release 版 28.3 本就无法解析，本地 m2 仅剩
+      .lastUpdated 空壳——即此依赖从未成功下载过，是既有构建阻塞点而非本次升级引入。
+      移除日：2026-07-30
+    -->
 
     <dependencies>
-
-        <dependency>
-            <groupId>org.geotools</groupId>
-            <artifactId>gt-main</artifactId>
-            <version>28.3</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.geotools</groupId>
-            <artifactId>gt-referencing</artifactId>
-            <version>28.3</version>
-        </dependency>
-        <dependency>
-            <groupId>org.geotools</groupId>
-            <artifactId>gt-epsg-hsql</artifactId>
-            <version>28.3</version>
-        </dependency>
-
 
         <dependency>
             <groupId>com.baomidou</groupId>
