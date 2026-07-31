@@ -14,6 +14,7 @@ import com.ai.plug.core.spec.utils.sampling.McpSampling;
 import com.ai.plug.core.spec.utils.sampling.McpSamplingFactory;
 import com.ai.plug.core.spec.utils.progress.McpProgress;
 import com.ai.plug.core.spec.utils.progress.McpProgressFactory;
+import com.ai.plug.core.spec.pagination.McpPaging;
 import com.ai.plug.core.utils.CustomToolUtil;
 import tools.jackson.core.JacksonException;
 import io.modelcontextprotocol.spec.McpSchema;
@@ -222,6 +223,10 @@ public abstract class AbstractMcpToolMethodCallback {
                 args[i] = McpRootFactory.getRoot(exchange);
             } else if (isProgressType(paramType)) {
                 args[i] = McpProgressFactory.getProgress(exchange, request);
+            } else if (isPagingType(paramType)) {
+                args[i] = McpPaging.fromCursor(
+                    extractMetaString(request, "cursor"),
+                    extractMetaInt(request, "pageSize"));
             }
 
 
@@ -276,6 +281,29 @@ public abstract class AbstractMcpToolMethodCallback {
 
     protected boolean isProgressType(Class<?> paramType) {
         return McpProgress.class.isAssignableFrom(paramType);
+    }
+
+    protected boolean isPagingType(Class<?> paramType) {
+        return McpPaging.class.isAssignableFrom(paramType);
+    }
+
+    /** Defensive meta extraction — returns null if request/meta missing or value is wrong type. */
+    @org.jspecify.annotations.Nullable
+    private static String extractMetaString(@org.jspecify.annotations.Nullable McpSchema.CallToolRequest request, String key) {
+        if (request == null || request.meta() == null) return null;
+        Object v = request.meta().get(key);
+        return v instanceof String s ? s : null;
+    }
+
+    @org.jspecify.annotations.Nullable
+    private static Integer extractMetaInt(@org.jspecify.annotations.Nullable McpSchema.CallToolRequest request, String key) {
+        if (request == null || request.meta() == null) return null;
+        Object v = request.meta().get(key);
+        if (v instanceof Number n) return n.intValue();
+        if (v instanceof String s) {
+            try { return Integer.parseInt(s); } catch (NumberFormatException ignored) { return null; }
+        }
+        return null;
     }
 
     /**
