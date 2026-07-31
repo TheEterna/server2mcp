@@ -67,6 +67,14 @@ public @interface McpTool {
     boolean returnDirect() default false;
 
     /**
+     * If true, the tool's tool list is dynamic — clients should be informed of
+     * additions/removals via notifications/tools/list_changed. Default
+     * {@code true} so SDK listChanged notifications work out-of-the-box without
+     * per-tool configuration. Set to {@code false} for static tool sets.
+     */
+    boolean listChanged() default true;
+
+    /**
      * The converter to use for converting the tool's output to a CallToolResult.
      */
     Class<? extends McpCallToolResultConverter> converter() default DefaultMcpCallToolResultConverter.class;

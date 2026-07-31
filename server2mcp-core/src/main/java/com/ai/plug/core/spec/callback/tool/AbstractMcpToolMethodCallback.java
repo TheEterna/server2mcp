@@ -288,15 +288,15 @@ public abstract class AbstractMcpToolMethodCallback {
     }
 
     /** Defensive meta extraction — returns null if request/meta missing or value is wrong type. */
-    @org.jspecify.annotations.Nullable
-    private static String extractMetaString(@org.jspecify.annotations.Nullable McpSchema.CallToolRequest request, String key) {
+    @Nullable
+    private static String extractMetaString(@Nullable McpSchema.CallToolRequest request, String key) {
         if (request == null || request.meta() == null) return null;
         Object v = request.meta().get(key);
         return v instanceof String s ? s : null;
     }
 
-    @org.jspecify.annotations.Nullable
-    private static Integer extractMetaInt(@org.jspecify.annotations.Nullable McpSchema.CallToolRequest request, String key) {
+    @Nullable
+    private static Integer extractMetaInt(@Nullable McpSchema.CallToolRequest request, String key) {
         if (request == null || request.meta() == null) return null;
         Object v = request.meta().get(key);
         if (v instanceof Number n) return n.intValue();

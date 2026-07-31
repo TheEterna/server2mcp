@@ -236,10 +236,24 @@ public class McpToolProvider {
         boolean idempotentHint = toolAnnotation.idempotentHint();
         boolean openWorldHint = toolAnnotation.openWorldHint();
         boolean returnDirect = toolAnnotation.returnDirect();
+        // listChanged is now part of McpSchema.ToolAnnotations for sync server
+        // — we surface the new @McpTool.listChanged() flag. (SDK 2.0 doesn't
+        // include this field on the record; the value flows into customizer
+        // and McpToolChangeNotifier for change-notification policy.)
 
         McpSchema.ToolAnnotations toolAnnotations = new McpSchema.ToolAnnotations(title, readOnlyHint, destructiveHint, idempotentHint, openWorldHint, returnDirect);
 
         return toolAnnotations;
+    }
+
+    /**
+     * Whether the tool's tool list is dynamic — extracted from {@link McpTool#listChanged()}.
+     * Exposed for {@link com.ai.plug.core.spec.change.McpToolChangeNotifier}
+     * to decide whether to fire change notifications for this tool. Default
+     * {@code true}.
+     */
+    protected boolean isListChanged(McpTool toolAnnotation) {
+        return toolAnnotation == null || toolAnnotation.listChanged();
     }
 
     /**
