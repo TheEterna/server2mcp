@@ -15,6 +15,7 @@ import com.ai.plug.core.spec.utils.sampling.McpSamplingFactory;
 import com.ai.plug.core.spec.utils.progress.McpProgress;
 import com.ai.plug.core.spec.utils.progress.McpProgressFactory;
 import com.ai.plug.core.spec.pagination.McpPaging;
+import com.ai.plug.core.spec.request.McpRequestId;
 import com.ai.plug.core.utils.CustomToolUtil;
 import tools.jackson.core.JacksonException;
 import io.modelcontextprotocol.spec.McpSchema;
@@ -230,6 +231,8 @@ public abstract class AbstractMcpToolMethodCallback {
                 args[i] = paging;
                 // Track for the converter's auto-slicing logic
                 capturedPaging = paging;
+            } else if (isRequestIdType(paramType)) {
+                args[i] = McpRequestId.of(extractMetaString(request, "requestId"));
             }
 
 
@@ -288,6 +291,10 @@ public abstract class AbstractMcpToolMethodCallback {
 
     protected boolean isPagingType(Class<?> paramType) {
         return McpPaging.class.isAssignableFrom(paramType);
+    }
+
+    protected boolean isRequestIdType(Class<?> paramType) {
+        return McpRequestId.class.isAssignableFrom(paramType);
     }
 
     /**
