@@ -77,12 +77,14 @@ MCP 协议 2026-07-28（协议诞生以来最大改版）发布于 2026-07-28。
 ### 3.2 物理不可达（等 Java SDK 跟进 2026-07-28 才能动）
 
 - ✅ ~~ToolPagination~~ — 实装为 `com.ai.plug.core.spec.pagination.PaginatedLists`（commit 81dbfe2）：parseOffset/formatOffset/clampPageSize/slice + 三个 List*Result 工厂。SDK 2.0 的 ListToolsResult/ListResourcesResult/ListPromptsResult 均接受 nextCursor 字段，框架级工具让用户在自定义 MCP server 中调用。本项目自身 Provider 不默认切片（属路由策略决定，应由调用方决定）
-- ❌ MRTR
-- ❌ subscriptions/listen 变更通知
+- ✅ ~~subscriptions/listen 变更通知~~ — 实装为 `com.ai.plug.core.spec.capabilities.{ChangeNotifications, ServerCapabilitiesFactory}`（commit 4f03ea9）。SDK 2.0 已暴露 `McpSyncServer.notifyToolsListChanged/ResourcesListChanged/PromptsListChanged/ResourcesUpdated`（async Mono 同形），但 `McpServer.SyncSpecification.capabilities(...)` 接受外部 `ServerCapabilities`。提供工具类供用户接入。**注**：Spring AI 2.0 starter 已自带 `McpServerChangeNotificationProperties`（含 `tool/resource/prompt ChangeNotification` 三布尔）——用户在自己 starter 配置 `spring.ai.mcp.server.change-notification.*` 即可 0 工具代码启用，本项目工具类只是备用入口
+- ✅ ~~server identity 图标~~ — 实装为 `com.ai.plug.core.spec.implementation.ServerInfoFactory`（commit c31d5b1）：parseIcon 与完整 createFull(name, version, title, description, icons, websiteUrl)。SDK 2.0 `McpSchema.Implementation` 现支持 icons/websiteUrl（协议 2025-11-25）
+- ✅ ~~_meta 工具 + OTel trace 透传~~ — 实装为 `com.ai.plug.core.spec.meta.MetaUtils`（commit 646b230）：forwardTraceContext 透传 traceparent/tracestate/baggage（SEP-414），merge + 字符串常量集中
+- ❌ MRTR（resultType / InputRequiredResult）
 - ❌ Tasks 扩展
 - ❌ server/discover
-- ❌ resultType 必填字段
-- ❌ MCP Apps 扩展
+- ❌ CacheableResult（ttlMs + cacheScope）
+- ❌ 标准请求头 Mcp-Method / Mcp-Name / x-mcp-header
 
 ### 3.3 软影响（当前无须动，但需监控）
 
