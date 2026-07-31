@@ -55,6 +55,10 @@ public class SyncMcpToolMethodCallback extends AbstractMcpToolMethodCallback
     @Override
     public McpSchema.CallToolResult apply(McpSyncServerExchange exchange, McpSchema.CallToolRequest callToolRequest) {
 
+        // Capture request for downstream converters (OpenTelemetry trace
+        // forwarding, paging auto-slice, etc.).
+        this.captureRequest(callToolRequest);
+
         // Idempotent dedup: if @McpTool.idempotentHint=true and a cache is
         // configured, return the cached CallToolResult for repeated calls within
         // the cache's TTL window.

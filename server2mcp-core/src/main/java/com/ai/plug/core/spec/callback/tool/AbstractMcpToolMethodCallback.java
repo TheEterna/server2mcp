@@ -334,6 +334,30 @@ public abstract class AbstractMcpToolMethodCallback {
         this.capturedPaging = paging;
     }
 
+    /**
+     * The most recent {@link McpSchema.CallToolRequest} bound to this
+     * invocation. Used by {@link DefaultMcpCallToolResultConverter} to
+     * forward OpenTelemetry trace context (SEP-414) from request _meta to
+     * response _meta.
+     */
+    @Nullable
+    public McpSchema.CallToolRequest currentRequest() {
+        return this.currentRequest;
+    }
+
+    @Nullable
+    private McpSchema.CallToolRequest currentRequest;
+
+    /**
+     * Stash the request for the current invocation so the converter can read
+     * its {@code _meta}. Called from
+     * {@link SyncMcpToolMethodCallback#apply} /
+     * {@link AsyncMcpToolMethodCallback#apply}.
+     */
+    public void captureRequest(@Nullable McpSchema.CallToolRequest request) {
+        this.currentRequest = request;
+    }
+
     /** Defensive meta extraction — returns null if request/meta missing or value is wrong type. */
     @Nullable
     private static String extractMetaString(@Nullable McpSchema.CallToolRequest request, String key) {

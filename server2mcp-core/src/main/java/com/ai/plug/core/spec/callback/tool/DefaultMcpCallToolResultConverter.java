@@ -5,6 +5,7 @@ import com.ai.plug.common.utils.ConvertAudioUtils;
 import com.ai.plug.common.utils.ConvertImageUtils;
 import com.ai.plug.common.utils.JsonParser;
 import com.ai.plug.core.annotation.McpTool;
+import com.ai.plug.core.spec.meta.MetaUtils;
 import com.ai.plug.core.utils.GenSchemaUtils.*;
 import tools.jackson.core.JacksonException;
 import io.modelcontextprotocol.spec.McpSchema;
@@ -18,7 +19,9 @@ import java.io.File;
 import java.io.InputStream;
 import java.lang.reflect.Type;
 import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static com.ai.plug.common.constants.MineTypeConstants.*;
 
@@ -53,6 +56,23 @@ public class DefaultMcpCallToolResultConverter implements McpCallToolResultConve
         // CallToolResult so these are exposed via meta for downstream
         // McpResultWriter consumption.
         java.util.Map<String, Object> toolHints = collectToolHints(callback);
+
+        // Forward OpenTelemetry trace context (SEP-414) from the request's
+        // _meta to the response's _meta so downstream clients / observability
+        // tooling can stitch spans across the call boundary. Traceparent /
+        // tracestate / baggage are extracted by MetaUtils.
+        if (callback != null) {
+            McpSchema.CallToolRequest req = callback.currentRequest();
+            if (req != null) {
+                Map<String, Object> trace = MetaUtils.forwardTraceContext(req.meta());
+                if (!trace.isEmpty()) {
+                    // Defensive merge — preserve any existing toolHints entries
+                    java.util.Map<String, Object> merged = new HashMap<>(toolHints);
+                    merged.putAll(trace);
+                    toolHints = merged;
+                }
+            }
+        }
         // 返回类就是最后结果
         // Auto-slice returned List<?> when a McpPaging was injected
         if (callback != null) {
