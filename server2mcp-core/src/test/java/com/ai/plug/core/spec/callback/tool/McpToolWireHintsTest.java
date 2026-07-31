@@ -93,6 +93,30 @@ class McpToolWireHintsTest {
         assertThat(meta).doesNotContainKey("resultType");
     }
 
+    @Test
+    void cacheScope_defaultAnnotationOmitsKey() throws Exception {
+        // Default @McpTool has cacheScope="" (empty string). Converter
+        // should treat blank as "omit" — only emit cacheScope when explicitly set.
+        Method m = Holder.class.getDeclaredMethod("defaults");
+        TestCallback cb = new TestCallback(m, m.getAnnotation(McpTool.class));
+        McpSchema.CallToolResult result = converter.convertToCallToolResult(
+            List.of(new McpSchema.TextContent("x")), List.class, cb);
+        Map<String, Object> meta = result.meta();
+        // Default cacheScope is blank — omitted
+        assertThat(meta).doesNotContainKey("cacheScope");
+    }
+
+    @Test
+    void cacheScope_privateOmittedMeansDefaultFallback() throws Exception {
+        // Explicit cacheScope="private" → emitted as "private"
+        Method m = Holder.class.getDeclaredMethod("withPrivateCache");
+        TestCallback cb = new TestCallback(m, m.getAnnotation(McpTool.class));
+        McpSchema.CallToolResult result = converter.convertToCallToolResult(
+            List.of(new McpSchema.TextContent("x")), List.class, cb);
+        Map<String, Object> meta = result.meta();
+        assertThat(meta).containsEntry("cacheScope", "private");
+    }
+
     // ---- minimal callback subclass that exposes the protected field ----
 
     /**
@@ -120,5 +144,8 @@ class McpToolWireHintsTest {
 
         @SuppressWarnings("unused")
         public String noAnnotation() { return "hi"; }
+
+        @McpTool(name = "x", ttlMs = 60_000, cacheScope = "private")
+        public String withPrivateCache() { return "hi"; }
     }
 }
