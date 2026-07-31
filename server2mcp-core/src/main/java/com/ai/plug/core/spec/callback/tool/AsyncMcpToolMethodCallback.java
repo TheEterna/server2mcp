@@ -28,7 +28,8 @@ public class AsyncMcpToolMethodCallback extends AbstractMcpToolMethodCallback
 
     private AsyncMcpToolMethodCallback(Builder builder) {
         super(builder.method, builder.bean, builder.name, builder.description, builder.inputSchema,
-                builder.outputSchema, builder.mineType, builder.annotations, builder.converter, builder.rootContext);
+                builder.outputSchema, builder.mineType, builder.annotations, builder.toolAnnotation,
+                builder.converter, builder.rootContext);
         this.validateMethod(this.method);
     }
 

@@ -4,6 +4,7 @@ import com.ai.plug.common.constants.MineTypeConstants;
 import com.ai.plug.common.utils.ConvertAudioUtils;
 import com.ai.plug.common.utils.ConvertImageUtils;
 import com.ai.plug.common.utils.JsonParser;
+import com.ai.plug.core.annotation.McpTool;
 import com.ai.plug.core.utils.GenSchemaUtils.*;
 import tools.jackson.core.JacksonException;
 import io.modelcontextprotocol.spec.McpSchema;
@@ -46,6 +47,12 @@ public class DefaultMcpCallToolResultConverter implements McpCallToolResultConve
             // If the result is already a Flux, map it to a GetPromptResult
             result = ((Flux<?>) result).collectList().block();
         }
+        // Collect wire-layer protocol 2026-07-28 hints from @McpTool annotation
+        // (resultType / ttlMs / cacheScope). Merged into every CallToolResult
+        // meta produced below. SDK 2.0 lacks the resultType field on
+        // CallToolResult so these are exposed via meta for downstream
+        // McpResultWriter consumption.
+        java.util.Map<String, Object> toolHints = collectToolHints(callback);
         // 返回类就是最后结果
         if (result instanceof McpSchema.CallToolResult callToolResult) {
             return callToolResult;
@@ -55,7 +62,7 @@ public class DefaultMcpCallToolResultConverter implements McpCallToolResultConve
                     .addContent(content)
                     .isError(false)
                     .structuredContent(result)
-                    .meta(null)
+                    .meta(toolHints)
                     .build();
         }
         else if (result instanceof List<?> && !((List<?>) result).isEmpty() && ((List<?>) result).get(0) instanceof McpSchema.Content) {
@@ -64,7 +71,7 @@ public class DefaultMcpCallToolResultConverter implements McpCallToolResultConve
                     .content((List<McpSchema.Content>) result)
                     .isError(false)
                     .structuredContent(result)
-                    .meta(null)
+                    .meta(toolHints)
                     .build();
         }
         // MRTR（协议 2026-07-28 SEP-2322）：工具返回 InputRequiredResult
@@ -72,7 +79,8 @@ public class DefaultMcpCallToolResultConverter implements McpCallToolResultConve
         // 不是错误）。注意 SDK 2.0 没有 resultType 字段，resultType 信息
         // 放在 meta 里供下游 McpResultWriter 序列化时读取。
         else if (result instanceof com.ai.plug.core.spec.mrtr.MrtrTypes.InputRequiredResult inputRequired) {
-            java.util.Map<String, Object> meta = new java.util.HashMap<>();
+            java.util.Map<String, Object> meta = new java.util.HashMap<>(toolHints);
+            // MRTR overrides any callback-level resultType hint
             meta.put("resultType", "input_required");
             meta.put("inputRequests", inputRequired.inputRequests());
             if (inputRequired.requestState() != null) {
@@ -88,7 +96,7 @@ public class DefaultMcpCallToolResultConverter implements McpCallToolResultConve
         // Tasks 扩展（协议 2026-07-28 SEP-2663）：工具返回 TaskHandle
         // 时自动包装为 CallToolResult，isError=false。
         else if (result instanceof com.ai.plug.core.spec.tasks.TaskTypes.TaskHandle taskHandle) {
-            java.util.Map<String, Object> meta = new java.util.HashMap<>();
+            java.util.Map<String, Object> meta = new java.util.HashMap<>(toolHints);
             meta.put("taskHandle", taskHandle.taskId());
             return McpSchema.CallToolResult.builder()
                     .addTextContent("task accepted: " + taskHandle.taskId())
@@ -124,7 +132,7 @@ public class DefaultMcpCallToolResultConverter implements McpCallToolResultConve
                             .addContent(new McpSchema.ImageContent(new McpSchema.Annotations(List.of(McpSchema.Role.ASSISTANT), null), imgBase64, mineType))
                             .isError(false)
                             .structuredContent(result)
-                            .meta(null)
+                            .meta(toolHints)
                             .build();
                 }
                 else if (result instanceof byte[] || result instanceof InputStream || result instanceof File || result instanceof String
@@ -135,7 +143,7 @@ public class DefaultMcpCallToolResultConverter implements McpCallToolResultConve
                             .addContent(new McpSchema.ImageContent(new McpSchema.Annotations(List.of(McpSchema.Role.ASSISTANT), null), base64, mineType))
                             .isError(false)
                             .structuredContent(result)
-                            .meta(null)
+                            .meta(toolHints)
                             .build();
                 } else {
                     //todo 该不该打破协议, 协议讲图片,音频的data部分都是base64
@@ -155,7 +163,7 @@ public class DefaultMcpCallToolResultConverter implements McpCallToolResultConve
                                 new McpSchema.Annotations(List.of(McpSchema.Role.ASSISTANT), null),
                                 audioBase64,
                                 mineType
-                        ))).isError(false).build();
+                        ))).isError(false).meta(toolHints).build();
                     
                 } else {
                     //todo 该不该打破协议, 协议讲图片,音频的data部分都是base64
@@ -194,6 +202,53 @@ public class DefaultMcpCallToolResultConverter implements McpCallToolResultConve
         return JSON_MIME_TYPE;
 
 
+    }
+
+
+    /**
+     * Collect wire-layer protocol 2026-07-28 hints from the {@link McpTool}
+     * annotation that the callback carries. Returns a (possibly empty) map
+     * suitable for {@code CallToolResult.Builder.meta(...)}.
+     * <p>
+     * Key set (each is independent — only present when set on the annotation):
+     * <ul>
+     *   <li>{@code resultType} — from {@link McpTool#resultType()}; default {@code "complete"}</li>
+     *   <li>{@code ttlMs} — from {@link McpTool#ttlMs()}; omitted when &lt;= 0</li>
+     *   <li>{@code cacheScope} — from {@link McpTool#cacheScope()}; omitted when blank</li>
+     *   <li>{@code cacheWrapperKey} — from {@link McpTool#cacheWrapperKey()}; default {@code "_cacheable"}</li>
+     * </ul>
+     * Returns an empty map when callback is null or no hint fields are set,
+     * which {@link McpSchema.CallToolResult.Builder#meta(Map)} accepts.
+     */
+    private java.util.Map<String, Object> collectToolHints(AbstractMcpToolMethodCallback callback) {
+        java.util.Map<String, Object> hints = new java.util.HashMap<>();
+        if (callback == null) {
+            return hints;
+        }
+        McpTool ann = callback.toolAnnotation;
+        if (ann == null) {
+            return hints;
+        }
+        // resultType: default to "complete" when annotation is absent or empty
+        String resultType = ann.resultType();
+        if (resultType != null && !resultType.isBlank()) {
+            hints.put("resultType", resultType);
+        }
+        // ttlMs: only emit when > 0 (0 means "don't cache")
+        if (ann.ttlMs() > 0) {
+            hints.put("ttlMs", ann.ttlMs());
+        }
+        // cacheScope: only emit when explicitly set
+        if (ann.cacheScope() != null && !ann.cacheScope().isBlank()) {
+            hints.put("cacheScope", ann.cacheScope());
+        }
+        // cacheWrapperKey: always emit (default "_cacheable") — gives
+        // McpResultWriter a deterministic key to look up.
+        String wrapperKey = ann.cacheWrapperKey();
+        if (wrapperKey != null && !wrapperKey.isBlank()) {
+            hints.put("cacheWrapperKey", wrapperKey);
+        }
+        return hints;
     }
 
 

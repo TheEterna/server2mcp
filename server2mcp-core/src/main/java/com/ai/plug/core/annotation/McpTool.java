@@ -81,4 +81,31 @@ public @interface McpTool {
      * MCP 协议 2025-11-25 新增：Tool 级 _meta 字段，留空则不发送。
      */
     String metaJson() default "";
+
+    /**
+     * MCP 协议 2026-07-28 SEP-2322：工具响应 resultType。SDK 2.0 无字段化
+     * （javap 实证），本项目通过 McpResultWriter 在 wire 层落地。默认
+     * {@code "complete"} 表示普通结果；设为 {@code "input_required"} 表示
+     * 工具会通过 InputRequiredResult 触发 MRTR 重试。留空表示走默认
+     * 行为（即普通结果）。
+     */
+    String resultType() default "complete";
+
+    /**
+     * MCP 协议 2026-07-28 SEP-2549：缓存 ttlMs（毫秒）。负数或零表示不缓存。
+     * 默认 0（不缓存）——保守默认以免误缓存破坏 LLM 调用结果一致性。
+     */
+    long ttlMs() default 0;
+
+    /**
+     * MCP 协议 2026-07-28 SEP-2549：缓存范围。可选 {@code "public"} 或
+     * {@code "private"}（中间件可缓存 vs 私有端缓存）。留空则不发送。
+     */
+    String cacheScope() default "";
+
+    /**
+     * 自定义 wrapper key（默认 {@code "_cacheable"}）。仅当 ttlMs 或
+     * cacheScope 非默认时使用；某些集成期望不同 wrapper key 时可覆盖。
+     */
+    String cacheWrapperKey() default "_cacheable";
 }

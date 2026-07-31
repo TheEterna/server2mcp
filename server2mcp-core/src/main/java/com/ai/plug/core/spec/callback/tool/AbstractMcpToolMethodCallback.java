@@ -69,6 +69,13 @@ public abstract class AbstractMcpToolMethodCallback {
      * The annotations for the tool.
      */
     protected final McpSchema.ToolAnnotations annotations;
+    /**
+     * The original {@link McpTool} annotation on the method. Kept so the result
+     * converter can read resultType / ttlMs / cacheScope wire-layer hints
+     * (MCP protocol 2026-07-28). Null when the method is not annotated.
+     */
+    @Nullable
+    protected final McpTool toolAnnotation;
 
     /**
      *  The converter used to convert the tool method result to a CallToolResult.
@@ -91,6 +98,7 @@ public abstract class AbstractMcpToolMethodCallback {
             @Nullable String outputSchema,
             @Nullable String mineType,
             @Nullable McpSchema.ToolAnnotations annotations,
+            @Nullable McpTool toolAnnotation,
             com.ai.plug.core.spec.callback.tool.McpCallToolResultConverter converter,
             IRootContext rootContext
     ) {
@@ -104,6 +112,7 @@ public abstract class AbstractMcpToolMethodCallback {
         this.inputSchema = inputSchema;
         this.outputSchema = outputSchema;
         this.annotations = annotations;
+        this.toolAnnotation = toolAnnotation;
         this.mineType = mineType;
         this.converter = converter;
         this.rootContext = rootContext;
@@ -298,6 +307,7 @@ public abstract class AbstractMcpToolMethodCallback {
         protected String mineType;
         protected String outputSchema;
         protected McpSchema.ToolAnnotations annotations;
+        protected McpTool toolAnnotation;
         protected com.ai.plug.core.spec.callback.tool.McpCallToolResultConverter converter;
 
         protected IRootContext rootContext;
@@ -371,6 +381,7 @@ public abstract class AbstractMcpToolMethodCallback {
             }
             this.mineType = tool.mineType();
             this.name = tool.name();
+            this.toolAnnotation = tool;
             this.annotations = new McpSchema.ToolAnnotations(tool.title(),
                     tool.readOnlyHint(),
                     tool.destructiveHint(),
