@@ -111,7 +111,7 @@ class PageListTest {
 
     private static final class PageListCallback extends AbstractMcpToolMethodCallback {
         PageListCallback(Method method, McpTool annotation) {
-            super(method, new Object(), "name", null, "{}", null, null, null, annotation,
+            super(method, new Object(), "name", null, "{}", null, null, null, annotation, null,
                 null, null);
         }
         @Override

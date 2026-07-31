@@ -91,7 +91,7 @@ class McpResultWriterEndToEndTest {
 
     private static final class TestCallback extends AbstractMcpToolMethodCallback {
         TestCallback(Method method, McpTool annotation) {
-            super(method, new Object(), "name", null, "{}", null, null, null, annotation,
+            super(method, new Object(), "name", null, "{}", null, null, null, annotation, null,
                 null, null);
         }
         @Override

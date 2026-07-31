@@ -29,7 +29,7 @@ public class AsyncMcpToolMethodCallback extends AbstractMcpToolMethodCallback
     private AsyncMcpToolMethodCallback(Builder builder) {
         super(builder.method, builder.bean, builder.name, builder.description, builder.inputSchema,
                 builder.outputSchema, builder.mineType, builder.annotations, builder.toolAnnotation,
-                builder.converter, builder.rootContext);
+                builder.idempotentCache, builder.converter, builder.rootContext);
         this.validateMethod(this.method);
     }
 
@@ -141,8 +141,17 @@ public class AsyncMcpToolMethodCallback extends AbstractMcpToolMethodCallback
     public static class Builder extends AbstractBuilder<Builder, AsyncMcpToolMethodCallback> {
 
         /**
+         * Set the dedup cache — overrides the no-op default in AbstractBuilder.
+         */
+        @Override
+        public Builder idempotentCache(@Nullable com.ai.plug.core.spec.dedup.IdempotentCache cache) {
+            this.idempotentCache = cache;
+            return this;
+        }
+
+        /**
          * Build the callback.
-         * @return A new AsyncMcpResourceMethodCallback instance
+         * @return A new AsyncMcpToolMethodCallback instance
          */
         @Override
         public AsyncMcpToolMethodCallback build() {

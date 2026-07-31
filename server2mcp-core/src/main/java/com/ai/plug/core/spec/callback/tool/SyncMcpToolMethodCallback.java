@@ -27,7 +27,7 @@ public class SyncMcpToolMethodCallback extends AbstractMcpToolMethodCallback
     private SyncMcpToolMethodCallback(Builder builder) {
         super(builder.method, builder.bean, builder.name, builder.description, builder.inputSchema,
                 builder.outputSchema, builder.mineType, builder.annotations, builder.toolAnnotation,
-                builder.converter, builder.rootContext);
+                builder.idempotentCache, builder.converter, builder.rootContext);
         this.validateMethod(this.method);
     }
     /**
@@ -55,6 +55,19 @@ public class SyncMcpToolMethodCallback extends AbstractMcpToolMethodCallback
     @Override
     public McpSchema.CallToolResult apply(McpSyncServerExchange exchange, McpSchema.CallToolRequest callToolRequest) {
 
+        // Idempotent dedup: if @McpTool.idempotentHint=true and a cache is
+        // configured, return the cached CallToolResult for repeated calls within
+        // the cache's TTL window.
+        com.ai.plug.core.spec.dedup.IdempotentCache cache = this.idempotentCache;
+        boolean idempotent = this.toolAnnotation != null && this.toolAnnotation.idempotentHint();
+        String fp = null;
+        if (idempotent && cache != null) {
+            fp = cache.fingerprint(this.name, callToolRequest.arguments());
+            if (cache.contains(fp)) {
+                logger.debug("Idempotent cache hit for {} fp={}", this.name, fp);
+                return cache.get(fp, McpSchema.CallToolResult.class);
+            }
+        }
 
         try {
             // Build arguments for the method call
@@ -69,7 +82,14 @@ public class SyncMcpToolMethodCallback extends AbstractMcpToolMethodCallback
             Type returnType = this.method.getGenericReturnType();
 
             // Convert the result to a GetPromptResult
-            return this.converter.convertToCallToolResult(result, returnType, this);
+            McpSchema.CallToolResult converted = this.converter.convertToCallToolResult(result, returnType, this);
+
+            // Store in cache for future idempotent invocations
+            if (idempotent && cache != null && fp != null && !converted.isError()) {
+                cache.put(fp, converted);
+            }
+
+            return converted;
         }
         catch (Exception e) {
             logger.error("Error invoking tool method: {}", this.method.getName(), e);
@@ -116,8 +136,17 @@ public class SyncMcpToolMethodCallback extends AbstractMcpToolMethodCallback
     public static class Builder extends AbstractBuilder<Builder, SyncMcpToolMethodCallback> {
 
         /**
+         * Set the dedup cache — overrides the no-op default in AbstractBuilder.
+         */
+        @Override
+        public Builder idempotentCache(@Nullable com.ai.plug.core.spec.dedup.IdempotentCache cache) {
+            this.idempotentCache = cache;
+            return this;
+        }
+
+        /**
          * Build the callback.
-         * @return A new AsyncMcpResourceMethodCallback instance
+         * @return A new SyncMcpToolMethodCallback instance
          */
         @Override
         public SyncMcpToolMethodCallback build() {

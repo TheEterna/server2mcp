@@ -16,6 +16,8 @@ import com.ai.plug.core.spec.utils.progress.McpProgress;
 import com.ai.plug.core.spec.utils.progress.McpProgressFactory;
 import com.ai.plug.core.spec.pagination.McpPaging;
 import com.ai.plug.core.spec.request.McpRequestId;
+import com.ai.plug.core.spec.dedup.IdempotentCache;
+import io.modelcontextprotocol.spec.McpSchema;
 import com.ai.plug.core.utils.CustomToolUtil;
 import tools.jackson.core.JacksonException;
 import io.modelcontextprotocol.spec.McpSchema;
@@ -84,6 +86,16 @@ public abstract class AbstractMcpToolMethodCallback {
      */
     protected final com.ai.plug.core.spec.callback.tool.McpCallToolResultConverter converter;
 
+    /**
+     * Optional dedup cache — when set AND {@code @McpTool.idempotentHint=true},
+     * the callback returns the cached {@link McpSchema.CallToolResult} for
+     * repeated invocations within the cache's TTL window instead of re-running
+     * the underlying method. Null by default; assign at construction time
+     * via {@link AbstractBuilder#idempotentCache(IdempotentCache)}.
+     */
+    @Nullable
+    protected IdempotentCache idempotentCache;
+
     protected IRootContext rootContext;
 
     /**
@@ -101,6 +113,7 @@ public abstract class AbstractMcpToolMethodCallback {
             @Nullable String mineType,
             @Nullable McpSchema.ToolAnnotations annotations,
             @Nullable McpTool toolAnnotation,
+            @Nullable com.ai.plug.core.spec.dedup.IdempotentCache idempotentCache,
             com.ai.plug.core.spec.callback.tool.McpCallToolResultConverter converter,
             IRootContext rootContext
     ) {
@@ -116,7 +129,9 @@ public abstract class AbstractMcpToolMethodCallback {
         this.annotations = annotations;
         this.toolAnnotation = toolAnnotation;
         this.mineType = mineType;
+        this.idempotentCache = idempotentCache;
         this.converter = converter;
+        this.rootContext = rootContext;
         this.rootContext = rootContext;
 
         this.validateMethod(this.method);
@@ -368,6 +383,8 @@ public abstract class AbstractMcpToolMethodCallback {
         protected String outputSchema;
         protected McpSchema.ToolAnnotations annotations;
         protected McpTool toolAnnotation;
+        @Nullable
+        protected com.ai.plug.core.spec.dedup.IdempotentCache idempotentCache;
         protected com.ai.plug.core.spec.callback.tool.McpCallToolResultConverter converter;
 
         protected IRootContext rootContext;
@@ -412,6 +429,17 @@ public abstract class AbstractMcpToolMethodCallback {
 
         public T converter(McpCallToolResultConverter converter) {
             this.converter = converter;
+            return (T) this;
+        }
+
+        /**
+         * Set the dedup cache for idempotent tools. When set, repeated calls to
+         * an {@code @McpTool(idempotentHint=true)} method within the cache's
+         * TTL return the cached CallToolResult instead of re-executing.
+         */
+        public T idempotentCache(@Nullable IdempotentCache cache) {
+            // The actual field is on the concrete subclass; subclasses must
+            // override this if they want to honor the cache. Default no-op.
             return (T) this;
         }
 
