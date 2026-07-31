@@ -57,7 +57,7 @@ public class SyncMcpToolMethodCallback extends AbstractMcpToolMethodCallback
 
         try {
             // Build arguments for the method call
-            Object[] args = this.buildArgs(this.method, exchange, callToolRequest.arguments());
+            Object[] args = this.buildArgs(this.method, exchange, callToolRequest.arguments(), callToolRequest);
 
             // Invoke the method
             Object result = this.callMethod(args);

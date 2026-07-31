@@ -12,6 +12,8 @@ import com.ai.plug.core.spec.utils.root.McpRoot;
 import com.ai.plug.core.spec.utils.root.McpRootFactory;
 import com.ai.plug.core.spec.utils.sampling.McpSampling;
 import com.ai.plug.core.spec.utils.sampling.McpSamplingFactory;
+import com.ai.plug.core.spec.utils.progress.McpProgress;
+import com.ai.plug.core.spec.utils.progress.McpProgressFactory;
 import com.ai.plug.core.utils.CustomToolUtil;
 import tools.jackson.core.JacksonException;
 import io.modelcontextprotocol.spec.McpSchema;
@@ -189,7 +191,9 @@ public abstract class AbstractMcpToolMethodCallback {
      * @param arguments The arguments provided by the client
      * @return An array of arguments for the method invocation
      */
-    protected Object[] buildArgs(Method method, Object exchange, Map<String, Object> arguments) throws JacksonException {
+    protected Object[] buildArgs(Method method, Object exchange, Map<String, Object> arguments,
+                                  @Nullable McpSchema.CallToolRequest request)
+            throws JacksonException {
         Parameter[] parameters = method.getParameters();
         Object[] args = new Object[parameters.length];
 
@@ -207,6 +211,8 @@ public abstract class AbstractMcpToolMethodCallback {
                 args[i] = McpSamplingFactory.getSampling(exchange);
             } else if (isRootType(paramType)) {
                 args[i] = McpRootFactory.getRoot(exchange);
+            } else if (isProgressType(paramType)) {
+                args[i] = McpProgressFactory.getProgress(exchange, request);
             }
 
 
@@ -257,6 +263,18 @@ public abstract class AbstractMcpToolMethodCallback {
     }
     protected boolean isRootType(Class<?> paramType) {
         return McpRoot.class.isAssignableFrom(paramType);
+    }
+
+    protected boolean isProgressType(Class<?> paramType) {
+        return McpProgress.class.isAssignableFrom(paramType);
+    }
+
+    /**
+     * 兼容旧调用的 buildArgs 重载，无 request → 不会注入 {@link McpProgress}。
+     * 新代码请使用四参重载以启用进度上报。
+     */
+    protected Object[] buildArgs(Method method, Object exchange, Map<String, Object> arguments) throws JacksonException {
+        return buildArgs(method, exchange, arguments, null);
     }
     /**
      * Abstract builder for creating McpToolMethodCallback instances.

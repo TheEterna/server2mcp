@@ -57,7 +57,7 @@ public class AsyncMcpToolMethodCallback extends AbstractMcpToolMethodCallback
     public Mono<McpSchema.CallToolResult> apply(McpAsyncServerExchange exchange, McpSchema.CallToolRequest callToolRequest) {
         return Mono.fromCallable(() -> {
                 // Build arguments for the method call
-                Object[] args = super.buildArgs(this.method, exchange, callToolRequest.arguments());
+                Object[] args = super.buildArgs(this.method, exchange, callToolRequest.arguments(), callToolRequest);
 
                 // Invoke the method
                 Object result = this.callMethod(args);
