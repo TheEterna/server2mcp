@@ -82,15 +82,17 @@ MCP 协议 2026-07-28（协议诞生以来最大改版）发布于 2026-07-28。
 - ✅ ~~_meta 工具 + OTel trace 透传~~ — 实装为 `com.ai.plug.core.spec.meta.MetaUtils`（commit 646b230）：forwardTraceContext 透传 traceparent/tracestate/baggage（SEP-414），merge + 字符串常量集中
 - ✅ resultType 字段层 — 实装为 `com.ai.plug.core.spec.resulttype.McpResultWriter`（commit 889731c）：序列化 CallToolResult/ListToolsResult/ListResourcesResult/ListPromptsResult 为 JSON 字符串后追加 `resultType` 必填字段。SDK 2.0 字节码实证：Result record 无此字段，字段层在 SDK 跟进前完全不可达——本项目通过直接序列化 Result + mutate ObjectNode 路径在 SDK 暴露字段前让用户能立刻发合规 wire payload
 - ✅ CacheableResult 字段层 — 同 McpResultWriter 覆盖（commit 889731c）：`_cacheable.ttlMs` + `_cacheable.cacheScope` 可选 wrapper；与 resultType 在同一 writer 内串联，自定义 wrapper key 路径支持不同 client 期望
-- ❌ MRTR 实际模式（InputRequiredResult / inputRequests / inputResponses 三元组）——`resultType` 已落地，但 SDK 缺 InputRequiredResult 类与 inputRequests/inputResponses schema，本项目无法让 client 重试带 inputResponses（属客户端能力，本框架不实装）
-- ❌ Tasks 扩展
-- ❌ server/discover
-- ❌ 标准请求头 Mcp-Method / Mcp-Name / x-mcp-header
+- ✅ MRTR 实际模式（InputRequiredResult / inputRequests / inputResponses）— 实装为 `com.ai.plug.core.spec.mrtr.MrtrTypes`（commit 83f0811）：InputRequiredResult record（resultType 强制 input_required、inputRequests 必填非空）、4 种 InputRequest 实现（Elicitation/Sampling/Roots/JsonSchema）、InputResponses envelope；McpResultWriter.writeInputRequired 工厂。SDK 2.0 javap 实证完全空白，自行设计 wire schema
+- ✅ Tasks 扩展 `io.modelcontextprotocol/tasks` — 实装为 `com.ai.plug.core.spec.tasks.TaskTypes`（commit 0012f86）：Status 枚举（@JsonProperty 强制 wire 小写形态）、TaskHandle / TaskStatus / TaskError / TaskUpdate records。SDK 2.0 javap 实证完全空白
+- ✅ server/discover RPC — 实装为 `com.ai.plug.core.spec.discover.DiscoverTypes`（commit 05c5ed0）：DiscoverResult + ServerIdentity + Capabilities（含 extensions 字段，2026-07-28 minor #1）。SDK 2.0 javap 实证完全空白
+- ✅ 标准请求头 Mcp-Method / Mcp-Name / x-mcp-header — 实装为 `com.ai.plug.core.spec.headers.McpRequestHeaders`（commit a063f9e）：常量集中 + forJsonRpcCall(method, name) factory + encodeXMcPHeader(key, value)。SDK 2.0 HttpHeaders 接口缺这三个，本项目不接触 transport 层（流传输由 Spring AI starter 管），仅提供工具让用户在自己组装 HTTP 请求时正确填充
 
 ### 3.3 软影响（当前无须动，但需监控）
 
 - 🔄 Roots / Sampling / Logging 弃用——保留实现，文档明确 no-op 警告
 - 🔄 MCP-Protocol-Version header 演进——SDK 接管
+- 🔄 stateless core（移除 initialize 握手 + Mcp-Session-Id）——本项目作为 server-side framework 无 session 概念，所有注入参数（McpRoot/McpLogger/McpSampling/McpElicitation/McpProgress）按 per-call 注入；移除 session 不影响本项目核心行为
+- 🔄 SSE stream resumability 移除（Last-Event-ID）——流传输由 Spring AI starter 管，本项目不涉及
 
 ## 四、SDK 跟踪机制
 
