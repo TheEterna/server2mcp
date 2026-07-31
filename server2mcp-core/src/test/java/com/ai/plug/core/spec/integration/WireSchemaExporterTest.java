@@ -79,6 +79,35 @@ class WireSchemaExporterTest {
     }
 
     @Test
+    void fullCapabilitiesWithExtensions_mergesTasksIntoExperimental() {
+        var caps = WireSchemaExporter.fullCapabilitiesWithExtensions(
+            WireSchemaExporter.tasksExtension());
+        assertThat(caps).isNotNull();
+        assertThat(caps.tools().listChanged()).isTrue();
+        assertThat(caps.resources().subscribe()).isTrue();
+        assertThat(caps.prompts().listChanged()).isTrue();
+        assertThat(caps.experimental()).containsKey("io.modelcontextprotocol/tasks");
+    }
+
+    @Test
+    void fullCapabilitiesWithExtensions_nullExtensionsEqualsBaseCapabilities() {
+        var withNull = WireSchemaExporter.fullCapabilitiesWithExtensions(null);
+        var withEmpty = WireSchemaExporter.fullCapabilitiesWithExtensions(java.util.Map.of());
+        // Both should be equivalent to the no-extension base
+        assertThat(withNull.experimental()).isNull();
+        assertThat(withEmpty.experimental()).isNull();
+        assertThat(withNull.tools().listChanged()).isTrue();
+        assertThat(withEmpty.tools().listChanged()).isTrue();
+    }
+
+    @Test
+    void tasksExtension_providesExtensionKey() {
+        var ext = WireSchemaExporter.tasksExtension();
+        assertThat(ext).containsKey("io.modelcontextprotocol/tasks");
+        assertThat(ext.get("io.modelcontextprotocol/tasks")).isInstanceOf(Map.class);
+    }
+
+    @Test
     void serverInfoFactoryCompat() {
         // Smoke test that ServerInfoFactory (referenced by McpServerCustomizers)
         // produces something the customizer would accept.

@@ -107,4 +107,46 @@ public final class WireSchemaExporter {
         caps.put("prompts", Map.of("listChanged", true));
         return caps;
     }
+
+    /**
+     * Build a complete {@link io.modelcontextprotocol.spec.McpSchema.ServerCapabilities}
+     * for direct use with SDK 2.0 — applies the standard
+     * {@code listChanged} / {@code subscribe} flags AND injects the
+     * {@code experimental} map with the given extensions (e.g.
+     * {@code io.modelcontextprotocol/tasks}).
+     *
+     * <p>This is the single most comprehensive capability factory in the
+     * framework — equivalent to the JSON-RPC {@code initialize} result
+     * a compliant 2026-07-28 server would advertise.
+     */
+    public static io.modelcontextprotocol.spec.McpSchema.ServerCapabilities fullCapabilitiesWithExtensions(
+            java.util.Map<String, Object> extensions) {
+        io.modelcontextprotocol.spec.McpSchema.ServerCapabilities base =
+            ServerCapabilitiesFactory.withListChangedAll();
+        if (extensions == null || extensions.isEmpty()) {
+            return base;
+        }
+        // ServerCapabilities is a record; rebuild via Builder with the
+        // existing fields plus the new experimental map.
+        io.modelcontextprotocol.spec.McpSchema.ServerCapabilities combined =
+            io.modelcontextprotocol.spec.McpSchema.ServerCapabilities.builder()
+                .tools(base.tools().listChanged())
+                .resources(base.resources().subscribe(), base.resources().listChanged())
+                .prompts(base.prompts().listChanged())
+                .experimental(extensions)
+                .build();
+        return combined;
+    }
+
+    /**
+     * Static extensions map for the {@code io.modelcontextprotocol/tasks} extension
+     * (MCP protocol 2026-07-28 SEP-2663). Empty implementation marker — users
+     * can use {@link #fullCapabilitiesWithExtensions(Map)} to add their own
+     * versioned descriptor.
+     */
+    public static java.util.Map<String, Object> tasksExtension() {
+        java.util.Map<String, Object> ext = new LinkedHashMap<>();
+        ext.put("io.modelcontextprotocol/tasks", Map.of("version", "draft"));
+        return ext;
+    }
 }
