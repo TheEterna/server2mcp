@@ -7,6 +7,8 @@ import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.node.ObjectNode;
 
+import java.util.Map;
+
 /**
  * Wire-level JSON serializer for MCP results that carries protocol 2026-07-28
  * fields SDK 2.0 cannot express: {@code resultType}, {@code ttlMs},
@@ -137,5 +139,75 @@ public final class McpResultWriter {
     public static String writeInputRequired(
             com.ai.plug.core.spec.mrtr.MrtrTypes.InputRequiredResult result) throws java.io.IOException {
         return JsonParser.getObjectMapper().writeValueAsString(result);
+    }
+
+    /**
+     * Reverse-extract wire-layer hints from a {@link McpSchema.CallToolResult}'s
+     * meta map (where {@link DefaultMcpCallToolResultConverter} deposits them
+     * from the {@code @McpTool} annotation + MRTR/Task return paths), then
+     * write the result with all the protocol 2026-07-28 fields (resultType,
+     * _cacheable wrapper) properly applied.
+     * <p>
+     * This is the single entry point that lets a Spring AI starter or custom
+     * transport read meta from a tool result and emit a wire-compliant
+     * JSON-RPC payload — without each call site having to repeat the
+     * meta-to-wire mapping.
+     */
+    public static String writeCallToolResultFromMeta(McpSchema.CallToolResult result) throws java.io.IOException {
+        Map<String, Object> meta = result.meta();
+        String resultType = ResultTypeConvention.COMPLETE;
+        CacheHints.Hint cache = null;
+        if (meta != null) {
+            // resultType from converter hint; defensive fallback if invalid
+            Object rt = meta.get("resultType");
+            if (rt instanceof String rtStr) {
+                if (ResultTypeConvention.COMPLETE.equals(rtStr) || ResultTypeConvention.INPUT_REQUIRED.equals(rtStr)) {
+                    resultType = rtStr;
+                }
+                // else: silently fall back to complete (unknown values ignored)
+            }
+            // cache hint (ttlMs + cacheScope); wrapper key is config
+            Object ttl = meta.get("ttlMs");
+            Object scope = meta.get("cacheScope");
+            if (ttl instanceof Number ttlNum && ttlNum.longValue() > 0) {
+                String cacheScopeRaw = scope instanceof String s ? s : null;
+                long ttlMs = ttlNum.longValue();
+                // Silently fall back to private on invalid scope (avoid throwing
+                // when meta carries a stale or typo'd scope from a previous schema)
+                if (cacheScopeRaw == null || CacheHints.CACHE_SCOPE_PUBLIC.equals(cacheScopeRaw)
+                        || CacheHints.CACHE_SCOPE_PRIVATE.equals(cacheScopeRaw)) {
+                    cache = new CacheHints.Hint(ttlMs, CacheHints.normalizeScope(cacheScopeRaw));
+                }
+                else {
+                    cache = new CacheHints.Hint(ttlMs, CacheHints.CACHE_SCOPE_PRIVATE);
+                }
+            }
+        }
+        return writeCallToolResult(result, resultType, cache);
+    }
+
+    /**
+     * List-result variant: extracts ttlMs / cacheScope / cacheWrapperKey from
+     * a {@code List*Result} via the same meta key set.
+     */
+    public static String writeListToolsResultFromMeta(McpSchema.ListToolsResult result) throws java.io.IOException {
+        return writeListToolsResult(result, extractCacheHintFromSdkResult(result));
+    }
+
+    public static String writeListResourcesResultFromMeta(McpSchema.ListResourcesResult result) throws java.io.IOException {
+        return writeListResourcesResult(result, extractCacheHintFromSdkResult(result));
+    }
+
+    public static String writeListPromptsResultFromMeta(McpSchema.ListPromptsResult result) throws java.io.IOException {
+        return writeListPromptsResult(result, extractCacheHintFromSdkResult(result));
+    }
+
+    /**
+     * List results produced by the SDK carry TTL/cache hints via meta() too —
+     * currently a no-op since SDK 2.0 List*Result have no native field. Hook
+     * left here for when SDK exposes them. Today this returns null.
+     */
+    private static CacheHints.Hint extractCacheHintFromSdkResult(Object result) {
+        return null;
     }
 }
