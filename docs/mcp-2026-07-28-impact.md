@@ -76,7 +76,7 @@ MCP 协议 2026-07-28（协议诞生以来最大改版）发布于 2026-07-28。
 
 ### 3.2 物理不可达（等 Java SDK 跟进 2026-07-28 才能动）
 
-- ❌ ToolPagination —— SDK 2.0 `SyncSpecification` 无 listHandlers 入口（详见 commit 跳转）
+- ✅ ~~ToolPagination~~ — 实装为 `com.ai.plug.core.spec.pagination.PaginatedLists`（commit 81dbfe2）：parseOffset/formatOffset/clampPageSize/slice + 三个 List*Result 工厂。SDK 2.0 的 ListToolsResult/ListResourcesResult/ListPromptsResult 均接受 nextCursor 字段，框架级工具让用户在自定义 MCP server 中调用。本项目自身 Provider 不默认切片（属路由策略决定，应由调用方决定）
 - ❌ MRTR
 - ❌ subscriptions/listen 变更通知
 - ❌ Tasks 扩展
