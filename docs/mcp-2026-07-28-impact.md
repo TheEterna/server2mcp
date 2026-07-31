@@ -83,7 +83,7 @@ MCP 协议 2026-07-28（协议诞生以来最大改版）发布于 2026-07-28。
 - ❌ MRTR（resultType / InputRequiredResult）
 - ❌ Tasks 扩展
 - ❌ server/discover
-- ❌ CacheableResult（ttlMs + cacheScope）
+- 🟡 CacheableResult（ttlMs + cacheScope）— **适配器层已就绪**（commit 75af2b0：ResultTypeConvention + CacheHints 常量集中 + 单一 SDK 迁移点）；SDK 字段层不可达，等 Java SDK 暴露 List*Result 字段后零侵入启用
 - ❌ 标准请求头 Mcp-Method / Mcp-Name / x-mcp-header
 
 ### 3.3 软影响（当前无须动，但需监控）
