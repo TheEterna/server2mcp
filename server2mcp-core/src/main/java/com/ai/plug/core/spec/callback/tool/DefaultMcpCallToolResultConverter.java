@@ -67,6 +67,36 @@ public class DefaultMcpCallToolResultConverter implements McpCallToolResultConve
                     .meta(null)
                     .build();
         }
+        // MRTR（协议 2026-07-28 SEP-2322）：工具返回 InputRequiredResult
+        // 时自动包装为 CallToolResult，isError=false（这是合法 interim result，
+        // 不是错误）。注意 SDK 2.0 没有 resultType 字段，resultType 信息
+        // 放在 meta 里供下游 McpResultWriter 序列化时读取。
+        else if (result instanceof com.ai.plug.core.spec.mrtr.MrtrTypes.InputRequiredResult inputRequired) {
+            java.util.Map<String, Object> meta = new java.util.HashMap<>();
+            meta.put("resultType", "input_required");
+            meta.put("inputRequests", inputRequired.inputRequests());
+            if (inputRequired.requestState() != null) {
+                meta.put("requestState", inputRequired.requestState());
+            }
+            return McpSchema.CallToolResult.builder()
+                    .addTextContent("input_required: " + inputRequired.inputRequests().size() + " request(s)")
+                    .isError(false)
+                    .structuredContent(inputRequired)
+                    .meta(meta)
+                    .build();
+        }
+        // Tasks 扩展（协议 2026-07-28 SEP-2663）：工具返回 TaskHandle
+        // 时自动包装为 CallToolResult，isError=false。
+        else if (result instanceof com.ai.plug.core.spec.tasks.TaskTypes.TaskHandle taskHandle) {
+            java.util.Map<String, Object> meta = new java.util.HashMap<>();
+            meta.put("taskHandle", taskHandle.taskId());
+            return McpSchema.CallToolResult.builder()
+                    .addTextContent("task accepted: " + taskHandle.taskId())
+                    .isError(false)
+                    .structuredContent(taskHandle)
+                    .meta(meta)
+                    .build();
+        }
 
         String mineType = callback.mineType;
         if (mineType == null || mineType.isBlank()) {
