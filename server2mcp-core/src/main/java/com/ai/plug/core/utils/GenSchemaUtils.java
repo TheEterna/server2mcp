@@ -8,7 +8,7 @@ import tools.jackson.databind.node.ArrayNode;
 import tools.jackson.databind.node.ObjectNode;
 import com.github.victools.jsonschema.generator.Module;
 import com.github.victools.jsonschema.generator.*;
-import com.github.victools.jsonschema.module.jackson.JacksonModule;
+import com.github.victools.jsonschema.module.jackson.JacksonSchemaModule;
 import com.github.victools.jsonschema.module.jackson.JacksonOption;
 import com.github.victools.jsonschema.module.jakarta.validation.JakartaValidationModule;
 import com.github.victools.jsonschema.module.jakarta.validation.JakartaValidationOption;
@@ -42,7 +42,7 @@ public class GenSchemaUtils {
     static {
         Module springAiSchemaModule = new SpringAiSchemaModule();
         Module mcpSchemaModule = new McpSchemaModule();
-        Module jacksonModule = new JacksonModule(JacksonOption.RESPECT_JSONPROPERTY_REQUIRED);
+        Module jacksonModule = new JacksonSchemaModule(JacksonOption.RESPECT_JSONPROPERTY_REQUIRED);
         Module swagger3Module = new Swagger2Module();
         Module swagger2Module = new SwaggerModule();
         JavaxValidationModule javaxValidationModule = new JavaxValidationModule(JavaxValidationOption.INCLUDE_PATTERN_EXPRESSIONS);
@@ -69,7 +69,7 @@ public class GenSchemaUtils {
     public final static SchemaGenerator MCP_SCHEMA_GENERATOR;
     static {
         Module mcpSchemaModule = new McpSchemaModule();
-        Module jacksonModule = new JacksonModule(JacksonOption.RESPECT_JSONPROPERTY_REQUIRED);
+        Module jacksonModule = new JacksonSchemaModule(JacksonOption.RESPECT_JSONPROPERTY_REQUIRED);
         Module swagger3Module = new Swagger2Module();
         Module swagger2Module = new SwaggerModule(SwaggerOption.IGNORING_HIDDEN_PROPERTIES);
         JavaxValidationModule javaxValidationModule = new JavaxValidationModule(JavaxValidationOption.INCLUDE_PATTERN_EXPRESSIONS);
