@@ -183,7 +183,7 @@ public class ToolDefinitionBuilder {
 
             // 由于对象类型比如Dto dto 它可以在类上写des, 也可以在对应参数上写des, 则是和参数上的des会对这个 类上的des进行覆盖并提醒
             if (StringUtils.hasText(parameterDescription)) {
-                if (parameterNode.get("description") != null && StringUtils.hasText(parameterNode.get("description").asText())) {
+                if (parameterNode.get("description") != null && StringUtils.hasText(parameterNode.get("description").asString())) {
                     log.warn("Please note the conflicting descriptions on the {} method", CommonUtil.getFullyQualifiedName(method));
                 }
 
@@ -242,8 +242,9 @@ public class ToolDefinitionBuilder {
                         }
 
                     });
-                } else if (value.isTextual() && "type".equals(entry.getKey())) {
-                    String oldValue = node.get("type").asText();
+                } else if (value.isString() && "type".equals(entry.getKey())) {
+                    // Jackson 3：isTextual() → isString()，asText() → asString()
+                    String oldValue = node.get("type").asString();
                     node.put("type", oldValue.toUpperCase());
                 }
 

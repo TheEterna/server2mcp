@@ -40,10 +40,9 @@ public interface McpElicitation {
      * @return form 模式请求，协议要求 requestedSchema 是含 properties 的 object 类型
      */
     default McpSchema.ElicitFormRequest buildElicitationRequest(String message, Class<?> schema) {
-        McpSchema.ElicitFormRequest.Builder builder = McpSchema.ElicitRequest.builder();
-        builder.message(message);
-        builder.requestedSchema(toRequestedSchema(schema));
-        return builder.build();
+        // SDK 2.0：直调 ElicitFormRequest.builder(message, requestedSchema)，避免
+        // ElicitRequest.builder() 这个 deprecated 转发入口
+        return McpSchema.ElicitFormRequest.builder(message, toRequestedSchema(schema)).build();
     }
 
     /**

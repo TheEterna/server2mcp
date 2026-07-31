@@ -128,9 +128,9 @@ public class GenSchemaUtils {
                 list.add(convertJsonNode(element));
             }
             return list;
-        } else if (node.isTextual()) {
-            // 字符串类型
-            return node.textValue();
+        } else if (node.isString()) {
+            // 字符串类型（Jackson 3：isTextual() → isString()，textValue() → stringValue()）
+            return node.stringValue();
         } else if (node.isNumber()) {
             // 数字类型（根据实际值返回 int、long、double 等）
             if (node.isInt()) {
