@@ -56,6 +56,23 @@ public class AsyncMcpToolMethodCallback extends AbstractMcpToolMethodCallback
      */
     @Override
     public Mono<McpSchema.CallToolResult> apply(McpAsyncServerExchange exchange, McpSchema.CallToolRequest callToolRequest) {
+        // Capture request for downstream converters (OpenTelemetry trace
+        // forwarding, paging auto-slice, etc.).
+        this.captureRequest(callToolRequest);
+
+        // Idempotent dedup: if @McpTool.idempotentHint=true and a cache is
+        // configured, return cached CallToolResult for repeated calls within
+        // TTL window. Cache lookup is synchronous (Map.contains).
+        com.ai.plug.core.spec.dedup.IdempotentCache cache = this.idempotentCache;
+        boolean idempotent = this.toolAnnotation != null && this.toolAnnotation.idempotentHint();
+        String fp = null;
+        if (idempotent && cache != null) {
+            fp = cache.fingerprint(this.name, callToolRequest.arguments());
+            if (cache.contains(fp)) {
+                return Mono.just(cache.get(fp, McpSchema.CallToolResult.class));
+            }
+        }
+
         return Mono.fromCallable(() -> {
                 // Build arguments for the method call
                 Object[] args = super.buildArgs(this.method, exchange, callToolRequest.arguments(), callToolRequest);
@@ -69,7 +86,14 @@ public class AsyncMcpToolMethodCallback extends AbstractMcpToolMethodCallback
                 Type returnType = this.method.getGenericReturnType();
 
                 // Convert the result to a GetPromptResult
-                return this.converter.convertToCallToolResult(result, returnType, this);
+                McpSchema.CallToolResult converted = this.converter.convertToCallToolResult(result, returnType, this);
+
+                // Store in cache for future idempotent invocations
+                if (idempotent && cache != null && fp != null
+                        && converted != null && !converted.isError()) {
+                    cache.put(fp, converted);
+                }
+                return converted;
             }).doOnError(e ->
                 logger.error("Error invoking tool method: {}", this.method.getName(), e)
             )
