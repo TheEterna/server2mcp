@@ -54,6 +54,22 @@ public class DefaultMcpCallToolResultConverter implements McpCallToolResultConve
         // McpResultWriter consumption.
         java.util.Map<String, Object> toolHints = collectToolHints(callback);
         // 返回类就是最后结果
+        // Auto-slice returned List<?> when a McpPaging was injected
+        if (callback != null) {
+            com.ai.plug.core.spec.pagination.McpPaging paging = callback.capturedPaging();
+            if (paging != null && result instanceof java.util.List<?> list && !list.isEmpty()) {
+                var page = com.ai.plug.core.spec.pagination.PaginatedLists.slice(
+                    list, paging.offset(), paging.size());
+                result = page.items();
+                if (page.hasMore()) {
+                    // Caller typically wraps this in a List*Result; we surface
+                    // nextCursor via meta so downstream McpResultWriter picks it up
+                    toolHints.put("nextCursor", page.nextCursor());
+                }
+            }
+        }
+
+        // 返回类就是最后结果
         if (result instanceof McpSchema.CallToolResult callToolResult) {
             return callToolResult;
         }
@@ -121,7 +137,7 @@ public class DefaultMcpCallToolResultConverter implements McpCallToolResultConve
                 return McpSchema.CallToolResult.builder().addTextContent("find a incorrect text mineType of a Annotation from " + callback.method.getName()).isError(true).build();
             }
             // todo 感觉不太合理 因为文本不只有纯文本, 还有其他的文本类型, 比如markdown, html, xml, json等等
-            return McpSchema.CallToolResult.builder().addTextContent(json).isError(false).build();
+            return McpSchema.CallToolResult.builder().addTextContent(json).isError(false).meta(toolHints).build();
         } else if (isImageMimeType(mineType)) {
             // convert 图片为base64
             try {

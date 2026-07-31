@@ -224,9 +224,12 @@ public abstract class AbstractMcpToolMethodCallback {
             } else if (isProgressType(paramType)) {
                 args[i] = McpProgressFactory.getProgress(exchange, request);
             } else if (isPagingType(paramType)) {
-                args[i] = McpPaging.fromCursor(
+                McpPaging paging = McpPaging.fromCursor(
                     extractMetaString(request, "cursor"),
                     extractMetaInt(request, "pageSize"));
+                args[i] = paging;
+                // Track for the converter's auto-slicing logic
+                capturedPaging = paging;
             }
 
 
@@ -285,6 +288,28 @@ public abstract class AbstractMcpToolMethodCallback {
 
     protected boolean isPagingType(Class<?> paramType) {
         return McpPaging.class.isAssignableFrom(paramType);
+    }
+
+    /**
+     * Captured {@link McpPaging} from the most recent invocation (if the tool
+     * declared a paging param). Null when no paging was injected. Used by
+     * {@link DefaultMcpCallToolResultConverter} to apply automatic slicing on
+     * returned lists.
+     */
+    @Nullable
+    public McpPaging capturedPaging() {
+        return this.capturedPaging;
+    }
+
+    @Nullable
+    private McpPaging capturedPaging;
+
+    /**
+     * Set the captured paging for this invocation. Called by {@link #buildArgs}
+     * after a McpPaging arg is bound; not part of the public extension API.
+     */
+    public void capturePaging(@Nullable McpPaging paging) {
+        this.capturedPaging = paging;
     }
 
     /** Defensive meta extraction — returns null if request/meta missing or value is wrong type. */
