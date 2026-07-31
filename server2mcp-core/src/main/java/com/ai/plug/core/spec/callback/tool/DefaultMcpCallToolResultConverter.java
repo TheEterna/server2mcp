@@ -90,7 +90,25 @@ public class DefaultMcpCallToolResultConverter implements McpCallToolResultConve
                     .meta(toolHints)
                     .build();
         }
-        // MRTR（协议 2026-07-28 SEP-2322）：工具返回 InputRequiredResult
+        // PageList 通用返回类型：自动计算 nextCursor + meta 注入
+        else if (result instanceof com.ai.plug.core.spec.pagination.PageList<?> pageList) {
+            String json;
+            try {
+                json = JsonParser.toJson(pageList.items());
+            }
+            catch (JacksonException e) {
+                return McpSchema.CallToolResult.builder().addTextContent("page list serialization failed: " + e.getMessage()).isError(true).build();
+            }
+            com.ai.plug.core.spec.pagination.McpPaging paging = callback.capturedPaging();
+            if (paging != null) {
+                String nextCursor = pageList.nextCursor(paging);
+                if (nextCursor != null) {
+                    toolHints.put("nextCursor", nextCursor);
+                }
+                toolHints.put("totalItems", pageList.totalItems());
+            }
+            return McpSchema.CallToolResult.builder().addTextContent(json).isError(false).meta(toolHints).build();
+        }
         // 时自动包装为 CallToolResult，isError=false（这是合法 interim result，
         // 不是错误）。注意 SDK 2.0 没有 resultType 字段，resultType 信息
         // 放在 meta 里供下游 McpResultWriter 序列化时读取。
