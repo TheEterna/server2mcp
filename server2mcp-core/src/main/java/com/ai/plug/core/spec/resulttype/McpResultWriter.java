@@ -122,4 +122,20 @@ public final class McpResultWriter {
         }
         return om.writeValueAsString(obj);
     }
+
+    /**
+     * Write an MRTR {@code InputRequiredResult} interim response. The
+     * {@code resultType} is forced to {@code "input_required"} regardless of
+     * caller-supplied value (defense in depth — record's compact constructor
+     * also validates this).
+     *
+     * <p>Caller should pass the resulting JSON string as the {@code result}
+     * field of a JSON-RPC response whose {@code id} matches the original
+     * tool call. The client will then retry the request with
+     * {@code inputResponses}.
+     */
+    public static String writeInputRequired(
+            com.ai.plug.core.spec.mrtr.MrtrTypes.InputRequiredResult result) throws java.io.IOException {
+        return JsonParser.getObjectMapper().writeValueAsString(result);
+    }
 }
