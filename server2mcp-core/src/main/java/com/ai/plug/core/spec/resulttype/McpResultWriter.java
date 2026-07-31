@@ -142,6 +142,16 @@ public final class McpResultWriter {
     }
 
     /**
+     * Convenience: build a {@link WrappedCallToolResult} pairing the SDK
+     * result with its wire JSON. Saves callers from manually calling both
+     * {@link #writeCallToolResultFromMeta(McpSchema.CallToolResult)} and the
+     * SDK's serializer.
+     */
+    public static WrappedCallToolResult wrap(McpSchema.CallToolResult sdkResult) throws java.io.IOException {
+        return new WrappedCallToolResult(sdkResult, writeCallToolResultFromMeta(sdkResult));
+    }
+
+    /**
      * Reverse-extract wire-layer hints from a {@link McpSchema.CallToolResult}'s
      * meta map (where {@link DefaultMcpCallToolResultConverter} deposits them
      * from the {@code @McpTool} annotation + MRTR/Task return paths), then
