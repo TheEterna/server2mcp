@@ -80,10 +80,11 @@ MCP 协议 2026-07-28（协议诞生以来最大改版）发布于 2026-07-28。
 - ✅ ~~subscriptions/listen 变更通知~~ — 实装为 `com.ai.plug.core.spec.capabilities.{ChangeNotifications, ServerCapabilitiesFactory}`（commit 4f03ea9）。SDK 2.0 已暴露 `McpSyncServer.notifyToolsListChanged/ResourcesListChanged/PromptsListChanged/ResourcesUpdated`（async Mono 同形），但 `McpServer.SyncSpecification.capabilities(...)` 接受外部 `ServerCapabilities`。提供工具类供用户接入。**注**：Spring AI 2.0 starter 已自带 `McpServerChangeNotificationProperties`（含 `tool/resource/prompt ChangeNotification` 三布尔）——用户在自己 starter 配置 `spring.ai.mcp.server.change-notification.*` 即可 0 工具代码启用，本项目工具类只是备用入口
 - ✅ ~~server identity 图标~~ — 实装为 `com.ai.plug.core.spec.implementation.ServerInfoFactory`（commit c31d5b1）：parseIcon 与完整 createFull(name, version, title, description, icons, websiteUrl)。SDK 2.0 `McpSchema.Implementation` 现支持 icons/websiteUrl（协议 2025-11-25）
 - ✅ ~~_meta 工具 + OTel trace 透传~~ — 实装为 `com.ai.plug.core.spec.meta.MetaUtils`（commit 646b230）：forwardTraceContext 透传 traceparent/tracestate/baggage（SEP-414），merge + 字符串常量集中
-- ❌ MRTR（resultType / InputRequiredResult）
+- ✅ resultType 字段层 — 实装为 `com.ai.plug.core.spec.resulttype.McpResultWriter`（commit 889731c）：序列化 CallToolResult/ListToolsResult/ListResourcesResult/ListPromptsResult 为 JSON 字符串后追加 `resultType` 必填字段。SDK 2.0 字节码实证：Result record 无此字段，字段层在 SDK 跟进前完全不可达——本项目通过直接序列化 Result + mutate ObjectNode 路径在 SDK 暴露字段前让用户能立刻发合规 wire payload
+- ✅ CacheableResult 字段层 — 同 McpResultWriter 覆盖（commit 889731c）：`_cacheable.ttlMs` + `_cacheable.cacheScope` 可选 wrapper；与 resultType 在同一 writer 内串联，自定义 wrapper key 路径支持不同 client 期望
+- ❌ MRTR 实际模式（InputRequiredResult / inputRequests / inputResponses 三元组）——`resultType` 已落地，但 SDK 缺 InputRequiredResult 类与 inputRequests/inputResponses schema，本项目无法让 client 重试带 inputResponses（属客户端能力，本框架不实装）
 - ❌ Tasks 扩展
 - ❌ server/discover
-- 🟡 CacheableResult（ttlMs + cacheScope）— **适配器层已就绪**（commit 75af2b0：ResultTypeConvention + CacheHints 常量集中 + 单一 SDK 迁移点）；SDK 字段层不可达，等 Java SDK 暴露 List*Result 字段后零侵入启用
 - ❌ 标准请求头 Mcp-Method / Mcp-Name / x-mcp-header
 
 ### 3.3 软影响（当前无须动，但需监控）
