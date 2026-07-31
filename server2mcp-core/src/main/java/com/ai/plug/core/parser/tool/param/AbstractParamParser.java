@@ -1,6 +1,6 @@
 package com.ai.plug.core.parser.tool.param;
 
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;

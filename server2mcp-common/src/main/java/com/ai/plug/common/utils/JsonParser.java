@@ -1,7 +1,7 @@
 package com.ai.plug.common.utils;
 
 import io.modelcontextprotocol.util.Assert;
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.springframework.util.ClassUtils;
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.type.TypeReference;

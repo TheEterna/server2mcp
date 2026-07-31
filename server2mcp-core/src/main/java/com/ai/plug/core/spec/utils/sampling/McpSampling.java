@@ -1,7 +1,7 @@
 package com.ai.plug.core.spec.utils.sampling;
 
 import io.modelcontextprotocol.spec.McpSchema;
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.Nullable;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
