@@ -70,4 +70,15 @@ public @interface McpTool {
      * The converter to use for converting the tool's output to a CallToolResult.
      */
     Class<? extends McpCallToolResultConverter> converter() default DefaultMcpCallToolResultConverter.class;
+
+    /**
+     * MCP 协议 2025-11-25（SEP-973）新增：图标元数据。格式为 data URI 或 https URL，
+     * 可选附带 MIME 类型与尺寸（"32x32,64x64"）。留空则不发送 icons 字段。
+     */
+    String[] icons() default {};
+
+    /**
+     * MCP 协议 2025-11-25 新增：Tool 级 _meta 字段，留空则不发送。
+     */
+    String metaJson() default "";
 }

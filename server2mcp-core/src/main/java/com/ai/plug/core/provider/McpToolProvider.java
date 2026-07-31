@@ -5,6 +5,7 @@ import com.ai.plug.core.annotation.ToolScan;
 import com.ai.plug.core.builder.ToolDefinitionBuilder;
 import com.ai.plug.core.context.root.IRootContext;
 import com.ai.plug.core.context.tool.ToolContext;
+import com.ai.plug.common.utils.JsonParser;
 import com.ai.plug.core.spec.callback.tool.AsyncMcpToolMethodCallback;
 import com.ai.plug.core.spec.callback.tool.DefaultMcpCallToolResultConverter;
 import com.ai.plug.core.spec.callback.tool.McpCallToolResultConverter;
@@ -18,11 +19,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.ai.tool.definition.ToolDefinition;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.util.*;
+import tools.jackson.core.type.TypeReference;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
@@ -88,8 +91,16 @@ public class McpToolProvider {
 //                                McpSchema.Tool mcpTool = new McpSchema.Tool(toolInfo.name(), title, toolInfo.description(),
 //                                        inputSchema, outputSchema, getToolAnnotations(toolAnnotation), null);
 
-                                McpSchema.Tool mcpTool = new McpSchema.Tool(toolInfo.name(), title, toolInfo.description(),
-                                        inputSchema, null, getToolAnnotations(toolAnnotation), null);
+                                McpSchema.Tool mcpTool = McpSchema.Tool.builder()
+                                        .name(toolInfo.name())
+                                        .title(title)
+                                        .description(toolInfo.description())
+                                        .inputSchema(inputSchema)
+                                        .outputSchema(outputSchema)
+                                        .annotations(getToolAnnotations(toolAnnotation))
+                                        .icons(buildIcons(toolAnnotation))
+                                        .meta(buildMeta(toolAnnotation))
+                                        .build();
 
 
                                 AsyncMcpToolMethodCallback methodCallback = AsyncMcpToolMethodCallback.builder()
@@ -150,8 +161,16 @@ public class McpToolProvider {
 //                                McpSchema.Tool mcpTool = new McpSchema.Tool(toolInfo.name(), title, toolInfo.description(),
 //                                        inputSchema, outputSchema, getToolAnnotations(toolAnnotation), null);
 
-                                McpSchema.Tool mcpTool = new McpSchema.Tool(toolInfo.name(), title, toolInfo.description(),
-                                        inputSchema, null, getToolAnnotations(toolAnnotation), null);
+                                McpSchema.Tool mcpTool = McpSchema.Tool.builder()
+                                        .name(toolInfo.name())
+                                        .title(title)
+                                        .description(toolInfo.description())
+                                        .inputSchema(inputSchema)
+                                        .outputSchema(outputSchema)
+                                        .annotations(getToolAnnotations(toolAnnotation))
+                                        .icons(buildIcons(toolAnnotation))
+                                        .meta(buildMeta(toolAnnotation))
+                                        .build();
 
                                 SyncMcpToolMethodCallback methodCallback = SyncMcpToolMethodCallback.builder()
                                         .method(mcpToolMethod)
@@ -221,6 +240,67 @@ public class McpToolProvider {
         McpSchema.ToolAnnotations toolAnnotations = new McpSchema.ToolAnnotations(title, readOnlyHint, destructiveHint, idempotentHint, openWorldHint, returnDirect);
 
         return toolAnnotations;
+    }
+
+    /**
+     * 解析 {@link McpTool#icons()} 为 SDK 2.0 {@code Tool.icons} 字段。
+     * 数组元素格式：{@code src[|mimeType[|sizes[|theme]]]}（竖线分隔，便于 Jackson/Swagger
+     * 不必理解本项目私有约定；空字段省略）。{@code icons()} 为空数组或全空字符串时返回 {@code null}，
+     * 以避免向 Tool 写入空 list 触发协议侧「空但存在」的语义歧义。
+     */
+    protected List<McpSchema.Icon> buildIcons(McpTool toolAnnotation) {
+        if (toolAnnotation == null) {
+            return null;
+        }
+        String[] raw = toolAnnotation.icons();
+        if (raw.length == 0) {
+            return null;
+        }
+        List<McpSchema.Icon> icons = new ArrayList<>(raw.length);
+        for (String entry : raw) {
+            if (entry == null || entry.isBlank()) {
+                continue;
+            }
+            String[] parts = entry.split("\\|", -1);
+            String src = parts[0].trim();
+            if (src.isEmpty()) {
+                continue;
+            }
+            McpSchema.Icon.Builder b = McpSchema.Icon.builder(src);
+            if (parts.length > 1 && !parts[1].isBlank()) {
+                b.mimeType(parts[1].trim());
+            }
+            if (parts.length > 2 && !parts[2].isBlank()) {
+                b.sizes(List.of(parts[2].trim().split(",")));
+            }
+            if (parts.length > 3 && !parts[3].isBlank()) {
+                b.theme(parts[3].trim());
+            }
+            icons.add(b.build());
+        }
+        return icons.isEmpty() ? null : icons;
+    }
+
+    /**
+     * 解析 {@link McpTool#metaJson()} 为 SDK 2.0 {@code Tool.meta} 字段。
+     * 接受任意 JSON 对象字符串，空时返回 {@code null}。解析失败抛 {@link IllegalArgumentException}
+     * ——metaJson 是用户显式声明，过宽松会掩盖配置错误。
+     */
+    protected Map<String, Object> buildMeta(McpTool toolAnnotation) {
+        if (toolAnnotation == null) {
+            return null;
+        }
+        String metaJson = toolAnnotation.metaJson();
+        if (metaJson == null || metaJson.isBlank()) {
+            return null;
+        }
+        try {
+            return JsonParser.fromJson(metaJson, new TypeReference<Map<String, Object>>() {
+            });
+        }
+        catch (Exception ex) {
+            throw new IllegalArgumentException("@McpTool.metaJson 解析失败：必须是合法 JSON 对象字符串。原始值：" + metaJson, ex);
+        }
     }
 
     private static String getName(Method method, McpTool tool) {
