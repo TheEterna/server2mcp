@@ -125,17 +125,6 @@ public final class McpResultWriter {
         return om.writeValueAsString(obj);
     }
 
-    /**
-     * Write an MRTR {@code InputRequiredResult} interim response. The
-     * {@code resultType} is forced to {@code "input_required"} regardless of
-     * caller-supplied value (defense in depth — record's compact constructor
-     * also validates this).
-     *
-     * <p>Caller should pass the resulting JSON string as the {@code result}
-     * field of a JSON-RPC response whose {@code id} matches the original
-     * tool call. The client will then retry the request with
-     * {@code inputResponses}.
-     */
     public static String writeInputRequired(
             com.ai.plug.core.spec.mrtr.MrtrTypes.InputRequiredResult result) throws java.io.IOException {
         return JsonParser.getObjectMapper().writeValueAsString(result);
@@ -143,9 +132,7 @@ public final class McpResultWriter {
 
     /**
      * Convenience: build a {@link WrappedCallToolResult} pairing the SDK
-     * result with its wire JSON. Saves callers from manually calling both
-     * {@link #writeCallToolResultFromMeta(McpSchema.CallToolResult)} and the
-     * SDK's serializer.
+     * result with its wire JSON.
      */
     public static WrappedCallToolResult wrap(McpSchema.CallToolResult sdkResult) throws java.io.IOException {
         return new WrappedCallToolResult(sdkResult, writeCallToolResultFromMeta(sdkResult));
@@ -218,6 +205,29 @@ public final class McpResultWriter {
      * left here for when SDK exposes them. Today this returns null.
      */
     private static CacheHints.Hint extractCacheHintFromSdkResult(Object result) {
+        return null;
+    }
+
+    /**
+     * Build a {@link CacheHints.Hint} from a meta map containing ttlMs /
+     * cacheScope / cacheWrapperKey entries (typically the {@code @McpTool}
+     * annotation via {@code DefaultMcpCallToolResultConverter}).
+     * <p>
+     * Used as the single entry point for converting wire-layer hints held in
+     * any meta map back into a {@link CacheHints.Hint} that this writer can
+     * consume.
+     */
+    public static CacheHints.Hint cacheHintFromMeta(@org.jspecify.annotations.Nullable Map<String, Object> meta) {
+        if (meta == null) {
+            return null;
+        }
+        Object ttl = meta.get("ttlMs");
+        Object scope = meta.get("cacheScope");
+        if (ttl instanceof Number ttlNum && ttlNum.longValue() > 0) {
+            String cacheScope = scope instanceof String s ? s : null;
+            return new CacheHints.Hint(ttlNum.longValue(),
+                CacheHints.normalizeScope(cacheScope));
+        }
         return null;
     }
 }

@@ -108,4 +108,27 @@ class McpResultWriterMetaTest {
         String json = McpResultWriter.writeListToolsResultFromMeta(result);
         assertThat(json).contains("\"resultType\":\"complete\"");
     }
+
+    @Test
+    void cacheHintFromMeta_extractsTtlAndScope() {
+        Map<String, Object> meta = new HashMap<>();
+        meta.put("ttlMs", 30_000L);
+        meta.put("cacheScope", "public");
+        var hint = McpResultWriter.cacheHintFromMeta(meta);
+        assertThat(hint).isNotNull();
+        assertThat(hint.ttlMs()).isEqualTo(30_000L);
+        assertThat(hint.cacheScope()).isEqualTo("public");
+    }
+
+    @Test
+    void cacheHintFromMeta_zeroTtlReturnsNull() {
+        Map<String, Object> meta = new HashMap<>();
+        meta.put("ttlMs", 0L);
+        assertThat(McpResultWriter.cacheHintFromMeta(meta)).isNull();
+    }
+
+    @Test
+    void cacheHintFromMeta_nullMetaReturnsNull() {
+        assertThat(McpResultWriter.cacheHintFromMeta(null)).isNull();
+    }
 }
