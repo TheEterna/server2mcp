@@ -1,10 +1,12 @@
 package com.ai.plug.core.spec.change;
 
+import com.ai.plug.core.annotation.McpTool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Mono;
 import reactor.util.annotation.Nullable;
 
+import java.lang.reflect.Method;
 import java.util.Map;
 
 /**
@@ -131,5 +133,24 @@ public class McpToolChangeNotifier {
     public void resetSnapshot() {
         this.lastSize = -1;
         this.lastHash = 0;
+    }
+
+    /**
+     * Static helper for callers that want per-tool filtering on listChanged
+     * notification: returns whether the {@link McpTool#listChanged()} flag
+     * indicates a dynamic tool (true by default). Use this in your own
+     * scheduler code alongside {@link #forSync(Object, Runnable)}:
+     *
+     * <pre>{@code
+     *   Runnable notifier = () -> {
+     *       if (McpToolChangeNotifier.shouldNotifyAnyOf(ctx, method -> method.isAnnotationPresent(McpTool.class)
+     *               &#38;&#38; method.getAnnotation(McpTool.class).listChanged())) {
+     *           syncServer.notifyToolsListChanged();
+     *       }
+     *   };
+     * }</pre>
+     */
+    public static boolean isListChanged(@org.jspecify.annotations.Nullable McpTool ann) {
+        return ann == null || ann.listChanged();
     }
 }
