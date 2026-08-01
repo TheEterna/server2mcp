@@ -3,6 +3,8 @@ package com.ai.plug.core.spec.change;
 import com.ai.plug.core.annotation.McpTool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.event.ContextRefreshedEvent;
+import org.springframework.context.event.EventListener;
 import reactor.core.publisher.Mono;
 import reactor.util.annotation.Nullable;
 
@@ -136,6 +138,16 @@ public class McpToolChangeNotifier {
     }
 
     /**
+     * Convenience alias for {@link #diffAndNotify()} for callers that want a
+     * less implementation-y name. Suitable for binding as a Spring
+     * {@code ApplicationListener<ContextRefreshedEvent>} or for explicit
+     * programmatic triggering after manual controller edits.
+     */
+    public void notifyNow() {
+        diffAndNotify();
+    }
+
+    /**
      * Static helper for callers that want per-tool filtering on listChanged
      * notification: returns whether the {@link McpTool#listChanged()} flag
      * indicates a dynamic tool (true by default). Use this in your own
@@ -152,5 +164,27 @@ public class McpToolChangeNotifier {
      */
     public static boolean isListChanged(@org.jspecify.annotations.Nullable McpTool ann) {
         return ann == null || ann.listChanged();
+    }
+
+    /**
+     * Spring ApplicationListener entry point — fire one notification when the
+     * application context is ready. Use by registering this class as a Spring
+     * bean and Spring will call this method automatically.
+     *
+     * <pre>{@code
+     *   &#64;Bean
+     *   public McpToolChangeNotifier toolChangeNotifier(IToolContext ctx, McpSyncServer server) {
+     *       return McpToolChangeNotifier.forSync(ctx, () -> server.notifyToolsListChanged());
+     *   }
+     *   // spring auto-registers ContextRefreshedEvent listeners
+     * }</pre>
+     *
+     * The first notification carries the initial snapshot (lastSize=-1 →
+     * fires once even if no changes); subsequent applications are no-ops
+     * unless something changed.
+     */
+    @EventListener(ContextRefreshedEvent.class)
+    public void onApplicationReady() {
+        notifyNow();
     }
 }
