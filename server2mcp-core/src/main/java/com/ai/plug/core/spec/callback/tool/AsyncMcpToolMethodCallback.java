@@ -63,8 +63,8 @@ public class AsyncMcpToolMethodCallback extends AbstractMcpToolMethodCallback
         // Idempotent dedup: if @McpTool.idempotentHint=true and a cache is
         // configured, return cached CallToolResult for repeated calls within
         // TTL window. Cache lookup is synchronous (Map.contains).
-        com.ai.plug.core.spec.dedup.IdempotentCache cache = this.idempotentCache;
-        boolean idempotent = this.toolAnnotation != null && this.toolAnnotation.idempotentHint();
+        final com.ai.plug.core.spec.dedup.IdempotentCache cache = this.idempotentCache;
+        final boolean idempotent = this.toolAnnotation != null && this.toolAnnotation.idempotentHint();
         String fp = null;
         if (idempotent && cache != null) {
             fp = cache.fingerprint(this.name, callToolRequest.arguments());
@@ -72,6 +72,7 @@ public class AsyncMcpToolMethodCallback extends AbstractMcpToolMethodCallback
                 return Mono.just(cache.get(fp, McpSchema.CallToolResult.class));
             }
         }
+        final String fpFinal = fp;
 
         return Mono.fromCallable(() -> {
                 // Build arguments for the method call
@@ -86,12 +87,12 @@ public class AsyncMcpToolMethodCallback extends AbstractMcpToolMethodCallback
                 Type returnType = this.method.getGenericReturnType();
 
                 // Convert the result to a GetPromptResult
-                McpSchema.CallToolResult converted = this.converter.convertToCallToolResult(result, returnType, this);
+                final McpSchema.CallToolResult converted = this.converter.convertToCallToolResult(result, returnType, this);
 
                 // Store in cache for future idempotent invocations
-                if (idempotent && cache != null && fp != null
+                if (idempotent && cache != null && fpFinal != null
                         && converted != null && !converted.isError()) {
-                    cache.put(fp, converted);
+                    cache.put(fpFinal, converted);
                 }
                 return converted;
             }).doOnError(e ->

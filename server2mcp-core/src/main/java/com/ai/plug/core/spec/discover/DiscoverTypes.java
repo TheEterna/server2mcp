@@ -167,4 +167,24 @@ public final class DiscoverTypes {
                 extensions == null ? Map.of() : extensions);
         }
     }
+
+    /**
+     * Request payload for `server/discover` — what the client sends when
+     * probing server capabilities. Records the client's preferred protocol
+     * version so the server can pick the best match.
+     */
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    public record DiscoverRequest(String preferredProtocol) {
+
+        public DiscoverRequest {
+            if (preferredProtocol == null || preferredProtocol.isBlank()) {
+                throw new IllegalArgumentException(
+                    "preferredProtocol is required (e.g. \"2025-11-25\" or \"2026-07-28\")");
+            }
+        }
+
+        public static DiscoverRequest of(String preferredProtocol) {
+            return new DiscoverRequest(preferredProtocol);
+        }
+    }
 }
