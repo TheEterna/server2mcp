@@ -136,4 +136,42 @@ class TaskStatusEndToEndTest {
     void cacheHint_defaultTtlIs60Seconds() {
         assertThat(CacheHints.DEFAULT_TTL_MS).isEqualTo(60_000L);
     }
+
+    @Test
+    void taskError_reservedCodeRangeAccepted() {
+        // -32020 (HeaderMismatch) is the lowest reserved code
+        TaskTypes.TaskError err = TaskTypes.TaskError.reserved(-32020, "header mismatch");
+        assertThat(err.code()).isEqualTo(-32020);
+        assertThat(err.isReservedCode()).isTrue();
+
+        // -32099 is the highest reserved code
+        TaskTypes.TaskError err2 = TaskTypes.TaskError.reserved(-32099, "end of range");
+        assertThat(err2.isReservedCode()).isTrue();
+
+        // Mid-range (-32050) is reserved
+        TaskTypes.TaskError err3 = TaskTypes.TaskError.reserved(-32050, "mid");
+        assertThat(err3.isReservedCode()).isTrue();
+    }
+
+    @Test
+    void taskError_outOfReservedRangeRejected() {
+        // -32019 is implementation-defined, not reserved
+        org.assertj.core.api.Assertions.assertThatThrownBy(() ->
+            TaskTypes.TaskError.reserved(-32019, "impl-defined")
+        ).isInstanceOf(IllegalArgumentException.class)
+         .hasMessageContaining("outside the reserved range");
+
+        // -32100 is outside the spec range entirely
+        org.assertj.core.api.Assertions.assertThatThrownBy(() ->
+            TaskTypes.TaskError.reserved(-32100, "out of range")
+        ).isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    void taskError_ofAcceptsArbitraryCode() {
+        // of() allows any code (JSON-RPC convention)
+        TaskTypes.TaskError implDefined = TaskTypes.TaskError.of(-31000, "impl code");
+        assertThat(implDefined.code()).isEqualTo(-31000);
+        assertThat(implDefined.isReservedCode()).isFalse();
+    }
 }

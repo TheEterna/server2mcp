@@ -134,9 +134,25 @@ public final class TaskTypes {
      * Error payload for failed tasks. Mirrors JSON-RPC error shape (code +
      * message + optional data), enabling clients to surface failures uniformly
      * with transport-level errors.
+     *
+     * <p>Error code range (protocol 2026-07-28 changelog):
+     * <ul>
+     *   <li>-32000..-32019: implementation-defined (grandfathered)</li>
+     *   <li>-32020..-32099: <b>reserved for MCP spec</b> — these are
+     *       canonical codes like -32020 (HeaderMismatch), -32021
+     *       (MissingRequiredClientCapability), -32022 (UnsupportedProtocolVersion)</li>
+     * </ul>
+     * This constructor accepts any code (JSON-RPC allows arbitrary ints in
+     * the server-error range) but provides a static helper
+     * {@link #reserved(int, String)} for emitting a reserved code.
      */
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public record TaskError(int code, String message, Map<String, Object> data) {
+
+        /** Lowest reserved code per protocol 2026-07-28. */
+        public static final int RESERVED_CODE_MIN = -32099;
+        /** Highest reserved code per protocol 2026-07-28. */
+        public static final int RESERVED_CODE_MAX = -32020;
 
         public TaskError {
             if (message == null || message.isBlank()) {
@@ -146,6 +162,28 @@ public final class TaskTypes {
 
         public static TaskError of(int code, String message) {
             return new TaskError(code, message, null);
+        }
+
+        /**
+         * Construct a TaskError with a reserved-range code (-32099 to -32020).
+         * Throws IllegalArgumentException if the code is outside the reserved
+         * range — call sites can use {@link #of(int, String)} for arbitrary
+         * codes instead.
+         */
+        public static TaskError reserved(int code, String message) {
+            // Valid range: MIN <= code <= MAX, i.e. -32099 <= code <= -32020.
+            // code below MIN or above MAX is out of range.
+            if (code < RESERVED_CODE_MIN || code > RESERVED_CODE_MAX) {
+                throw new IllegalArgumentException(
+                    "code " + code + " is outside the reserved range ["
+                        + RESERVED_CODE_MIN + ".." + RESERVED_CODE_MAX + "]");
+            }
+            return new TaskError(code, message, null);
+        }
+
+        /** @return true if this error's code is in the protocol-reserved range. */
+        public boolean isReservedCode() {
+            return code >= RESERVED_CODE_MIN && code <= RESERVED_CODE_MAX;
         }
     }
 
