@@ -1,6 +1,7 @@
 package com.ai.plug.core.spec.dedup;
 
 import com.ai.plug.common.utils.JsonParser;
+import org.jspecify.annotations.Nullable;
 import tools.jackson.core.JacksonException;
 
 import java.security.MessageDigest;
@@ -41,13 +42,24 @@ import java.util.concurrent.TimeUnit;
 public class IdempotentCache {
 
     private final long ttlMs;
+    @Nullable
+    private final IdempotencyMetrics metrics;
     private final Map<String, Entry> store = new ConcurrentHashMap<>();
 
     public IdempotentCache(long ttlMs) {
+        this(ttlMs, null);
+    }
+
+    /**
+     * Construct a cache with explicit metrics. Pass {@code null} to skip
+     * metrics tracking (same as the single-arg constructor).
+     */
+    public IdempotentCache(long ttlMs, @Nullable IdempotencyMetrics metrics) {
         if (ttlMs < 0) {
             throw new IllegalArgumentException("ttlMs must be >= 0, got: " + ttlMs);
         }
         this.ttlMs = ttlMs;
+        this.metrics = metrics;
     }
 
     /**
@@ -71,7 +83,16 @@ public class IdempotentCache {
 
     public boolean contains(String fingerprint) {
         Entry e = store.get(fingerprint);
-        return e != null && !isExpired(e);
+        boolean hit = e != null && !isExpired(e);
+        if (metrics != null) {
+            if (hit) {
+                metrics.incrementHits();
+            }
+            else {
+                metrics.incrementMisses();
+            }
+        }
+        return hit;
     }
 
     public <T> T get(String fingerprint, Class<T> type) {
@@ -109,6 +130,9 @@ public class IdempotentCache {
             }
             return false;
         });
+        if (metrics != null && removed[0] > 0) {
+            metrics.incrementEvictions(removed[0]);
+        }
         return removed[0];
     }
 
