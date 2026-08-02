@@ -1,0 +1,176 @@
+{
+  "_comment": "MCP protocol 2026-07-28 wire schema samples produced by api2mcp4j. Reference for integrators building custom transports.",
+  "_see_also": "docs/mcp-2026-07-28-coverage.md, docs/mcp-server-capabilities-field-mapping.md",
+  "samples": {
+    "call_tool_result_default": {
+      "_description": "Default resultType=complete, no TTL/cache hints",
+      "result": {
+        "resultType": "complete",
+        "content": [
+          {
+            "type": "text",
+            "text": "hello world"
+          }
+        ],
+        "isError": false,
+        "structuredContent": null,
+        "meta": {
+          "resultType": "complete",
+          "cacheWrapperKey": "_cacheable"
+        }
+      }
+    },
+    "call_tool_result_with_cache_hint": {
+      "_description": "Full cache hint + custom wrapper key",
+      "result": {
+        "resultType": "complete",
+        "content": [
+          {
+            "type": "text",
+            "text": "{\"rows\":[1,2,3]}"
+          }
+        ],
+        "isError": false,
+        "structuredContent": {
+          "rows": [1, 2, 3]
+        },
+        "meta": {
+          "resultType": "complete",
+          "ttlMs": 60000,
+          "cacheScope": "private",
+          "cacheWrapperKey": "_cacheable"
+        }
+      }
+    },
+    "call_tool_result_input_required_mrtr": {
+      "_description": "MRTR (Multi Round-Trip Requests) — server needs more info from client",
+      "result": {
+        "resultType": "input_required",
+        "content": [
+          {
+            "type": "text",
+            "text": "input_required: 2 request(s)"
+          }
+        ],
+        "isError": false,
+        "structuredContent": null,
+        "meta": {
+          "resultType": "input_required",
+          "inputRequests": [
+            { "kind": "roots" },
+            { "kind": "elicitation", "message": "Provide account id", "schema": { "type": "object" } }
+          ],
+          "requestState": "corr-state-1"
+        }
+      }
+    },
+    "call_tool_result_task_handle": {
+      "_description": "TaskHandle return value — server accepted task, client polls via tasks/get",
+      "result": {
+        "resultType": "complete",
+        "content": [
+          {
+            "type": "text",
+            "text": "task accepted: task-abc-123"
+          }
+        ],
+        "isError": false,
+        "structuredContent": null,
+        "meta": {
+          "resultType": "complete",
+          "taskHandle": "task-abc-123"
+        }
+      }
+    },
+    "call_tool_result_paginated": {
+      "_description": "PageList<T> return — converter auto-injects nextCursor + totalItems",
+      "result": {
+        "resultType": "complete",
+        "content": [
+          {
+            "type": "text",
+            "text": "{\"items\":[20,21,22,23,24,25,26,27,28,29]}"
+          }
+        ],
+        "isError": false,
+        "structuredContent": null,
+        "meta": {
+          "resultType": "complete",
+          "nextCursor": "30",
+          "totalItems": 100,
+          "ttlMs": 60000,
+          "cacheScope": "private",
+          "cacheWrapperKey": "_cacheable"
+        }
+      }
+    },
+    "call_tool_result_with_otel_trace": {
+      "_description": "OpenTelemetry trace context forwarded from request _meta (SEP-414)",
+      "request_meta": {
+        "requestId": "req-abc",
+        "traceparent": "00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01",
+        "tracestate": "rojo=00f067aa0ba902b7",
+        "baggage": "userId=alice"
+      },
+      "response_meta": {
+        "resultType": "complete",
+        "traceparent": "00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01",
+        "tracestate": "rojo=00f067aa0ba902b7",
+        "baggage": "userId=alice"
+      }
+    },
+    "list_tools_result_with_capabilities": {
+      "_description": "tools/list response with wire capabilities",
+      "result": {
+        "tools": [
+          {
+            "name": "my-tool",
+            "title": "My Tool",
+            "description": "Does something useful",
+            "inputSchema": { "type": "object" },
+            "outputSchema": { "type": "object" },
+            "annotations": {
+              "title": "My Tool",
+              "readOnlyHint": true,
+              "destructiveHint": false,
+              "idempotentHint": true,
+              "openWorldHint": false
+            },
+            "icons": [
+              { "src": "https://example.com/icon.svg", "mimeType": "image/svg+xml" }
+            ]
+          }
+        ],
+        "nextCursor": null,
+        "meta": {
+          "io.modelcontextprotocol/api2mcp4j": {
+            "version": "1.1.4-SNAPSHOT",
+            "protocolVersions": ["2025-11-25", "2026-07-28"],
+            "wireFields": [
+              "resultType", "ttlMs", "cacheScope", "cacheWrapperKey",
+              "nextCursor", "inputRequests", "requestState", "taskHandle"
+            ]
+          }
+        }
+      }
+    },
+    "server_capabilities_advertised": {
+      "_description": "What the server advertises to clients at startup",
+      "capabilities": {
+        "tools": { "listChanged": true },
+        "resources": { "subscribe": true, "listChanged": true },
+        "prompts": { "listChanged": true },
+        "experimental": {
+          "io.modelcontextprotocol/api2mcp4j": {
+            "version": "1.1.4-SNAPSHOT",
+            "protocolVersions": ["2025-11-25", "2026-07-28"],
+            "wireFields": [
+              "resultType", "ttlMs", "cacheScope", "cacheWrapperKey",
+              "nextCursor", "inputRequests", "requestState", "taskHandle"
+            ]
+          }
+        }
+      }
+    }
+  }
+}
