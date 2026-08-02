@@ -34,6 +34,33 @@ import static com.ai.plug.common.constants.MineTypeConstants.*;
 public class DefaultMcpCallToolResultConverter implements McpCallToolResultConverter {
 
     private static final Logger log = org.slf4j.LoggerFactory.getLogger(DefaultMcpCallToolResultConverter.class);
+
+    /**
+     * System property to enable dev-mode schema validation. When set to
+     * "true", the converter invokes {@link com.ai.plug.core.spec.resulttype.WireSchemaValidator}
+     * on every produced {@code CallToolResult} and throws on issues.
+     * Default "false" — zero overhead in production.
+     */
+    public static final String DEV_MODE_PROPERTY = "api2mcp4j.wireschema.validate";
+    /**
+     * Dev-mode schema validation hook. Returns a converted result, also
+     * running {@link com.ai.plug.core.spec.resulttype.WireSchemaValidator}
+     * when the {@link #DEV_MODE_PROPERTY} system property is "true".
+     * Static utility so unit tests can call it directly without
+     * going through the full converter flow.
+     */
+    static McpSchema.CallToolResult maybeValidateInDevMode(
+            McpSchema.CallToolResult result, Type returnType) {
+        if ("true".equalsIgnoreCase(System.getProperty(DEV_MODE_PROPERTY, "false"))) {
+            var report = com.ai.plug.core.spec.resulttype.WireSchemaValidator.validate(result);
+            if (!report.isOk()) {
+                throw new IllegalStateException(
+                    "WireSchema validation failed (dev-mode):\n" + report);
+            }
+        }
+        return result;
+    }
+
     @Override
     public McpSchema.CallToolResult convertToCallToolResult(Object result, Type returnType, AbstractMcpToolMethodCallback callback) {
         // 首先, 无论返回的类型是什么, 即使是String 对应的 mineType 应该是text/* 但一切都要以方法中提供的mineType为准, 如果为空, 再以返回类型为准
