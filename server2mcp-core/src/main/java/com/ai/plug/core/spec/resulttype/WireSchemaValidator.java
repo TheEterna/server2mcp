@@ -123,6 +123,23 @@ public final class WireSchemaValidator {
 
         void add(String issue) { issues.add(issue); }
 
+        /**
+         * Serialize the report as JSON for machine-readable health endpoints
+         * (Actuator / REST). Wire format: {@code {"source":"...", "healthy":
+         * true/false, "issueCount":N, "issues":[...]}}.
+         */
+        public String toJson() throws java.io.IOException {
+            java.util.Map<String, Object> body = new java.util.LinkedHashMap<>();
+            body.put("source", source);
+            body.put("healthy", isOk());
+            body.put("issueCount", issues.size());
+            if (!issues.isEmpty()) {
+                body.put("issues", new java.util.ArrayList<>(issues));
+            }
+            return com.ai.plug.common.utils.JsonParser.getObjectMapper()
+                .writeValueAsString(body);
+        }
+
         @Override
         public String toString() {
             if (isOk()) return "Report[" + source + ": OK]";
