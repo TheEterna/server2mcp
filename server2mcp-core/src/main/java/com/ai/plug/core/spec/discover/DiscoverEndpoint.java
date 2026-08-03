@@ -91,6 +91,38 @@ public final class DiscoverEndpoint {
         return body;
     }
 
+    /**
+     * Build the discover response with {@code capabilities} rendered via
+     * the framework's {@link com.ai.plug.core.spec.capabilities.CapabilitiesJsonExporter}
+     * — emitting the protocol-2026-07-28 {@code ServerCapabilities} wire
+     * schema (including {@code tools.subscription},
+     * {@code completions.listChanged}, and the
+     * {@code experimental.io.modelcontextprotocol/tasks} extension)
+     * regardless of what the upstream supplier returns.
+     *
+     * <p>If the supplier hands us a {@link com.ai.plug.core.spec.capabilities.WireServerCapabilities}
+     * we serialise it directly; otherwise we fall back to the
+     * legacy {@link #handle()} path so existing integrators keep working.
+     */
+    public Map<String, Object> handle2026() {
+        Object supplied = capabilitiesSupplier.get();
+        if (supplied instanceof com.ai.plug.core.spec.capabilities.WireServerCapabilities wire) {
+            Map<String, Object> body = new LinkedHashMap<>();
+            body.put("protocolVersions", SUPPORTED_PROTOCOL_VERSIONS);
+            body.put("preferredVersion", PREFERRED_PROTOCOL_VERSION);
+            body.put("serverInfo", ServerInfoFactory.create(serverName, serverVersion));
+            com.ai.plug.core.spec.capabilities.CapabilitiesJsonExporter exporter =
+                new com.ai.plug.core.spec.capabilities.CapabilitiesJsonExporter();
+            body.put("capabilities", exporter.toMap(wire));
+            Map<String, Object> ext = extensionsSupplier.get();
+            if (ext != null && !ext.isEmpty()) {
+                body.put("extensions", ext);
+            }
+            return body;
+        }
+        return handle();
+    }
+
     /** Convenience: serialize {@link #handle()} as a JSON string using
      *  the project's shared Jackson 3 mapper. */
     public String handleJson() throws java.io.IOException {

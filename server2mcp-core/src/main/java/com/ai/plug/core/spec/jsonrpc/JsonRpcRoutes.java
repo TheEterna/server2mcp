@@ -48,9 +48,11 @@ public final class JsonRpcRoutes {
         MrtrSessionStore mrtrStore) {
 
         // 1. server/discover — capability negotiation. We emit the full
-        //    server capabilities payload (which the endpoint already
-        //    packages against the protocol-2026-07-28 wire schema).
-        router.register("server/discover", params -> discoverEndpoint.handle());
+        //    server capabilities payload against the protocol-2026-07-28
+        //    wire schema (handle2026() emits tools.subscription /
+        //    completions.listChanged / experimental.io.modelcontextprotocol/tasks
+        //    — fields SDK 2.0 has no record for).
+        router.register("server/discover", params -> discoverEndpoint.handle2026());
 
         // 2. tasks/create — submit an async task. The endpoint only
         //    exposes get/list/cancel over HTTP; creation is a
