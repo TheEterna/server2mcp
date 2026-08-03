@@ -50,9 +50,17 @@ public final class NotificationsPollingEndpoint {
     /** Default ring buffer size — prevents unbounded memory growth. */
     public static final int DEFAULT_CAPACITY = 1024;
 
+    /** Listener interface — fired after each event is recorded. Used by
+     *  the SSE controller to fan-out to live clients without polling. */
+    @FunctionalInterface
+    public interface EventListener {
+        void onEvent(long cursor, String kind, Map<String, Object> payload);
+    }
+
     private final int capacity;
     private final AtomicLong cursor = new AtomicLong(0);
     private final Map<Long, NotificationEvent> events = new ConcurrentHashMap<>();
+    private volatile EventListener listener;
 
     public NotificationsPollingEndpoint() {
         this(DEFAULT_CAPACITY);
@@ -63,6 +71,12 @@ public final class NotificationsPollingEndpoint {
             throw new IllegalArgumentException("capacity must be >= 16, got: " + capacity);
         }
         this.capacity = capacity;
+    }
+
+    /** Register a listener that will be invoked synchronously after each
+     *  {@link #recordEvent}. Replaces any previous listener (last-write-wins). */
+    public void setListener(EventListener listener) {
+        this.listener = listener;
     }
 
     /**
@@ -79,6 +93,14 @@ public final class NotificationsPollingEndpoint {
         if (events.size() > capacity) {
             long oldest = c - capacity;
             if (oldest > 0) events.remove(oldest);
+        }
+        EventListener l = this.listener;
+        if (l != null) {
+            try {
+                l.onEvent(c, kind, payload);
+            } catch (RuntimeException ex) {
+                // Listener failures must not poison the ring buffer.
+            }
         }
         return c;
     }

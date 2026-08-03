@@ -186,4 +186,20 @@ public class ProtocolEndpointsAutoConfiguration {
     public JsonRpcController jsonRpcController(JsonRpcRouter router) {
         return new JsonRpcController(router);
     }
+
+    /**
+     * SSE notifications controller — exposes {@code GET /mcp/sse} for
+     * protocol-2026-07-28 {@code subscriptions/listen}. Bridges the
+     * polling endpoint's recordEvent to every live SSE client via a
+     * listener hook.
+     */
+    @Bean
+    @ConditionalOnMissingBean(SseNotificationsController.class)
+    public SseNotificationsController sseNotificationsController(
+            NotificationsPollingEndpoint notifications) {
+        SseNotificationsController controller = new SseNotificationsController(notifications);
+        notifications.setListener(controller::broadcast);
+        controller.startHeartbeat();
+        return controller;
+    }
 }
