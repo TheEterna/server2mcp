@@ -10,6 +10,10 @@ import java.util.Map;
  * {@code error} is populated per response; the wire format mandates
  * {@code id} echo (with {@code null} for parse-error notifications).
  *
+ * <p>The {@code _meta} field carries the protocol-2026-07-28
+ * OTel trace context (always populated with a fresh {@code traceparent}
+ * by the router — clients can use it to stitch calls into a trace).
+ *
  * @author han
  * @time 2026/8/3
  */
@@ -18,15 +22,24 @@ public record JsonRpcResponse(
     @JsonProperty("jsonrpc") String jsonrpc,
     @JsonProperty("result") Object result,
     @JsonProperty("error") JsonRpcError error,
-    @JsonProperty("id") Object id
+    @JsonProperty("id") Object id,
+    @JsonProperty("_meta") Map<String, Object> meta
 ) {
 
+    public JsonRpcResponse {
+        if (meta == null) meta = Map.of();
+    }
+
     public static JsonRpcResponse success(Object result, Object id) {
-        return new JsonRpcResponse("2.0", result, null, id);
+        return new JsonRpcResponse("2.0", result, null, id, Map.of());
+    }
+
+    public static JsonRpcResponse successWithMeta(Object result, Object id, Map<String, Object> meta) {
+        return new JsonRpcResponse("2.0", result, null, id, meta);
     }
 
     public static JsonRpcResponse error(JsonRpcError error, Object id) {
-        return new JsonRpcResponse("2.0", null, error, id);
+        return new JsonRpcResponse("2.0", null, error, id, Map.of());
     }
 
     /**

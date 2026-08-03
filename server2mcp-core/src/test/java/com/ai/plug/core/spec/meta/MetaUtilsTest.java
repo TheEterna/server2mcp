@@ -70,4 +70,45 @@ class MetaUtilsTest {
         Map<String, Object> fromSource = MetaUtils.merge(null, Map.of("a", "1"));
         assertThat(fromSource).hasSize(1);
     }
+
+    @Test
+    void mintTraceparent_w3cFormat() {
+        String tp = MetaUtils.mintTraceparent();
+        // 00-{32 hex}-{16 hex}-{2 hex}
+        assertThat(tp).matches("00-[0-9a-f]{32}-[0-9a-f]{16}-[0-9a-f]{2}");
+    }
+
+    @Test
+    void mintTraceparent_uniquePerCall() {
+        java.util.HashSet<String> seen = new java.util.HashSet<>();
+        for (int i = 0; i < 100; i++) {
+            seen.add(MetaUtils.mintTraceparent());
+        }
+        assertThat(seen).hasSize(100);
+    }
+
+    @Test
+    void ensureTraceparent_mintsWhenMissing() {
+        Map<String, Object> target = new HashMap<>();
+        MetaUtils.ensureTraceparent(target);
+        assertThat(target).containsKey(MetaUtils.TRACE_PARENT);
+        String tp = (String) target.get(MetaUtils.TRACE_PARENT);
+        assertThat(tp).matches("00-[0-9a-f]{32}-[0-9a-f]{16}-[0-9a-f]{2}");
+    }
+
+    @Test
+    void ensureTraceparent_preservesExisting() {
+        Map<String, Object> target = new HashMap<>();
+        target.put(MetaUtils.TRACE_PARENT, "00-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa-bbbbbbbbbbbbbbbb-01");
+        MetaUtils.ensureTraceparent(target);
+        assertThat(target.get(MetaUtils.TRACE_PARENT))
+            .isEqualTo("00-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa-bbbbbbbbbbbbbbbb-01");
+    }
+
+    @Test
+    void ensureTraceparent_handlesNullMap() {
+        Map<String, Object> result = MetaUtils.ensureTraceparent(null);
+        assertThat(result).isNotNull();
+        assertThat(result).containsKey(MetaUtils.TRACE_PARENT);
+    }
 }

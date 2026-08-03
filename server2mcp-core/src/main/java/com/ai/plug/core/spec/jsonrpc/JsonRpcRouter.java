@@ -1,8 +1,10 @@
 package com.ai.plug.core.spec.jsonrpc;
 
+import com.ai.plug.core.spec.meta.MetaUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
@@ -71,26 +73,47 @@ public final class JsonRpcRouter {
         Function<Map<String, Object>, Object> handler = handlers.get(request.method());
         if (handler == null) {
             logger.debug("No handler for method={}", request.method());
-            return JsonRpcResponse.error(
+            return new JsonRpcResponse(
+                "2.0", null,
                 JsonRpcResponse.JsonRpcError.of(
                     JsonRpcResponse.JsonRpcError.METHOD_NOT_FOUND,
                     "Method not found: " + request.method()),
-                request.id());
+                request.id(), mintMeta(request.params()));
         }
         Map<String, Object> params = request.params() != null
             ? request.params()
             : Map.of();
         try {
             Object result = handler.apply(params);
-            return JsonRpcResponse.success(result, request.id());
+            return JsonRpcResponse.successWithMeta(result, request.id(), mintMeta(params));
         } catch (RuntimeException ex) {
             logger.error("Handler for method={} failed: {}", request.method(), ex.toString());
-            return JsonRpcResponse.error(
+            return new JsonRpcResponse(
+                "2.0", null,
                 JsonRpcResponse.JsonRpcError.of(
                     JsonRpcResponse.JsonRpcError.INTERNAL_ERROR,
                     ex.getClass().getSimpleName() + ": " + ex.getMessage()),
-                request.id());
+                request.id(), mintMeta(params));
         }
+    }
+
+    /** Mint a fresh W3C traceparent for every response (SEP-414). If
+     *  the caller supplied one in {@code params._meta}, propagate it
+     *  verbatim instead. */
+    private Map<String, Object> mintMeta(Map<String, Object> params) {
+        Map<String, Object> incoming = null;
+        Object metaObj = params == null ? null : params.get("_meta");
+        if (metaObj instanceof Map<?, ?> raw) {
+            @SuppressWarnings("unchecked")
+            Map<String, Object> m = (Map<String, Object>) raw;
+            incoming = m;
+        }
+        Map<String, Object> meta = new HashMap<>();
+        if (incoming != null) {
+            meta.putAll(incoming);
+        }
+        MetaUtils.ensureTraceparent(meta);
+        return meta;
     }
 
     /** Convenience: dispatch from raw maps (e.g. controller deserialized JSON). */
@@ -100,11 +123,12 @@ public final class JsonRpcRouter {
             JsonRpcRequest request = parseRaw(raw);
             return dispatch(request);
         } catch (IllegalArgumentException ex) {
-            return JsonRpcResponse.error(
+            return new JsonRpcResponse(
+                "2.0", null,
                 JsonRpcResponse.JsonRpcError.of(
                     JsonRpcResponse.JsonRpcError.INVALID_REQUEST,
                     ex.getMessage()),
-                null);
+                null, mintMeta(null));
         }
     }
 

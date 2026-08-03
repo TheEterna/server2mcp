@@ -63,6 +63,45 @@ class JsonRpcIntegrationTest {
     }
 
     @Test
+    void everyResponse_carriesTraceparent() throws Exception {
+        // Each JSON-RPC response must carry a W3C-format traceparent
+        // (SEP-414 / protocol-2026-07-28 OTel propagation).
+        org.springframework.test.web.servlet.MvcResult r1 = mvc.perform(post("/mcp/jsonrpc")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                    {"jsonrpc":"2.0","method":"server/discover","params":{},"id":1}
+                    """))
+            .andReturn();
+        String body = r1.getResponse().getContentAsString();
+        org.assertj.core.api.Assertions.assertThat(body)
+            .contains("\"_meta\"")
+            .contains("\"traceparent\"")
+            .containsPattern("\"traceparent\"\\s*:\\s*\"00-[0-9a-f]{32}-[0-9a-f]{16}-[0-9a-f]{2}\"");
+
+        org.springframework.test.web.servlet.MvcResult r2 = mvc.perform(post("/mcp/jsonrpc")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                    {"jsonrpc":"2.0","method":"tasks/list","params":{},"id":2}
+                    """))
+            .andReturn();
+        org.assertj.core.api.Assertions.assertThat(r2.getResponse().getContentAsString())
+            .contains("\"traceparent\"");
+
+        // Errors also carry traceparent
+        org.springframework.test.web.servlet.MvcResult r3 = mvc.perform(post("/mcp/jsonrpc")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                    {"jsonrpc":"2.0","method":"ghost","params":{},"id":3}
+                    """))
+            .andReturn();
+        String errBody = r3.getResponse().getContentAsString();
+        org.assertj.core.api.Assertions.assertThat(errBody)
+            .contains("\"traceparent\"")
+            .contains("\"error\"")
+            .contains("-32601");
+    }
+
+    @Test
     void tasksLifecycle_createGetCancel() throws Exception {
         // 1. Create
         mvc.perform(post("/mcp/jsonrpc")

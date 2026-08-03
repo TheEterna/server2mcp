@@ -2,6 +2,7 @@ package com.ai.plug.core.spec.meta;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * Helpers for the {@code _meta} field carried on every MCP request / response /
@@ -59,6 +60,40 @@ public final class MetaUtils {
     }
 
     /**
+     * Ensure a {@code traceparent} is present in the supplied _meta map,
+     * minting a fresh W3C-compliant trace context if the request arrived
+     * without one. Mutates {@code target} in place and returns it.
+     *
+     * <p>This is the protocol-2026-07-28 fallback for clients that don't
+     * propagate OTel context — every server response gets a {@code traceparent}
+     * regardless, so downstream tooling can stitch the call into a trace.
+     */
+    public static Map<String, Object> ensureTraceparent(Map<String, Object> target) {
+        if (target == null) {
+            target = new HashMap<>();
+        }
+        if (!target.containsKey(TRACE_PARENT) || target.get(TRACE_PARENT) == null) {
+            target.put(TRACE_PARENT, mintTraceparent());
+        }
+        return target;
+    }
+
+    /**
+     * Mint a fresh W3C-compliant traceparent header value
+     * ({@code 00-{32-hex trace-id}-{16-hex parent-id}-{2-hex flags}}).
+     * The {@code 00} version is the only one currently defined; flags
+     * default to {@code 01} (sampled) so observability backends capture
+     * the trace by default.
+     */
+    public static String mintTraceparent() {
+        byte[] traceId = new byte[16];
+        byte[] parentId = new byte[8];
+        ThreadLocalRandom.current().nextBytes(traceId);
+        ThreadLocalRandom.current().nextBytes(parentId);
+        return "00-" + toHex(traceId) + "-" + toHex(parentId) + "-01";
+    }
+
+    /**
      * Merge two _meta maps with source taking precedence over base. Returns a
      * new map; inputs are not mutated.
      */
@@ -78,5 +113,17 @@ public final class MetaUtils {
         if (v != null) {
             target.put(key, v);
         }
+    }
+
+    private static final char[] HEX = "0123456789abcdef".toCharArray();
+
+    private static String toHex(byte[] bytes) {
+        char[] out = new char[bytes.length * 2];
+        for (int i = 0; i < bytes.length; i++) {
+            int v = bytes[i] & 0xff;
+            out[i * 2] = HEX[v >>> 4];
+            out[i * 2 + 1] = HEX[v & 0x0f];
+        }
+        return new String(out);
     }
 }
