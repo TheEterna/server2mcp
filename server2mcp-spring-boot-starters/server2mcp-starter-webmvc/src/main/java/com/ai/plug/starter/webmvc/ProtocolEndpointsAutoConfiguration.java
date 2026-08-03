@@ -36,6 +36,10 @@ package com.ai.plug.starter.webmvc;
 
 import com.ai.plug.core.spec.change.NotificationsPollingEndpoint;
 import com.ai.plug.core.spec.discover.DiscoverEndpoint;
+import com.ai.plug.core.spec.jsonrpc.JsonRpcRouter;
+import com.ai.plug.core.spec.jsonrpc.JsonRpcRoutes;
+import com.ai.plug.core.spec.mrtr.InMemoryMrtrSessionStore;
+import com.ai.plug.core.spec.mrtr.MrtrSessionStore;
 import com.ai.plug.core.spec.tasks.AugmentedPromptEndpoint;
 import com.ai.plug.core.spec.tasks.AugmentedPromptStore;
 import com.ai.plug.core.spec.tasks.InMemoryAugmentedPromptStore;
@@ -138,5 +142,48 @@ public class ProtocolEndpointsAutoConfiguration {
     @ConditionalOnMissingBean
     public WebMvcConfigurer mcpProtocolEndpointsConfigurer() {
         return new WebMvcConfigurer() { };
+    }
+
+    /** Default in-memory MRTR session store — override via {@code @Primary @Bean}. */
+    @Bean
+    @ConditionalOnMissingBean(MrtrSessionStore.class)
+    public MrtrSessionStore inMemoryMrtrSessionStore() {
+        return new InMemoryMrtrSessionStore();
+    }
+
+    /**
+     * JSON-RPC router pre-loaded with all 8 protocol-2026-07-28 routes
+     * ({@code server/discover}, {@code tasks/*}, {@code subscriptions/listen},
+     * {@code input_required/respond}). Mounted by {@link JsonRpcController}
+     * at {@code POST /mcp/jsonrpc}.
+     */
+    @Bean
+    @ConditionalOnMissingBean(JsonRpcRouter.class)
+    public JsonRpcRouter jsonRpcRouter(
+            DiscoverEndpoint discoverEndpoint,
+            TaskStore taskStore,
+            TasksEndpoint tasksEndpoint,
+            AugmentedPromptEndpoint augmentedPromptEndpoint,
+            NotificationsPollingEndpoint notificationsEndpoint,
+            MrtrSessionStore mrtrStore) {
+        JsonRpcRouter router = new JsonRpcRouter();
+        JsonRpcRoutes.registerAll(router,
+            discoverEndpoint,
+            taskStore,
+            tasksEndpoint,
+            augmentedPromptEndpoint,
+            notificationsEndpoint,
+            mrtrStore);
+        return router;
+    }
+
+    /**
+     * JSON-RPC controller — exposes {@code POST /mcp/jsonrpc} on top of
+     * the {@link JsonRpcRouter} bean.
+     */
+    @Bean
+    @ConditionalOnMissingBean(JsonRpcController.class)
+    public JsonRpcController jsonRpcController(JsonRpcRouter router) {
+        return new JsonRpcController(router);
     }
 }
