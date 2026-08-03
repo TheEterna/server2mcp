@@ -82,9 +82,9 @@
 | `tasks/cancel` | ❌ | 同上 | Java SDK ≥ 3.0.0 |
 | `tasks/augmented-prompt` | ❌ | 协议占位 stub | Java SDK ≥ 3.0.0 |
 | `subscriptions/listen` | ❌ | — | Java SDK ≥ 3.0.0 |
-| `input_required/respond` | ❌ | 协议 DTO 在 `com.ai.plug.core.spec.mrtr.MrtrTypes` | Java SDK ≥ 3.0.0 |
+| `input_required/respond` | 🟡 | 协议 DTO + `MrtrSessionStore` + `MrtrDriver` + 3 轮端到端测试已实装；仅缺 SDK 字段层直传 | Java SDK ≥ 3.0.0 |
 
-**当下能做什么**：本框架在 converter 层**自动识别** `InputRequiredResult` / `TaskHandle` 返回值并把字段写进 `_meta`。客户端按协议 2026-07-28 解析 `_meta` 即可获得完整信号——业务代码零改动。
+**当下能做什么**：本框架在 converter 层**自动识别** `InputRequiredResult` / `TaskHandle` 返回值并把字段写进 `_meta`；MRTR 多轮状态机（`MrtrSessionStore` + `MrtrDriver`）提供完整的 server 端多轮累积能力，handler 写 `MrtrDriver.start/resume` 即可获得 3 轮以上端到端演示（见 `MrtrConversationEndToEndTest`）。客户端按协议 2026-07-28 解析 `_meta` 即可获得完整信号——业务代码零改动。
 
 ---
 
@@ -125,6 +125,8 @@
 |---|---|---|
 | 协议 2026-07-28 全字段 native SDK 表达 | SDK 2.0 = 协议 2025-11-25 | 8 项字段层（见 §二/§三/§四中 🟡 行）需等 SDK ≥ 2.1.0 |
 | 新 RPC 路由（server/discover/tasks/*/subscriptions/listen/MRTR） | SDK 2.0 无任何路由 | 8 项 RPC（见 §五 ❌ 行）需等 SDK ≥ 3.0.0 |
+
+**自动跟踪机制**：`scripts/check-mcp-sdk-version.sh` + `scripts/trigger-phase3.sh` 每次 CI 检查 SDK 版本，发布 ≥ 3.0.0 时自动提示启动 Phase 3（迁移到字段层直传，详见 `scripts/trigger-phase3.sh` 输出清单）。
 | HTTP header 注入钩子（Mcp-Method 等） | SDK 2.0 HttpHeaders 类无 | 4 项 header（见 §六 🟡 行）需等 SDK ≥ 2.1.0 |
 
 **自动跟踪机制**：`scripts/check-mcp-sdk-version.sh` 每次 CI 检查 SDK 版本，发布 ≥ 3.0.0 时自动提示启动 Phase 3 战役（迁移到字段层直传）。
