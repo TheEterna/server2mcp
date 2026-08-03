@@ -128,9 +128,33 @@ Use any MCP client (Cursor, custom agent, etc.) to call your original REST metho
 - Prototype AI features on top of production REST services
 - Avoid duplicating logic between REST and MCP endpoints
 
+## 📡 MCP Protocol 2026-07-28 Support
+
+**本框架已实装协议 2026-07-28（"无状态核心"）所有 wire JSON 层可写字段**——SDK 2.0 物理约束下，业务代码零改动即可获得协议合规。
+
+| 协议特性 | 实装状态 | 入口 |
+|---|---|---|
+| `tools.listChanged` / `resources.listChanged` / `prompts.listChanged` | ✅ | `WireSchemaExporter.syncAll()` 一键启用 |
+| `_meta.resultType` (complete / input_required) | 🟡 meta map | `@McpTool.resultType` + `McpResultWriter` |
+| `_meta.ttlMs` / `_meta.cacheScope` / `_meta.cacheWrapperKey` | 🟡 meta map | `@McpTool(ttlMs=, cacheScope=, cacheWrapperKey=)` |
+| MRTR（多轮输入请求 / InputRequiredResult） | 🟡 meta map | `com.ai.plug.core.spec.mrtr.MrtrTypes` |
+| Tasks 扩展（TaskHandle / TaskStatus / TaskError） | 🟡 meta map | `com.ai.plug.core.spec.tasks.TaskTypes` |
+| `server/discover`（能力自描述） | 🟡 experimental map | `com.ai.plug.core.spec.discover.DiscoverTypes` |
+| OTel trace 透传（traceparent / tracestate / baggage） | ✅ | 自动注入 `_meta` |
+| Capabilities 健康检查 | ✅ | `CapabilitiesHealth` + `/actuator/health/mcp-capabilities` |
+| Wire JSON 校验（dev-mode） | ✅ | `WireSchemaValidator` + `WireSchemaValidationFilter` |
+| 工具变更通知（pull-poll） | ✅ | `McpToolChangeNotifier.diffAndNotify()` |
+
+✅ = SDK 原生字段 · 🟡 = 通过 `_meta` / `experimental` map 间接表达（wire JSON 可见）
+
+**完整字段矩阵 + 接入示例 + 不可达项诚实声明**：见 [`docs/mcp-2026-07-28-INTEGRATION-MATRIX.md`](docs/mcp-2026-07-28-INTEGRATION-MATRIX.md)。
+
+> **诚实声明**：协议 2026-07-28 的 8 项新 RPC（`server/discover`、`tasks/*`、`subscriptions/listen`、MRTR 实际模式）需 Java SDK ≥ 3.0.0 才能 native 支持；截至 2026-08-03 未发布。本框架通过 callback 自动识别 `InputRequiredResult` / `TaskHandle` 返回值并写进 `_meta`——客户端按协议 2026-07-28 解析即可完整识别。
+
 ## Documentation & Roadmap
 
 - Full docs → [https://theeterna.github.io/server2mcp-docs/](https://theeterna.github.io/server2mcp-docs/)
+- Protocol 2026-07-28 集成矩阵 → [docs/mcp-2026-07-28-INTEGRATION-MATRIX.md](docs/mcp-2026-07-28-INTEGRATION-MATRIX.md)
 - Roadmap: Publish to Maven Central, stabilize SNAPSHOT deps, more parser plugins, SSE/Stream support
 
 ## Contributing

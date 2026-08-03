@@ -144,6 +144,9 @@ public class McpToolChangeNotifier {
      * programmatic triggering after manual controller edits.
      */
     public void notifyNow() {
+        // Alias for diffAndNotify — kept for callers that want a more
+        // imperative method name. Use resetSnapshot() + diffAndNotify() to
+        // force a notification regardless of last-snapshot.
         diffAndNotify();
     }
 
