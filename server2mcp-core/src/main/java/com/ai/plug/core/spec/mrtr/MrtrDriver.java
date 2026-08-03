@@ -87,12 +87,21 @@ public final class MrtrDriver {
             .orElseThrow(() -> new IllegalStateException(
                 "Unknown requestState: " + requestState
                     + " (session expired or never started)"));
+        // Round-limit guard — abandon before incrementing so the next
+        // call sees an empty store and the wrapper treats the state as
+        // stale (cf. MrtrToolCallbackWrapper stale-token branch).
+        int nextRound = existing.round() + 1;
+        int maxRounds = MrtrSafetyLimits.maxRounds();
+        if (nextRound > maxRounds) {
+            store.abandon(requestState);
+            throw new MrtrRoundLimitExceededException(requestState, maxRounds);
+        }
         // Append responses to history; round counter advances.
         store.append(requestState, responses);
         RoundContext ctx = new RoundContext(
             partialArgs == null ? Map.of() : partialArgs,
             responses.answers(),
-            existing.round() + 1);
+            nextRound);
         Outcome outcome = handler.apply(ctx);
         if (outcome.isDone()) {
             store.complete(requestState);
