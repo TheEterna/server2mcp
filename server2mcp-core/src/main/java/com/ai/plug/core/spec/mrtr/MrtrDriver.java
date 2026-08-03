@@ -1,5 +1,6 @@
 package com.ai.plug.core.spec.mrtr;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
@@ -98,9 +99,17 @@ public final class MrtrDriver {
         }
         // Append responses to history; round counter advances.
         store.append(requestState, responses);
+        // Merge all prior answers with the current round's so the handler
+        // sees the full conversation context (not just the latest round).
+        java.util.HashMap<String, Object> merged = new java.util.HashMap<>();
+        for (MrtrTypes.InputResponses prior : store.get(requestState)
+                .map(MrtrConversation::responseHistory).orElse(List.of())) {
+            if (prior.answers() != null) merged.putAll(prior.answers());
+        }
+        if (responses.answers() != null) merged.putAll(responses.answers());
         RoundContext ctx = new RoundContext(
             partialArgs == null ? Map.of() : partialArgs,
-            responses.answers(),
+            Map.copyOf(merged),
             nextRound);
         Outcome outcome = handler.apply(ctx);
         if (outcome.isDone()) {
