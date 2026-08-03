@@ -81,7 +81,7 @@
 | `tasks/list` | ✅ | `TasksEndpoint.handleList` + `JsonRpcRoutes` | — |
 | `tasks/cancel` | ✅ | `TasksEndpoint.handleCancel` + `JsonRpcRoutes` | — |
 | `tasks/augmented-prompt` | ✅ | `AugmentedPromptEndpoint.handleList/handleDrain` + `JsonRpcRoutes` | — |
-| `subscriptions/listen` | ✅ | `NotificationsPollingEndpoint.handlePoll` + `JsonRpcRoutes`（poll 模式）；SSE 长连接由 SDK 3.0.0 升级时切换 | Java SDK ≥ 3.0.0（仅 SSE 长连接） |
+| `subscriptions/listen` | ✅ | **两条路径均已实装**：`NotificationsPollingEndpoint.handlePoll`（HTTP poll）+ `JsonRpcRoutes`（JSON-RPC）+ `SseNotificationsController`（`GET /mcp/sse` 真 SSE 长连接，含 Last-Event-ID 断线续传、15s 心跳） | — |
 | `input_required/respond` | ✅ | `MrtrSessionStore.append` + `JsonRpcRoutes`；完整 MRTR 状态机：`MrtrDriver` + `MrtrConversation` + `MrtrCallbackHints` + **`MrtrToolCallbackWrapper`**（5 端到端测试）+ `MrtrSafetyLimits`（4 护栏测试） | — |
 
 **当下能做什么**：本框架在 converter 层**自动识别** `InputRequiredResult` / `TaskHandle` 返回值并把字段写进 `_meta`；MRTR 多轮状态机（`MrtrSessionStore` + `MrtrDriver` + `MrtrCallbackHints`）提供完整的 server 端多轮累积能力，handler 写 `MrtrDriver.start/resume` 即可获得 3 轮以上端到端演示（见 `MrtrConversationEndToEndTest`）。**协议 2026-07-28 全部 8 项 RPC 在 HTTP 层已模拟**（`DiscoverEndpoint` + `TasksEndpoint` + `TaskStore` + `NotificationsPollingEndpoint` + `AugmentedPromptEndpoint` + `AugmentedPromptStore`），并已在 `server2mcp-starter-webmvc` 通过 Spring MVC controllers 真挂载到 servlet 容器（`/mcp/discover` + `/mcp/tasks` + `/mcp/tasks/{id}` + `/mcp/tasks/{id}/cancel` + `/mcp/tasks/{id}/augmented-prompts` + `/mcp/notifications`），由 `ProtocolEndpointsAutoConfiguration` 自动装配——端到端集成测试 `ProtocolEndpointsIntegrationTest` 验证 HTTP 路由可达且返回协议 wire shape。
