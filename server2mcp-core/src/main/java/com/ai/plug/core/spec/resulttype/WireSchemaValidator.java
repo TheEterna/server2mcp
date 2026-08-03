@@ -62,15 +62,24 @@ public final class WireSchemaValidator {
      *                    the report's error messages
      */
     public static Report validateMeta(@Nullable Map<String, Object> meta, String sourceLabel) {
+        return validateMeta(meta, sourceLabel, REQUIRED_META_KEYS);
+    }
+
+    /**
+     * Validate with a custom required-flags set (overrides the default).
+     * Use this when testing a specific subset of required fields.
+     */
+    public static Report validateMeta(@Nullable Map<String, Object> meta, String sourceLabel,
+                                     Set<String> required) {
         Report report = new Report(sourceLabel);
         if (meta == null) {
             report.add("meta is null (no wire-layer hints at all)");
             return report;
         }
         // Required keys
-        for (String required : REQUIRED_META_KEYS) {
-            if (!meta.containsKey(required)) {
-                report.add("missing required key: " + required);
+        for (String req : required) {
+            if (!meta.containsKey(req)) {
+                report.add("missing required key: " + req);
             }
         }
         // resultType must be one of the valid literals
@@ -87,13 +96,27 @@ public final class WireSchemaValidator {
                 }
             }
         }
-        // ttlMs must be a non-negative number when present
+        // ttlMs must be a non-negative number when present.
+        // Accept Number directly OR a String parseable to long (defensive
+        // for transports that round-trip through JSON as strings).
         Object ttl = meta.get("ttlMs");
         if (ttl != null) {
-            if (!(ttl instanceof Number)) {
+            Long ttlLong = null;
+            if (ttl instanceof Number n) {
+                ttlLong = n.longValue();
+            }
+            else if (ttl instanceof String s) {
+                try {
+                    ttlLong = Long.parseLong(s);
+                }
+                catch (NumberFormatException ignored) {
+                    // fall through to error path below
+                }
+            }
+            if (ttlLong == null) {
                 report.add("ttlMs is not a Number: " + ttl.getClass().getName());
             }
-            else if (((Number) ttl).longValue() < 0) {
+            else if (ttlLong < 0) {
                 report.add("ttlMs must be >= 0, got: " + ttl);
             }
         }
