@@ -80,11 +80,11 @@
 | `tasks/get` | 🟡 | 同上（HTTP `GET /mcp/tasks/{id}`） | Java SDK ≥ 3.0.0 |
 | `tasks/list` | 🟡 | 同上（HTTP `GET /mcp/tasks`） | Java SDK ≥ 3.0.0 |
 | `tasks/cancel` | 🟡 | 同上（HTTP `POST /mcp/tasks/{id}/cancel`） | Java SDK ≥ 3.0.0 |
-| `tasks/augmented-prompt` | ❌ | 协议占位 stub | Java SDK ≥ 3.0.0 |
+| `tasks/augmented-prompt` | 🟡 | `AugmentedPromptStore` + `AugmentedPromptEndpoint`（HTTP 端点 `GET /mcp/tasks/{id}/augmented-prompts` + drain）已实装；SDK 升级后可切 JSON-RPC | Java SDK ≥ 3.0.0 |
 | `subscriptions/listen` | 🟡 | `NotificationsPollingEndpoint`（HTTP 轮询替代 SDK 的 SSE 长连接）已实装；SDK 升级后可切 SSE 长连接 = 0 业务代码改动 | Java SDK ≥ 3.0.0 |
 | `input_required/respond` | 🟡 | 协议 DTO + `MrtrSessionStore` + `MrtrDriver` + `MrtrCallbackHints` + 3 轮端到端测试已实装；仅缺 SDK 字段层直传 | Java SDK ≥ 3.0.0 |
 
-**当下能做什么**：本框架在 converter 层**自动识别** `InputRequiredResult` / `TaskHandle` 返回值并把字段写进 `_meta`；MRTR 多轮状态机（`MrtrSessionStore` + `MrtrDriver` + `MrtrCallbackHints`）提供完整的 server 端多轮累积能力，handler 写 `MrtrDriver.start/resume` 即可获得 3 轮以上端到端演示（见 `MrtrConversationEndToEndTest`）。**`server/discover` + `tasks/*` + `subscriptions/listen` 在 HTTP 层已模拟**（`DiscoverEndpoint` + `TasksEndpoint` + `TaskStore` + `NotificationsPollingEndpoint`），用户用任何 HTTP client（curl、Postman、自定义 transport）即可在 SDK 升级前调这些能力——客户端按协议 2026-07-28 解析响应即可获得完整信号——业务代码零改动。
+**当下能做什么**：本框架在 converter 层**自动识别** `InputRequiredResult` / `TaskHandle` 返回值并把字段写进 `_meta`；MRTR 多轮状态机（`MrtrSessionStore` + `MrtrDriver` + `MrtrCallbackHints`）提供完整的 server 端多轮累积能力，handler 写 `MrtrDriver.start/resume` 即可获得 3 轮以上端到端演示（见 `MrtrConversationEndToEndTest`）。**协议 2026-07-28 全部 8 项 RPC 在 HTTP 层已模拟**（`DiscoverEndpoint` + `TasksEndpoint` + `TaskStore` + `NotificationsPollingEndpoint` + `AugmentedPromptEndpoint` + `AugmentedPromptStore`），用户用任何 HTTP client（curl、Postman、自定义 transport）即可在 SDK 升级前调所有能力——客户端按协议 2026-07-28 解析响应即可获得完整信号——业务代码零改动。
 
 ---
 
