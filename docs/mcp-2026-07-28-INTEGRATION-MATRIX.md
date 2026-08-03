@@ -75,16 +75,16 @@
 
 | 方法 | 状态 | 实装入口 | 阻塞 |
 |---|---|---|---|
-| `server/discover` | ❌ | 协议 DTO 在 `com.ai.plug.core.spec.discover.DiscoverTypes`，但 SDK 2.0 无 JSON-RPC 路由 | Java SDK ≥ 3.0.0 |
-| `tasks/create` | ❌ | 协议 DTO 在 `com.ai.plug.core.spec.tasks.TaskTypes`；callback 自动识别 `TaskHandle` 返回值 | Java SDK ≥ 3.0.0 |
-| `tasks/get` | ❌ | 同上 | Java SDK ≥ 3.0.0 |
-| `tasks/list` | ❌ | 同上 | Java SDK ≥ 3.0.0 |
-| `tasks/cancel` | ❌ | 同上 | Java SDK ≥ 3.0.0 |
+| `server/discover` | 🟡 | DTO + `DiscoverEndpoint`（HTTP 层 `/mcp/discover` 模拟）已实装；SDK 升级后可切 JSON-RPC 路由 | Java SDK ≥ 3.0.0 |
+| `tasks/create` | 🟡 | DTO + `TaskStore` + `TasksEndpoint`（HTTP 层模拟）已实装；SDK 升级后可切 JSON-RPC 路由 | Java SDK ≥ 3.0.0 |
+| `tasks/get` | 🟡 | 同上（HTTP `GET /mcp/tasks/{id}`） | Java SDK ≥ 3.0.0 |
+| `tasks/list` | 🟡 | 同上（HTTP `GET /mcp/tasks`） | Java SDK ≥ 3.0.0 |
+| `tasks/cancel` | 🟡 | 同上（HTTP `POST /mcp/tasks/{id}/cancel`） | Java SDK ≥ 3.0.0 |
 | `tasks/augmented-prompt` | ❌ | 协议占位 stub | Java SDK ≥ 3.0.0 |
 | `subscriptions/listen` | ❌ | — | Java SDK ≥ 3.0.0 |
-| `input_required/respond` | 🟡 | 协议 DTO + `MrtrSessionStore` + `MrtrDriver` + 3 轮端到端测试已实装；仅缺 SDK 字段层直传 | Java SDK ≥ 3.0.0 |
+| `input_required/respond` | 🟡 | 协议 DTO + `MrtrSessionStore` + `MrtrDriver` + `MrtrCallbackHints` + 3 轮端到端测试已实装；仅缺 SDK 字段层直传 | Java SDK ≥ 3.0.0 |
 
-**当下能做什么**：本框架在 converter 层**自动识别** `InputRequiredResult` / `TaskHandle` 返回值并把字段写进 `_meta`；MRTR 多轮状态机（`MrtrSessionStore` + `MrtrDriver`）提供完整的 server 端多轮累积能力，handler 写 `MrtrDriver.start/resume` 即可获得 3 轮以上端到端演示（见 `MrtrConversationEndToEndTest`）。客户端按协议 2026-07-28 解析 `_meta` 即可获得完整信号——业务代码零改动。
+**当下能做什么**：本框架在 converter 层**自动识别** `InputRequiredResult` / `TaskHandle` 返回值并把字段写进 `_meta`；MRTR 多轮状态机（`MrtrSessionStore` + `MrtrDriver` + `MrtrCallbackHints`）提供完整的 server 端多轮累积能力，handler 写 `MrtrDriver.start/resume` 即可获得 3 轮以上端到端演示（见 `MrtrConversationEndToEndTest`）。**`server/discover` 和 `tasks/*` 在 HTTP 层已模拟**（`DiscoverEndpoint` + `TasksEndpoint` + `TaskStore`），用户用任何 HTTP client（curl、Postman、自定义 transport）即可在 SDK 升级前调这些能力——客户端按协议 2026-07-28 解析响应即可获得完整信号——业务代码零改动。
 
 ---
 
