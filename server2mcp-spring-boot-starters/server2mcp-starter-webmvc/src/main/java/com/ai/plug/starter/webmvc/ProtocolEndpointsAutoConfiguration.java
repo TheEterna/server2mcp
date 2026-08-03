@@ -119,22 +119,30 @@ public class ProtocolEndpointsAutoConfiguration {
 
     /**
      * Discover endpoint — needs a server name + version + capability source.
-     * Defaults to the values injected via {@code spring.ai.mcp.server.info}
-     * or sensible fallbacks. Override by registering a custom bean.
+     * Defaults to the framework's own {@link WireServerCapabilities}
+     * (protocol-2026-07-28 wire shape: tools.subscription /
+     * completions.listChanged / experimental.io.modelcontextprotocol/tasks).
+     * Override by registering a custom bean.
      */
     @Bean
     @ConditionalOnMissingBean(DiscoverEndpoint.class)
     public DiscoverEndpoint discoverEndpoint(
-            ObjectProvider<McpSchema.ServerCapabilities> capabilitiesProvider) {
-        Supplier<Object> capsSupplier = () -> {
-            McpSchema.ServerCapabilities caps = capabilitiesProvider.getIfAvailable();
-            return caps == null
-                ? io.modelcontextprotocol.spec.McpSchema.ServerCapabilities.builder().build()
-                : caps;
-        };
+            ObjectProvider<McpSchema.ServerCapabilities> capabilitiesProvider,
+            com.ai.plug.core.spec.capabilities.WireServerCapabilities wireServerCapabilities) {
+        Supplier<Object> capsSupplier = () -> wireServerCapabilities;
         Supplier<Map<String, Object>> extSupplier = () -> Map.of();
         return new DiscoverEndpoint("server2mcp", "1.1.4-SNAPSHOT",
             capsSupplier, extSupplier);
+    }
+
+    /**
+     * Default 2026-07-28 server capabilities — overridable via a custom
+     * {@code @Primary @Bean WireServerCapabilities}.
+     */
+    @Bean
+    @ConditionalOnMissingBean(com.ai.plug.core.spec.capabilities.WireServerCapabilities.class)
+    public com.ai.plug.core.spec.capabilities.WireServerCapabilities wireServerCapabilities() {
+        return com.ai.plug.core.spec.capabilities.WireServerCapabilities.full();
     }
 
     /** MVC configurer marker so Spring Boot picks up our controllers. */
@@ -201,5 +209,31 @@ public class ProtocolEndpointsAutoConfiguration {
         notifications.setListener(controller::broadcast);
         controller.startHeartbeat();
         return controller;
+    }
+
+    // ---- HTTP legacy endpoints (kept as fallback for older clients) ----
+
+    @Bean
+    @ConditionalOnMissingBean(DiscoverController.class)
+    public DiscoverController discoverController(DiscoverEndpoint discoverEndpoint) {
+        return new DiscoverController(discoverEndpoint);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean(TasksController.class)
+    public TasksController tasksController(TasksEndpoint tasksEndpoint) {
+        return new TasksController(tasksEndpoint);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean(NotificationsController.class)
+    public NotificationsController notificationsController(NotificationsPollingEndpoint notifications) {
+        return new NotificationsController(notifications);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean(AugmentedPromptsController.class)
+    public AugmentedPromptsController augmentedPromptsController(AugmentedPromptEndpoint endpoint) {
+        return new AugmentedPromptsController(endpoint);
     }
 }
