@@ -205,6 +205,68 @@ curl -X POST http://localhost:8080/.mcp/capabilities-snapshot/diff \
 - 协议层实装入口索引：`docs/mcp-2026-07-28-coverage.md`
 - 协议变更影响面：`docs/mcp-2026-07-28-impact.md`
 - Java 生态硬约束：`memory/mcp-protocol-ceiling-java.md`
-- 测试覆盖：493 测试全绿（截至 2026-08-03）
+- 100% 兼容战役盘点：`docs/logs/2026-08-03_ceo_protocol-2026-07-28-100pct-compat.md`
+- Demo 端到端 21/21 验证凭据：`docs/logs/2026-08-03_ceo_demo-end-to-end-21of21.md`
+- 测试覆盖：**597 测试全绿**（截至 2026-08-03 14:12）
 
-> **结论**：本框架在 SDK 2.0 物理约束下，**协议 2026-07-28 wire JSON 层字段全部可达**（通过 meta / experimental map 间接表达），**业务代码零改动**。SDK ≥ 3.0.0 发布后，迁移到字段层直传 = 0 代码改动 + 0 行为变更。
+---
+
+## 十一、端到端验收（21/21 实跑 2026-08-03 14:11）
+
+董事长独立可复现：
+
+```bash
+git clone <repo>
+cd api2mcp4j
+mvn clean install -DskipTests
+cd server2mcp-test && mvn spring-boot:run    # 默认端口 8888，H2 内存库，零外部依赖
+
+# 另开 shell
+bash scripts/verify-protocol-2026-07-28.sh http://localhost:8888
+```
+
+### 实跑验证输出（21/21 全绿）
+
+```
+== 0. liveness ==                       ✓ actuator reachable
+== 1. server/discover (JSON-RPC) ==    ✓×7 (jsonrpc=2.0, preferredVersion=2026-07-28,
+                                            tools.listChanged, tools.subscription,
+                                            completions.listChanged, experimental.tasks,
+                                            _meta.traceparent)
+== 2. tasks/* (JSON-RPC) ==            ✓×5 (create, get, list, cancel 全生命周期)
+== 3. tasks/augmented-prompt ==         ✓×1
+== 4. subscriptions/listen ==           ✓×3 (HTTP poll + text/event-stream + connected)
+== 5. input_required/respond ==         ✓×2 (accepted + state echo)
+== 6. HTTP legacy endpoints ==          ✓×2 (/mcp/discover + /mcp/notifications)
+== summary ==                           passed: 21 / failed: 0
+ALL ASSERTIONS PASSED — protocol 2026-07-28 wire verified
+```
+
+### 实跑 `server/discover` wire 抓样
+
+```json
+{
+  "jsonrpc": "2.0", "id": 1,
+  "result": {
+    "protocolVersions": ["2026-07-28", "2025-11-25"],
+    "preferredVersion": "2026-07-28",
+    "serverInfo": {"name": "server2mcp", "version": "1.1.4-SNAPSHOT"},
+    "capabilities": {
+      "tools": {"listChanged": true, "subscription": true},
+      "resources": {"subscribe": true, "listChanged": true},
+      "prompts": {"listChanged": true},
+      "completions": {"listChanged": true},
+      "experimental": {"io.modelcontextprotocol/tasks": {"subscribe": true}}
+    }
+  },
+  "_meta": {
+    "traceparent": "00-c88d6ff3814ce801a00b19b913dfe17d-c99b9ab1b8972d57-01"
+  }
+}
+```
+
+所有 2026-07-28-only 字段（`tools.subscription` / `completions.listChanged` / `experimental.io.modelcontextprotocol/tasks`）+ W3C `_meta.traceparent` 全部正确发射。
+
+---
+
+> **结论**：本框架在 SDK 2.0 物理约束下，**协议 2026-07-28 wire JSON 层字段全部可达**（通过 meta / experimental map 间接表达），**业务代码零改动**。按董事长 2026-08-03 13:16 授权直接接管 JSON-RPC 路由层 + SSE 长连接 + 自有 `WireServerCapabilities` schema，**SDK ≥ 3.0.0 发布后**迁移到字段层直传 = 0 代码改动 + 0 行为变更（controllers 保留作 fallback）。
