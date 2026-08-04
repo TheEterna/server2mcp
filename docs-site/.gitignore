@@ -1,0 +1,5 @@
+node_modules/
+.vitepress/dist/
+.vitepress/cache/
+*.log
+.DS_Store# Build output — Cloudflare Pages builds in their CI, not from this repo

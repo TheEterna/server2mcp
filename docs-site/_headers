@@ -1,0 +1,15 @@
+# Cloudflare Pages cache headers
+#
+# Strong caching for static assets, edge-cache for HTML.
+
+/.vitepress/dist/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/.vitepress/dist/*.js
+  Cache-Control: public, max-age=31536000, immutable
+
+/.vitepress/dist/*.css
+  Cache-Control: public, max-age=31536000, immutable
+
+/*
+  Cache-Control: public, max-age=0, must-revalidate

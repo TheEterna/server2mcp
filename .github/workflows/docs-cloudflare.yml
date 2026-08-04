@@ -1,0 +1,46 @@
+# GitHub Actions workflow — NOT used for direct deployment.
+# Cloudflare Pages connects to this repo and builds automatically per the
+# wrangler.toml / Cloudflare dashboard configuration. This file exists for
+# future needs (e.g. preview deployments from PRs, status badges, etc.).
+#
+# To enable Cloudflare Pages:
+#   1. Cloudflare dashboard → Pages → Create application → Direct Upload
+#      OR
+#      Cloudflare dashboard → Pages → Create application → Connect to Git
+#   2. Pick repo: TheEterna/api2mcp4j
+#   3. Build settings:
+#        Framework preset:    VitePress
+#        Build command:       bash scripts/build-docs.sh && cd docs-site && npm ci && npm run docs:build
+#        Build output:        docs-site/.vitepress/dist
+#        Root directory:      docs-site
+#        Environment vars:    NODE_VERSION=20
+#   4. Custom domain (set in Cloudflare dashboard):
+#        - docs.xiaohan.chat  (primary)
+#        - xiaohan.chat       (optional apex redirect)
+
+name: Docs Cloudflare Pages (informational)
+
+on:
+  workflow_dispatch:    # only manual trigger for now — CF Pages handles prod builds
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Mirror docs sources
+        run: bash scripts/build-docs.sh
+      - name: Install
+        working-directory: docs-site
+        run: npm ci
+      - name: Build
+        working-directory: docs-site
+        run: npm run docs:build
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: docs-site-dist
+          path: docs-site/.vitepress/dist

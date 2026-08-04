@@ -1,0 +1,27 @@
+# Cloudflare Pages configuration for the api2mcp4j docs site.
+#
+# Custom domain: docs.xiaohan.chat (xiaohan.chat zone)
+# Deploy flow:
+#   1. Cloudflare Pages connects to this GitHub repo (theeterna/api2mcp4j)
+#   2. Build command:     bash scripts/build-docs.sh && cd docs-site && npm ci && npm run docs:build
+#   3. Build output:      docs-site/.vitepress/dist
+#   4. Root directory:     docs-site
+#
+# After setup, every push to master rebuilds + deploys automatically.
+# Free tier: unlimited bandwidth, free SSL, edge cache, real-time logs.
+
+name = "api2mcp4j-docs"
+compatibility_date = "2026-08-04"
+
+[build]
+command = "cd .. && bash scripts/build-docs.sh && cd docs-site && npm ci && npm run docs:build"
+destination = ".vitepress/dist"
+
+# Cloudflare Pages auto-detects these from the dashboard; the wrangler.toml
+# section is mainly for parity with future Workers / KV bindings.
+
+# Custom domain binding — set in Cloudflare dashboard:
+#   Project → Custom domains → Set up a custom domain
+#   Domain: docs.xiaohan.chat
+# Cloudflare auto-provisions the certificate and the xiaohan.chat zone's
+# CNAME record. No wrangler.toml entry required for Pages custom domains.

@@ -1,0 +1,11 @@
+# Cloudflare Pages redirect rules
+#
+# Format: <from>  <to>  <status>
+# Examples below preserve the legacy GitHub Pages paths so old bookmarks
+# continue to resolve after the cutover.
+
+# Old GitHub Pages URL → new CF Pages URL (one-time cutover)
+/mcp-2026-07-28-INTEGRATION-MATRIX  /mcp-2026-07-28-INTEGRATION-MATRIX  301
+/specs/REGISTRATION_DISCIPLINE_SPEC  /specs/REGISTRATION_DISCIPLINE_SPEC  301
+/logs/2026-08-03_ceo_protocol-2026-07-28-100pct-compat  /logs/2026-08-03_ceo_protocol-2026-07-28-100pct-compat  301
+/logs/2026-08-03_ceo_demo-end-to-end-21of21  /logs/2026-08-03_ceo_demo-end-to-end-21of21  301
