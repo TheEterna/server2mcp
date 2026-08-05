@@ -1,5 +1,7 @@
 # api2mcp4j
 
+[![MCP Toplist](https://mcptoplist.com/badge/mcp.so%2Fserver2mcp%2FTheEterna.svg)](https://mcptoplist.com/server/mcp.so%2Fserver2mcp%2FTheEterna)
+
 **Turn your existing Spring Boot REST controllers into MCP (Model Context Protocol) tools — no rewrites, no `@Tool` everywhere.**
 
 ```xml
