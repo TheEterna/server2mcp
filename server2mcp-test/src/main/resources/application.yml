@@ -18,8 +18,8 @@ spring:
 #          mcp-endpoint: /api/mcp
 #          keep-alive-interval: 600s
   datasource:
-    # 演示应用默认走 H2 内存库；外部 MySQL（62.234.92.252）依赖移除，避免
-    # mvn spring-boot:run 因网络不可达启动失败。覆盖方式：本地设环境变量
+    # 演示应用默认走 H2 内存库；外部 MySQL 依赖移除，避免 mvn spring-boot:run
+    # 因网络不可达启动失败。覆盖方式：本地设环境变量
     # SPRING_DATASOURCE_URL=jdbc:mysql://host:port/db 即可切回 MySQL。
     driver-class-name: org.h2.Driver
     url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;MODE=MySQL

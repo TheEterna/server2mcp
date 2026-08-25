@@ -33,3 +33,20 @@ build/
 .vscode/
 *.log
 *.stackdump
+
+### Secrets & credentials (defense in depth) ###
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.keystore
+*.jks
+credentials*
+secrets*
+*.netrc
+id_rsa*
+id_dsa*
+id_ecdsa*
+id_ed25519*
