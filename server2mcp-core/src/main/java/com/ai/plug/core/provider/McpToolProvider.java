@@ -10,6 +10,8 @@ import com.ai.plug.core.spec.callback.tool.AsyncMcpToolMethodCallback;
 import com.ai.plug.core.spec.callback.tool.DefaultMcpCallToolResultConverter;
 import com.ai.plug.core.spec.callback.tool.McpCallToolResultConverter;
 import com.ai.plug.core.spec.callback.tool.SyncMcpToolMethodCallback;
+import com.ai.plug.core.tenant.TenantContext;
+import com.ai.plug.core.tenant.TenantPolicy;
 import io.modelcontextprotocol.server.McpServerFeatures;
 import io.modelcontextprotocol.spec.McpSchema;
 import io.modelcontextprotocol.spec.McpSchema.*;
@@ -68,6 +70,9 @@ public class McpToolProvider {
                     return Stream.of(doGetClassMethods(toolObject))
                             // scan 过滤
                             .filter((toolMethod) -> doToolFilter(toolMethod, toolDefinition))
+                            // 多租户隔离：denyAll=true 工具不出现在 list
+                            .filter((toolMethod) -> TenantPolicy.isVisible(
+                                toolMethod.getAnnotation(McpTool.class), TenantContext.get()))
                             // 过滤函数式方法
                             .filter(toolMethod -> !isFunctionalType(toolMethod, log))
                             .map(mcpToolMethod -> {
@@ -138,6 +143,9 @@ public class McpToolProvider {
                     return Stream.of(doGetClassMethods(toolObject))
                             // scan 过滤
                             .filter((toolMethod) -> doToolFilter(toolMethod, toolDefinition))
+                            // 多租户隔离：denyAll=true 工具不出现在 list
+                            .filter((toolMethod) -> TenantPolicy.isVisible(
+                                toolMethod.getAnnotation(McpTool.class), TenantContext.get()))
                             // 过滤函数式方法
                             .filter(toolMethod -> !isFunctionalType(toolMethod, log))
                             .map(mcpToolMethod -> {

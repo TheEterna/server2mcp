@@ -116,4 +116,31 @@ public @interface McpTool {
      * cacheScope 非默认时使用；某些集成期望不同 wrapper key 时可覆盖。
      */
     String cacheWrapperKey() default "_cacheable";
+
+    /**
+     * MCP 协议扩展（多租户隔离）：允许访问本工具的租户 ID 列表。
+     * <ul>
+     *   <li>空数组（默认）= 所有已认证租户都可见。零配置迁移；</li>
+     *   <li>非空 = 仅白名单内的租户 ID 能在 {@code tools/list} 看到
+     *       本工具、能在 {@code tools/call} 调用本工具；</li>
+     *   <li>匹配规则：精确字符串相等（区分大小写）。</li>
+     * </ul>
+     *
+     * <p>租户 ID 解析由 {@code com.ai.plug.core.tenant.TenantResolver}
+     * SPI 实现，默认从 {@code X-Mcp-Tenant} HTTP header 读取。
+     * 调用阶段（{@code tools/call}）会再次校验，防止绕过 list 直接
+     * 调 ID 触发越权。
+     *
+     * <p>优先级：{@link #denyAll()} &gt; {@link #tenants()}。
+     * 当 {@code denyAll=true} 时，本工具对所有租户隐藏（包括 admin），
+     * 适用于内部/平台级工具。
+     */
+    String[] tenants() default {};
+
+    /**
+     * 当为 {@code true} 时，工具对所有租户隐藏（含 admin 角色）。
+     * 用于内部/平台级工具——例如健康检查、缓存预热、admin 维护接口。
+     * 优先级高于 {@link #tenants()}。
+     */
+    boolean denyAll() default false;
 }

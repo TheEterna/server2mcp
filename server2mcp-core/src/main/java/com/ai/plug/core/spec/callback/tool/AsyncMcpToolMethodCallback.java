@@ -1,5 +1,7 @@
 package com.ai.plug.core.spec.callback.tool;
 
+import com.ai.plug.core.tenant.TenantContext;
+import com.ai.plug.core.tenant.TenantPolicy;
 import io.modelcontextprotocol.server.McpAsyncServerExchange;
 import io.modelcontextprotocol.spec.McpSchema;
 import org.slf4j.Logger;
@@ -59,6 +61,12 @@ public class AsyncMcpToolMethodCallback extends AbstractMcpToolMethodCallback
         // Capture request for downstream converters (OpenTelemetry trace
         // forwarding, paging auto-slice, etc.).
         this.captureRequest(callToolRequest);
+
+        // Multi-tenant gate: reject early before any user code runs.
+        // Done outside Mono.fromCallable so a synchronous denial produces
+        // a McpAccessDeniedException that propagates as-is, not wrapped
+        // in McpToolMethodException.
+        TenantPolicy.requireAccess(this.toolAnnotation, this.name, TenantContext.get());
 
         // Idempotent dedup: if @McpTool.idempotentHint=true and a cache is
         // configured, return cached CallToolResult for repeated calls within

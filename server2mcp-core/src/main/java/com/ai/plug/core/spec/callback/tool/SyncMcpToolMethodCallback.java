@@ -1,5 +1,7 @@
 package com.ai.plug.core.spec.callback.tool;
 
+import com.ai.plug.core.tenant.TenantContext;
+import com.ai.plug.core.tenant.TenantPolicy;
 import io.modelcontextprotocol.server.McpSyncServerExchange;
 import io.modelcontextprotocol.spec.McpSchema;
 import org.slf4j.Logger;
@@ -58,6 +60,12 @@ public class SyncMcpToolMethodCallback extends AbstractMcpToolMethodCallback
         // Capture request for downstream converters (OpenTelemetry trace
         // forwarding, paging auto-slice, etc.).
         this.captureRequest(callToolRequest);
+
+        // Multi-tenant gate: reject early before any user code runs.
+        // Done outside the try/catch so McpAccessDeniedException is NOT
+        // wrapped as McpToolMethodException — it should bubble to the
+        // JSON-RPC router which maps it to a 403 / JSON-RPC error code.
+        TenantPolicy.requireAccess(this.toolAnnotation, this.name, TenantContext.get());
 
         // Idempotent dedup: if @McpTool.idempotentHint=true and a cache is
         // configured, return the cached CallToolResult for repeated calls within

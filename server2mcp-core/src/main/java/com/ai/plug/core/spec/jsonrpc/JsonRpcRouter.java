@@ -1,5 +1,6 @@
 package com.ai.plug.core.spec.jsonrpc;
 
+import com.ai.plug.core.observability.McpTracer;
 import com.ai.plug.core.spec.meta.MetaUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,6 +45,20 @@ public final class JsonRpcRouter {
     private final Map<String, Function<Map<String, Object>, Object>> handlers =
         new ConcurrentHashMap<>();
 
+    private final McpTracer tracer;
+
+    /** Default constructor — uses {@link McpTracer#NOOP} so callers
+     *  that don't care about tracing pay no cost. */
+    public JsonRpcRouter() {
+        this(McpTracer.NOOP);
+    }
+
+    /** Constructor that wires a real {@link McpTracer}. Pass an
+     *  OTel-bridged implementation to emit real spans. */
+    public JsonRpcRouter(McpTracer tracer) {
+        this.tracer = tracer == null ? McpTracer.NOOP : tracer;
+    }
+
     /** Register {@code handler} for {@code method}. Replaces any previous
      *  registration under the same name (last-write-wins). */
     public void register(String method, Function<Map<String, Object>, Object> handler) {
@@ -83,17 +98,27 @@ public final class JsonRpcRouter {
         Map<String, Object> params = request.params() != null
             ? request.params()
             : Map.of();
-        try {
-            Object result = handler.apply(params);
-            return JsonRpcResponse.successWithMeta(result, request.id(), mintMeta(params));
-        } catch (RuntimeException ex) {
-            logger.error("Handler for method={} failed: {}", request.method(), ex.toString());
-            return new JsonRpcResponse(
-                "2.0", null,
-                JsonRpcResponse.JsonRpcError.of(
-                    JsonRpcResponse.JsonRpcError.INTERNAL_ERROR,
-                    ex.getClass().getSimpleName() + ": " + ex.getMessage()),
-                request.id(), mintMeta(params));
+        // OpenTelemetry: emit a span for every JSON-RPC dispatch.
+        // NoopMcpTracer is a constant-time no-op, so this is free in
+        // deployments that haven't registered a real McpTracer bean.
+        Map<String, Object> spanAttrs = new HashMap<>();
+        spanAttrs.put("mcp.jsonrpc.method", request.method());
+        spanAttrs.put("mcp.jsonrpc.id", String.valueOf(request.id()));
+        try (McpTracer.Span span = tracer.startSpan("mcp.jsonrpc.dispatch", spanAttrs)) {
+            try {
+                Object result = handler.apply(params);
+                return JsonRpcResponse.successWithMeta(result, request.id(), mintMeta(params));
+            } catch (RuntimeException ex) {
+                logger.error("Handler for method={} failed: {}", request.method(), ex.toString());
+                span.recordException(ex);
+                span.setAttribute("error", true);
+                return new JsonRpcResponse(
+                    "2.0", null,
+                    JsonRpcResponse.JsonRpcError.of(
+                        JsonRpcResponse.JsonRpcError.INTERNAL_ERROR,
+                        ex.getClass().getSimpleName() + ": " + ex.getMessage()),
+                    request.id(), mintMeta(params));
+            }
         }
     }
 
