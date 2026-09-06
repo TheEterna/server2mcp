@@ -8,6 +8,46 @@
 
     <name>server2mcp-parent</name>
 
+    <description>Spring Boot Starter: Auto-convert existing REST APIs (@RestController) to MCP Server with zero/low-code.</description>
+    <url>https://github.com/TheEterna/api2mcp4j</url>
+
+    <licenses>
+        <license>
+            <name>Apache License, Version 2.0</name>
+            <url>https://www.apache.org/licenses/LICENSE-2.0</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <id>han</id>
+            <name>Han</name>
+            <email>han@xiaohan.chat</email>
+            <url>https://github.com/TheEterna</url>
+            <organization>TheEterna</organization>
+            <organizationUrl>https://github.com/TheEterna</organizationUrl>
+        </developer>
+    </developers>
+
+    <scm>
+        <connection>scm:git:git://github.com/TheEterna/api2mcp4j.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com/TheEterna/api2mcp4j.git</developerConnection>
+        <url>https://github.com/TheEterna/api2mcp4j</url>
+        <tag>master</tag>
+    </scm>
+
+    <distributionManagement>
+        <snapshotRepository>
+            <id>ossrh</id>
+            <url>https://s01.oss.sonatype.org/content/repositories/snapshots/</url>
+        </snapshotRepository>
+        <repository>
+            <id>ossrh</id>
+            <url>https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+        </repository>
+    </distributionManagement>
+
     <properties>
         <java.version>17</java.version>
         <project.version>1.0.0</project.version>
@@ -20,6 +60,8 @@
         <mcp-sdk.version>2.0.0</mcp-sdk.version>
         <jakarta.validation-api.version>3.1.0</jakarta.validation-api.version>
         <javax.validation-api.version>2.0.1.Final</javax.validation-api.version>
+        <!-- Sonatype requires these. Centralised so all child poms inherit. -->
+        <gpg.skip>true</gpg.skip>
     </properties>
 
 
@@ -183,7 +225,100 @@
                 </configuration>
             </plugin>
 
+            <!-- Source jar (Sonatype requires sources alongside binaries) -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>3.3.1</version>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <goals><goal>jar-no-fork</goal></goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- Javadoc jar (Sonatype requires it) -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>3.10.0</version>
+                <executions>
+                    <execution>
+                        <id>attach-javadocs</id>
+                        <goals><goal>jar</goal></goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <doclint>none</doclint>
+                    <source>${java.version}</source>
+                </configuration>
+            </plugin>
+
+            <!-- GPG sign every artifact. Skip by default (`-Dgpg.skip=false`
+                 to enable). One secret (Sonatype token) plus one env var
+                 (GPG passphrase) is enough. -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-gpg-plugin</artifactId>
+                <version>3.2.7</version>
+                <executions>
+                    <execution>
+                        <id>sign-artifacts</id>
+                        <phase>verify</phase>
+                        <goals><goal>sign</goal></goals>
+                        <configuration>
+                            <skip>${gpg.skip}</skip>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- Sonatype staging deploy. Use `-Psonatype-oss-release` to
+                 enable (profile lives in this file). -->
+            <plugin>
+                <groupId>org.sonatype.plugins</groupId>
+                <artifactId>nexus-staging-maven-plugin</artifactId>
+                <version>1.7.0</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <serverId>ossrh</serverId>
+                    <nexusUrl>https://s01.oss.sonatype.org/</nexusUrl>
+                    <autoReleaseAfterClose>true</autoReleaseAfterClose>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <!-- Sonatype OSSRH release. Activate with `-Psonatype-oss-release`.
+             Required env vars:
+               SONATYPE_USERNAME  — your sonatype.org user
+               SONATYPE_PASSWORD  — your sonatype.org token
+               GPG_PASSPHRASE     — the passphrase for your GPG key
+             Before first use: register the GPG public key on a public
+             keyserver (e.g. keyserver.ubuntu.com) and verify your
+             ownership of com.ai.plug groupId via JIRA. -->
+        <profile>
+            <id>sonatype-oss-release</id>
+            <properties>
+                <gpg.skip>false</gpg.skip>
+            </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <configuration>
+                            <gpgArguments>
+                                <arg>--pinentry-mode</arg>
+                                <arg>loopback</arg>
+                            </gpgArguments>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 
 </project>
